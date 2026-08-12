@@ -49,3 +49,11 @@ npm run validate:exhaustive
 ### Supabase 環境變數
 
 複製 `.env.example` 為 `.env.local`，填入專屬 Supabase 專案的 URL 與 secret key。這兩個變數都只能存在伺服器端，不可加上 `NEXT_PUBLIC_`。
+
+## Phase 5 教練後台
+
+- `/coach/login` 使用獨立後台密碼登入，成功後建立 8 小時有效的簽章 HttpOnly Session。
+- `/coach` 顯示累積報告數、每頁 50 筆名單，支援姓名或報告編號搜尋與上一頁／下一頁。
+- `/coach/reports/[reportId]` 顯示教練專用路由、準備度、Business Fit、風險旗標、諮詢優先級、原始作答與客戶版報告預覽。
+- 所有後台頁面均禁止搜尋引擎收錄；未登入請求會導向登入頁。
+- 正式環境必須設定 `COACH_ADMIN_PASSWORD` 與至少 32 字元的 `COACH_SESSION_SECRET`，否則後台拒絕登入。
