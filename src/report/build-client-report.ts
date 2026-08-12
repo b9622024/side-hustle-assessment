@@ -46,6 +46,14 @@ function buildOverview(primary: string, secondary: string, dimensions: Record<Di
   return `你的主要傾向是「${primary}」，並帶有「${secondary}」的輔助特質。${config.dimensions[strongest].label}是目前較突出的行動資源，適合從能快速驗證、逐步累積成果的方式開始。`;
 }
 
+export function calculateAssessmentScoring(assessment: AssessmentInput, astrology: AstrologyProfile) {
+  const lifePath = calculateLifePath(assessment.birthDate);
+  return scoreAssessment(assessment, {
+    astrology: calculateAstrologyTypes(astrology),
+    numerology: calculateNumerologyTypes(lifePath),
+  });
+}
+
 export function buildClientReport(input: {
   reportId: string;
   assessment: AssessmentInput;
@@ -53,11 +61,7 @@ export function buildClientReport(input: {
   generatedAt?: string;
 }): ClientReportData {
   const lifePath = calculateLifePath(input.assessment.birthDate);
-  const personality = {
-    astrology: calculateAstrologyTypes(input.astrology),
-    numerology: calculateNumerologyTypes(lifePath),
-  };
-  const scoring = scoreAssessment(input.assessment, personality);
+  const scoring = calculateAssessmentScoring(input.assessment, input.astrology);
   const [primary, secondary] = scoring.rankedTypes;
   if (!primary || !secondary) throw new Error("TYPE_RANKING_INCOMPLETE");
 

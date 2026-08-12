@@ -35,4 +35,17 @@ npm run validate:exhaustive
 - 報告包含星座工作風格、生命靈數、副業行動輪廓、六種副業模式、五項摩擦風險與四條執行偏好光譜。
 - 支援桌面雙欄、手機單欄與列印版面；雷達圖使用伺服器端 SVG，不增加客戶端圖表套件。
 - 開發模式可於 `/internal/report-preview` 查看隔離的範例資料；正式環境會回傳 404。
-- 目前尚未串接星盤計算服務或資料庫；正式報告產生器接受已計算完成的太陽、月亮與上升資料。
+- 報告產生器接受太陽、月亮與上升資料；第四階段開始串接伺服器端保存與基本星座自動計算。
+
+## Phase 4 資料保存與自動產生
+
+- `/api/assessments` 會在伺服器端驗證輸入、計算基本星座資料、執行評分並建立客戶安全版報告。
+- Supabase migration 建立 `assessments` 與 `client_reports`，透過受限 RPC 在同一個 transaction 保存。
+- 兩張表均啟用 RLS，撤銷 `anon`／`authenticated` 權限，只允許伺服器端 secret key 存取。
+- 正式環境若未設定資料庫會回傳 503，不會產生一個其實沒有保存的測驗編號。
+- 開發與測試環境可以在未連線資料庫時執行完整產生流程，API 會明確回傳 `persisted: false`。
+- 目前自動計算太陽星座；月亮與上升預留正式天文計算輸入，待地點經緯度／時區服務接入。
+
+### Supabase 環境變數
+
+複製 `.env.example` 為 `.env.local`，填入專屬 Supabase 專案的 URL 與 secret key。這兩個變數都只能存在伺服器端，不可加上 `NEXT_PUBLIC_`。
