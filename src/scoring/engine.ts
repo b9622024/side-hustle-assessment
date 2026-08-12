@@ -1,6 +1,6 @@
-import { config, CONFIG_GAPS } from "./config.js";
-import { DIMENSIONS, QUESTION_IDS, SIDE_HUSTLE_TYPES } from "./types.js";
-import type { Answers, AssessmentInput, AstrologyScoringInput, Dimension, LifePathNumber, Option, PersonalityScores, QuestionId, RiskFlag, Route, ScoreMap, ScoringResult, SideHustleType } from "./types.js";
+import { config, CONFIG_GAPS } from "./config";
+import { DIMENSIONS, QUESTION_IDS, SIDE_HUSTLE_TYPES } from "./types";
+import type { Answers, AssessmentInput, AstrologyScoringInput, Dimension, LifePathNumber, Option, PersonalityScores, QuestionId, RiskFlag, Route, ScoreMap, ScoringResult, SideHustleType } from "./types";
 
 const clamp = (value:number,min:number,max:number) => Math.min(max,Math.max(min,value));
 const sum = (values:number[]) => values.reduce((a,b)=>a+b,0);

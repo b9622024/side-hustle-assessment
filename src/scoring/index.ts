@@ -1,3 +1,3 @@
-export * from "./types.js";
-export * from "./engine.js";
-export { config, CONFIG_GAPS } from "./config.js";
+export * from "./types";
+export * from "./engine";
+export { config, CONFIG_GAPS } from "./config";

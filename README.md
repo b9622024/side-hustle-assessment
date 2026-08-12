@@ -19,3 +19,12 @@ npm run validate:exhaustive
 - Behavior Type 低於 3.0 時，Final Type 仍以 3.4 封頂。
 - Business Fit 保留原權重與 Behavior-only 原則，使用問卷可達範圍正規化至 1～5。
 - 修正 A、C 實務不可達與高適配近 A 個案誤落 D 的 Routing 缺口。
+
+## Phase 2 測驗表單
+
+- Next.js App Router 測驗流程：基本資料 → 副業現況 → 10 題行為題 → 確認送出。
+- 每頁最多兩題，提供進度條、上一頁與下一頁。
+- 使用版本化 localStorage 暫存，重新整理後答案不遺失。
+- `/api/assessments` 執行伺服器端輸入驗證並產生 `SH-YYYYMMDD-XXXXXX` 編號。
+- `/complete` 只顯示測驗編號，不洩漏 ABCD、Readiness、Business Fit 或教練資料。
+- Phase 2 尚未串接資料庫，完成資料不會永久保存。
