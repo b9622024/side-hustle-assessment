@@ -1,0 +1,1487 @@
+{
+  "meta": {
+    "config_name": "副業適性測驗 Machine-readable Scoring Config",
+    "config_version": "side-hustle-scoring-config-1.0.0",
+    "questionnaire_version": "side-hustle-behavior-10q-1.0.0",
+    "scoring_engine_version": "side-hustle-scoring-1.0.0",
+    "routing_rule_version": "side-hustle-routing-1.0.0",
+    "language": "zh-TW",
+    "score_display": {
+      "core_dimensions": {
+        "min": 1.0,
+        "max": 5.0,
+        "round_digits": 1
+      },
+      "type_scores": {
+        "min": 1.0,
+        "max": 5.0,
+        "round_digits": 1
+      },
+      "frictions": {
+        "min": 0.0,
+        "max": 10.0,
+        "round_digits": 1
+      },
+      "spectrums": {
+        "min": 0.0,
+        "max": 10.0,
+        "round_digits": 1
+      },
+      "readiness": {
+        "min": 1.0,
+        "max": 5.0,
+        "round_digits": 1
+      },
+      "business_fit": {
+        "min": 1.0,
+        "max": 5.0,
+        "round_digits": 1
+      }
+    }
+  },
+  "dimensions": {
+    "A": {
+      "key": "ACTION",
+      "label": "自主行動力"
+    },
+    "C": {
+      "key": "CONSISTENCY",
+      "label": "持續經營力"
+    },
+    "S": {
+      "key": "SYSTEM",
+      "label": "系統學習力"
+    },
+    "I": {
+      "key": "INFLUENCE",
+      "label": "表達影響力"
+    },
+    "R": {
+      "key": "RELATIONSHIP",
+      "label": "關係連結力"
+    },
+    "P": {
+      "key": "PROBLEM_SOLVING",
+      "label": "問題解決力"
+    },
+    "K": {
+      "key": "CAPITAL",
+      "label": "資本配置偏好"
+    }
+  },
+  "business_status_options": {
+    "NONE": "還沒有，目前正在找適合自己的方向",
+    "TRIED_NOT_ACTIVE": "曾經嘗試過一些副業，但沒有持續下來",
+    "ACTIVE": "目前已經有在經營副業、接案或個人品牌",
+    "STABLE": "已經有穩定經營的副業／事業，也有固定客戶或收入"
+  },
+  "questionnaire": [
+    {
+      "id": "Q1",
+      "text": "當你對一個新的副業機會產生興趣時，你通常會先做什麼？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "先找完整的方法、流程或教學，了解怎麼做",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "先實際做一點看看，再從過程中調整",
+          "dimensions": {
+            "A": 2,
+            "C": 0,
+            "S": 0,
+            "I": 1,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "先找做過的人聊聊，了解真實經驗",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 2,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "先評估需要投入多少時間、金錢，以及可能的回報",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q2",
+      "text": "如果一件事需要持續半年，才可能慢慢看到明顯成果，你比較接近哪一種？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "只要方向合理，我可以接受慢慢累積",
+          "dimensions": {
+            "A": 0,
+            "C": 2,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "可以，但過程中最好能持續看到一些小成果",
+          "dimensions": {
+            "A": 2,
+            "C": 1,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我會持續找方法，看看能不能做得更有效率",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "如果很長時間都沒有明顯成果，我可能會換其他方向",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "Q3",
+      "text": "當身邊的人遇到一個你熟悉的問題時，你通常比較像？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "幫他分析原因，再給他具體做法",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "分享自己的經驗，讓他從中得到一些想法",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 1,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "先聽他說，陪他釐清真正卡住的地方",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 2,
+            "P": 1,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "幫他整理相關資料、工具或資訊",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "Q4",
+      "text": "如果未來要透過一種方式增加第二收入，哪一種最吸引你？",
+      "weight": 1.25,
+      "high_discrimination": true,
+      "options": {
+        "A": {
+          "text": "建立一套能持續運作、甚至可以複製的系統",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "分享自己的觀點或內容，慢慢累積影響力",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "用自己的經驗或方法幫別人解決問題",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 1,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "透過資金配置，讓資產慢慢產生更多收益",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q5",
+      "text": "如果你學會了一項很實用的新能力，你最可能怎麼做？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "繼續練習，先把它做到熟練",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "開始把心得分享給別人",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "想想這項能力可以幫誰解決問題",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "把它整理成一套更有效率、可以重複使用的方法",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "Q6",
+      "text": "如果副業需要接觸原本不認識的人，你比較接近哪一種？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "只要有共同話題，我不太排斥主動認識新的人",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 2,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "我比較習慣對方先來找我，但聊起來後可以很深入",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 1,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我比較喜歡透過內容、作品或專業，讓別人先認識我",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "我會比較希望自己的副業盡量不用頻繁和陌生人互動",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "Q7",
+      "text": "如果每週固定要投入大約 5～7 小時建立第二收入，你比較希望怎麼安排？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "固定安排幾個時段，按照計畫做",
+          "dimensions": {
+            "A": 0,
+            "C": 2,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "保持彈性，有空時再集中完成",
+          "dimensions": {
+            "A": 2,
+            "C": 1,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "有明確任務或進度安排，我跟著節奏執行",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 1,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "如果可以，我會更希望投入資金，而不是固定投入很多時間",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q8",
+      "text": "當你知道某個方法已經有很多人實際做成功，你通常會？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "先照著方法做，掌握後再慢慢調整",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "理解基本原則後，很快就會加入自己的做法",
+          "dimensions": {
+            "A": 2,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我會先想弄懂它為什麼有效，再決定怎麼做",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "即使有效，我還是不太喜歡照著既有的方法走",
+          "dimensions": {
+            "A": 2,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "Q9",
+      "text": "下面哪一種成果最容易讓你有「這件事值得做」的感覺？",
+      "weight": 1.25,
+      "high_discrimination": true,
+      "options": {
+        "A": {
+          "text": "有人因為我的幫助，真的得到改善",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 1,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "我的想法或內容被更多人看見、認同",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我把一件事情做得越來越有效率、越來越成熟",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "我的收入或資產有很明顯的成長",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q10",
+      "text": "如果副業發展得很順利，你最希望它最後變成什麼？",
+      "weight": 1.25,
+      "high_discrimination": true,
+      "options": {
+        "A": {
+          "text": "一個可以長期穩定經營的第二事業",
+          "dimensions": {
+            "A": 0,
+            "C": 2,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "一個屬於自己的品牌與影響力",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "一項別人願意付費找我的專業服務",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "一種可以慢慢降低時間投入的資產型收入",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 2
+          }
+        }
+      }
+    }
+  ],
+  "dimension_normalization": {
+    "strategy": "dynamic_max_by_question",
+    "formula": "1 + 4 * raw_score / max_raw",
+    "max_raw_rule": "For each dimension, sum the maximum weighted value available from each question.",
+    "clamp": [
+      1.0,
+      5.0
+    ],
+    "round_display_digits": 1,
+    "computed_max_raw_v1": {
+      "A": 13.75,
+      "C": 12.0,
+      "S": 19.25,
+      "I": 14.5,
+      "R": 9.5,
+      "P": 17.5,
+      "K": 13.5
+    }
+  },
+  "type_formulas": {
+    "SYSTEM_OPERATOR": {
+      "label": "系統經營型",
+      "weights": {
+        "S": 0.4,
+        "C": 0.3,
+        "A": 0.2,
+        "P": 0.1
+      }
+    },
+    "CONTENT_INFLUENCER": {
+      "label": "內容影響型",
+      "weights": {
+        "I": 0.5,
+        "A": 0.25,
+        "S": 0.15,
+        "R": 0.1
+      }
+    },
+    "CONSULTING_SERVICE": {
+      "label": "顧問服務型",
+      "weights": {
+        "P": 0.45,
+        "R": 0.25,
+        "C": 0.2,
+        "A": 0.1
+      }
+    },
+    "RELATIONSHIP_BUILDER": {
+      "label": "關係經營型",
+      "weights": {
+        "R": 0.45,
+        "P": 0.2,
+        "C": 0.2,
+        "A": 0.15
+      }
+    },
+    "PROFESSIONAL_SKILL": {
+      "label": "專業技能型",
+      "weights": {
+        "S": 0.35,
+        "P": 0.3,
+        "A": 0.25,
+        "I": 0.1
+      }
+    },
+    "CAPITAL_ALLOCATOR": {
+      "label": "資本配置型",
+      "weights": {
+        "K": 0.65,
+        "P": 0.15,
+        "C": 0.1,
+        "A": 0.1
+      }
+    }
+  },
+  "personality_merge": {
+    "behavior_weight": 0.75,
+    "numerology_weight": 0.15,
+    "astrology_weight": 0.1,
+    "formula": "final_type = behavior*0.75 + numerology*0.15 + astrology*0.10",
+    "guardrail": {
+      "if_behavior_type_score_below": 3.0,
+      "final_type_score_cap": 3.4
+    }
+  },
+  "type_state_rules": {
+    "CLEAR": {
+      "condition": "top1 - top2 >= 0.35",
+      "label": "明確型"
+    },
+    "MIXED": {
+      "condition": "top1 - top2 < 0.35 AND top1 >= 3.5 AND top2 >= 3.5",
+      "label": "混合型"
+    },
+    "EXPLORATORY": {
+      "condition_any": [
+        "top1 < 3.5",
+        "top1-top2 < 0.25 AND top2-top3 < 0.25"
+      ],
+      "label": "多元探索型"
+    }
+  },
+  "readiness": {
+    "components": {
+      "R1_start_style": {
+        "question": "Q1",
+        "option_scores": {
+          "A": 4.5,
+          "B": 5.0,
+          "C": 4.0,
+          "D": 3.5
+        },
+        "weight": 0.15
+      },
+      "R2_result_patience": {
+        "question": "Q2",
+        "option_scores": {
+          "A": 5.0,
+          "B": 3.5,
+          "C": 4.0,
+          "D": 1.5
+        },
+        "weight": 0.25
+      },
+      "R3_time_commitment": {
+        "question": "Q7",
+        "option_scores": {
+          "A": 5.0,
+          "B": 4.0,
+          "C": 4.5,
+          "D": 1.5
+        },
+        "weight": 0.25
+      },
+      "R4_system_learning": {
+        "question": "Q8",
+        "option_scores": {
+          "A": 5.0,
+          "B": 4.5,
+          "C": 4.0,
+          "D": 2.0
+        },
+        "weight": 0.2
+      },
+      "R5_long_term_intent": {
+        "question": "Q10",
+        "option_scores": {
+          "A": 5.0,
+          "B": 4.5,
+          "C": 4.5,
+          "D": 2.0
+        },
+        "weight": 0.15
+      }
+    },
+    "levels": [
+      {
+        "key": "READY_HIGH",
+        "label": "高度準備",
+        "min": 4.2,
+        "max": 5.0
+      },
+      {
+        "key": "READY",
+        "label": "具備準備度",
+        "min": 3.6,
+        "max": 4.199999
+      },
+      {
+        "key": "EXPLORING",
+        "label": "探索階段",
+        "min": 3.0,
+        "max": 3.599999
+      },
+      {
+        "key": "LOW",
+        "label": "暫不適合投入經營型副業",
+        "min": 1.0,
+        "max": 2.999999
+      }
+    ]
+  },
+  "frictions": {
+    "normalization_helpers": {
+      "norm_formula": "10 * (dimension_score - 1) / 4",
+      "reverse_norm_formula": "10 * (5 - dimension_score) / 4"
+    },
+    "START_HESITATION": {
+      "label": "啟動猶豫",
+      "sources": {
+        "Q1": {
+          "A": 4,
+          "B": 1,
+          "C": 3,
+          "D": 5
+        },
+        "A_reverse_norm": true
+      },
+      "formula_weights": {
+        "Q1": 0.6,
+        "A_reverse_norm": 0.4
+      }
+    },
+    "CONSISTENCY_PRESSURE": {
+      "label": "穩定投入壓力",
+      "sources": {
+        "Q2": {
+          "A": 1,
+          "B": 4,
+          "C": 3,
+          "D": 9
+        },
+        "Q7": {
+          "A": 1,
+          "B": 4,
+          "C": 2,
+          "D": 10
+        },
+        "C_reverse_norm": true
+      },
+      "formula_weights": {
+        "Q2": 0.35,
+        "Q7": 0.35,
+        "C_reverse_norm": 0.3
+      }
+    },
+    "SYSTEM_RESISTANCE": {
+      "label": "系統配合阻力",
+      "sources": {
+        "Q8": {
+          "A": 1,
+          "B": 3,
+          "C": 2,
+          "D": 10
+        },
+        "S_reverse_norm": true
+      },
+      "formula_weights": {
+        "Q8": 0.7,
+        "S_reverse_norm": 0.3
+      }
+    },
+    "STRANGER_INTERACTION_PRESSURE": {
+      "label": "陌生互動壓力",
+      "sources": {
+        "Q6": {
+          "A": 1,
+          "B": 3,
+          "C": 2,
+          "D": 9
+        },
+        "R_reverse_norm": true
+      },
+      "formula_weights": {
+        "Q6": 0.8,
+        "R_reverse_norm": 0.2
+      }
+    },
+    "RESULT_ANXIETY": {
+      "label": "成果焦慮",
+      "sources": {
+        "Q2": {
+          "A": 1,
+          "B": 5,
+          "C": 3,
+          "D": 10
+        },
+        "Q9": {
+          "A": 2,
+          "B": 4,
+          "C": 2,
+          "D": 7
+        },
+        "C_reverse_norm": true
+      },
+      "formula_weights": {
+        "Q2": 0.5,
+        "Q9": 0.2,
+        "C_reverse_norm": 0.3
+      }
+    }
+  },
+  "execution_spectrums": {
+    "FREEDOM_VS_STRUCTURE": {
+      "label_left": "自由摸索",
+      "label_right": "明確系統",
+      "sources": {
+        "Q1": {
+          "A": 9,
+          "B": 2,
+          "C": 6,
+          "D": 5
+        },
+        "Q8": {
+          "A": 10,
+          "B": 6,
+          "C": 8,
+          "D": 1
+        },
+        "S_norm": true
+      },
+      "formula_weights": {
+        "Q1": 0.3,
+        "Q8": 0.4,
+        "S_norm": 0.3
+      }
+    },
+    "ANALYSIS_VS_ACTION": {
+      "label_left": "分析準備",
+      "label_right": "行動嘗試",
+      "sources": {
+        "Q1": {
+          "A": 2,
+          "B": 10,
+          "C": 4,
+          "D": 1
+        },
+        "Q5": {
+          "A": 3,
+          "B": 7,
+          "C": 7,
+          "D": 4
+        },
+        "Q8": {
+          "A": 4,
+          "B": 8,
+          "C": 2,
+          "D": 9
+        },
+        "A_norm": true,
+        "S_reverse_norm": true
+      },
+      "formula_weights": {
+        "Q1": 0.3,
+        "Q5": 0.15,
+        "Q8": 0.2,
+        "A_norm": 0.25,
+        "S_reverse_norm": 0.1
+      }
+    },
+    "BEHIND_SCENES_VS_EXPRESSION": {
+      "label_left": "幕後執行",
+      "label_right": "對外表達",
+      "sources": {
+        "Q3": {
+          "A": 3,
+          "B": 9,
+          "C": 5,
+          "D": 2
+        },
+        "Q5": {
+          "A": 2,
+          "B": 10,
+          "C": 5,
+          "D": 2
+        },
+        "Q6": {
+          "A": 6,
+          "B": 4,
+          "C": 9,
+          "D": 1
+        },
+        "Q9": {
+          "A": 4,
+          "B": 10,
+          "C": 2,
+          "D": 3
+        },
+        "I_norm": true
+      },
+      "formula_weights": {
+        "Q3": 0.15,
+        "Q5": 0.2,
+        "Q6": 0.2,
+        "Q9": 0.2,
+        "I_norm": 0.25
+      }
+    },
+    "TIME_VS_CAPITAL": {
+      "label_left": "時間經營",
+      "label_right": "資本配置",
+      "sources": {
+        "Q4": {
+          "A": 3,
+          "B": 2,
+          "C": 1,
+          "D": 10
+        },
+        "Q7": {
+          "A": 1,
+          "B": 2,
+          "C": 1,
+          "D": 10
+        },
+        "Q10": {
+          "A": 2,
+          "B": 2,
+          "C": 1,
+          "D": 10
+        },
+        "K_norm": true
+      },
+      "formula_weights": {
+        "Q4": 0.25,
+        "Q7": 0.25,
+        "Q10": 0.25,
+        "K_norm": 0.25
+      }
+    }
+  },
+  "stranger_interaction": {
+    "question": "Q6",
+    "mapping": {
+      "A": {
+        "score": 5.0,
+        "type": "ACTIVE_SOCIAL",
+        "label": "主動交流型"
+      },
+      "B": {
+        "score": 4.5,
+        "type": "INBOUND_DEEP",
+        "label": "被動承接深入型"
+      },
+      "C": {
+        "score": 4.5,
+        "type": "CONTENT_ATTRACTION",
+        "label": "內容吸引型"
+      },
+      "D": {
+        "score": 2.0,
+        "type": "LOW_INTERACTION",
+        "label": "陌生互動低意願型"
+      }
+    }
+  },
+  "business_fit": {
+    "weights": {
+      "P": 0.25,
+      "S": 0.2,
+      "C": 0.2,
+      "R": 0.15,
+      "A": 0.1,
+      "X": 0.1
+    },
+    "formula": "P*0.25 + S*0.20 + C*0.20 + R*0.15 + A*0.10 + X*0.10",
+    "levels": [
+      {
+        "key": "HIGH",
+        "label": "高適配",
+        "min": 4.0,
+        "max": 5.0
+      },
+      {
+        "key": "MEDIUM",
+        "label": "中度適配",
+        "min": 3.4,
+        "max": 3.999999
+      },
+      {
+        "key": "LOW",
+        "label": "低適配",
+        "min": 1.0,
+        "max": 3.399999
+      }
+    ],
+    "source_policy": "Use behavior core dimensions only. Astrology and numerology do not affect Business Fit."
+  },
+  "risk_flags": {
+    "F1": {
+      "label": "短期成果依賴",
+      "trigger": {
+        "question": "Q2",
+        "option": "D"
+      },
+      "severity": "HIGH"
+    },
+    "F2": {
+      "label": "陌生互動阻力",
+      "trigger": {
+        "question": "Q6",
+        "option": "D"
+      },
+      "severity": "MEDIUM"
+    },
+    "F3": {
+      "label": "固定時間投入阻力",
+      "trigger": {
+        "question": "Q7",
+        "option": "D"
+      },
+      "severity": "HIGH"
+    },
+    "F4": {
+      "label": "成熟系統抗拒",
+      "trigger": {
+        "question": "Q8",
+        "option": "D"
+      },
+      "severity": "MEDIUM"
+    }
+  },
+  "routing": {
+    "evaluation_order": [
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "global_constraints": {
+      "high_risk_count_at_least_2_blocks_A": true
+    },
+    "A": {
+      "label": "健康事業優先探索",
+      "all": [
+        {
+          "metric": "business_fit",
+          "op": ">=",
+          "value": 4.0
+        },
+        {
+          "metric": "readiness",
+          "op": ">=",
+          "value": 3.8
+        },
+        {
+          "flag": "F1",
+          "active": false
+        },
+        {
+          "flag": "F3",
+          "active": false
+        },
+        {
+          "condition": "count_dimensions_at_or_above",
+          "dimensions": [
+            "P",
+            "R",
+            "S"
+          ],
+          "threshold": 3.8,
+          "min_count": 2
+        }
+      ]
+    },
+    "C": {
+      "label": "既有事業發展優先",
+      "all": [
+        {
+          "business_status_in": [
+            "ACTIVE",
+            "STABLE"
+          ]
+        },
+        {
+          "condition": "any_type_at_or_above",
+          "types": [
+            "SYSTEM_OPERATOR",
+            "CONTENT_INFLUENCER",
+            "PROFESSIONAL_SKILL"
+          ],
+          "threshold": 3.8
+        }
+      ],
+      "requires_not_already_routed": "A"
+    },
+    "B": {
+      "label": "具潛力，需要進一步確認",
+      "any": [
+        {
+          "metric": "business_fit",
+          "between": [
+            3.4,
+            3.999999
+          ]
+        },
+        {
+          "all": [
+            {
+              "metric": "business_fit",
+              "op": ">=",
+              "value": 4.0
+            },
+            {
+              "metric": "readiness",
+              "between": [
+                3.0,
+                3.799999
+              ]
+            }
+          ]
+        },
+        {
+          "flag": "F2",
+          "active": true
+        },
+        {
+          "flag": "F4",
+          "active": true
+        }
+      ],
+      "requires_not_already_routed": [
+        "A",
+        "C"
+      ]
+    },
+    "D": {
+      "label": "其他模式優先",
+      "fallback": true,
+      "force_if_any": [
+        {
+          "all": [
+            {
+              "metric": "business_fit",
+              "op": "<",
+              "value": 3.4
+            },
+            {
+              "metric": "readiness",
+              "op": "<",
+              "value": 3.6
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "type": "CAPITAL_ALLOCATOR",
+              "op": ">=",
+              "value": 4.0
+            },
+            {
+              "condition": "count_dimensions_below",
+              "dimensions": [
+                "P",
+                "R",
+                "S"
+              ],
+              "threshold": 3.2,
+              "min_count": 2
+            }
+          ]
+        },
+        {
+          "condition": "high_risk_flag_count",
+          "op": ">=",
+          "value": 2
+        }
+      ]
+    }
+  },
+  "ai_marketing_potential": {
+    "HIGH": {
+      "all": [
+        {
+          "business_status_in": [
+            "ACTIVE",
+            "STABLE"
+          ]
+        },
+        {
+          "condition": "count_metrics_at_or_above",
+          "metrics": [
+            "SYSTEM_OPERATOR",
+            "CONTENT_INFLUENCER",
+            "PROFESSIONAL_SKILL",
+            "A",
+            "S"
+          ],
+          "threshold": 3.8,
+          "min_count": 2
+        }
+      ]
+    },
+    "MEDIUM": {
+      "description": "已有事業但僅一項明顯符合，或尚未有事業但內容／系統／技能傾向明顯。"
+    },
+    "LOW": {
+      "fallback": true
+    }
+  },
+  "consultation_priority": {
+    "HIGH": [
+      {
+        "route": "A"
+      },
+      {
+        "all": [
+          {
+            "route": "B"
+          },
+          {
+            "metric": "business_fit",
+            "op": ">=",
+            "value": 4.0
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "route": "C"
+          },
+          {
+            "metric": "ai_marketing_potential",
+            "eq": "HIGH"
+          }
+        ]
+      }
+    ],
+    "MEDIUM": [
+      {
+        "route": "B"
+      },
+      {
+        "route": "C"
+      },
+      {
+        "all": [
+          {
+            "route": "D"
+          },
+          {
+            "metric": "readiness",
+            "op": ">=",
+            "value": 3.6
+          }
+        ]
+      }
+    ],
+    "LOW": {
+      "fallback": true
+    }
+  },
+  "secondary_tags": [
+    "HEALTH_BUSINESS_HIGH",
+    "HEALTH_BUSINESS_MEDIUM",
+    "AI_MARKETING_HIGH",
+    "EXISTING_BUSINESS",
+    "CONTENT_CREATOR",
+    "CONSULTING_ORIENTED",
+    "SYSTEM_ORIENTED",
+    "RELATIONSHIP_ORIENTED",
+    "SKILL_ORIENTED",
+    "CAPITAL_PREFERENCE",
+    "LOW_READINESS",
+    "LOW_TIME_COMMITMENT",
+    "RESULT_IMPATIENCE",
+    "SYSTEM_RESISTANCE",
+    "STRANGER_INTERACTION_RESISTANCE"
+  ],
+  "client_visibility": {
+    "allowed": [
+      "basic_profile",
+      "astrology_profile",
+      "numerology_profile",
+      "core_dimensions.A",
+      "core_dimensions.C",
+      "core_dimensions.S",
+      "core_dimensions.I",
+      "core_dimensions.R",
+      "core_dimensions.P",
+      "side_hustle_types",
+      "client_frictions",
+      "execution_spectrums"
+    ],
+    "hidden": [
+      "readiness",
+      "business_fit",
+      "routing",
+      "risk_flags",
+      "health_business_potential",
+      "ai_marketing_potential",
+      "consultation_priority",
+      "coach_insights"
+    ]
+  },
+  "coach_output_requirements": {
+    "include_raw_answers": true,
+    "include_dimension_scores": true,
+    "include_type_source_breakdown": true,
+    "include_readiness": true,
+    "include_business_fit": true,
+    "include_risk_flags": true,
+    "include_routing": true,
+    "include_secondary_tags": true,
+    "include_cross_analysis": true,
+    "include_strengths": true,
+    "include_frictions": true,
+    "include_blind_spots": true,
+    "include_recommended_questions": true,
+    "include_recommended_cta": true
+  },
+  "validation": {
+    "required_questions": [
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q5",
+      "Q6",
+      "Q7",
+      "Q8",
+      "Q9",
+      "Q10"
+    ],
+    "allowed_options": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "required_birth_fields": [
+      "birth_date"
+    ],
+    "optional_birth_fields": [
+      "birth_time",
+      "birth_place"
+    ],
+    "business_status_required": true,
+    "rules": [
+      "All 10 behavior questions must have exactly one answer.",
+      "Dimension max raw must be derived dynamically from the question matrix.",
+      "Internal calculations keep full precision; rounding is display-only.",
+      "Business Fit uses behavior dimensions only.",
+      "Risk Flags do not directly subtract from Business Fit or Readiness.",
+      "Route A cannot be assigned when two or more HIGH risk flags are active.",
+      "Client report must never expose ABCD routing or Business Fit."
+    ],
+    "audit_checks": {
+      "type_formula_weight_sums": {
+        "SYSTEM_OPERATOR": 1.0,
+        "CONTENT_INFLUENCER": 1.0,
+        "CONSULTING_SERVICE": 1.0,
+        "RELATIONSHIP_BUILDER": 1.0,
+        "PROFESSIONAL_SKILL": 1.0,
+        "CAPITAL_ALLOCATOR": 1.0
+      },
+      "readiness_weight_sum": 1.0,
+      "business_fit_weight_sum": 1.0,
+      "friction_weight_sums": {
+        "START_HESITATION": 1.0,
+        "CONSISTENCY_PRESSURE": 1.0,
+        "SYSTEM_RESISTANCE": 1.0,
+        "STRANGER_INTERACTION_PRESSURE": 1.0,
+        "RESULT_ANXIETY": 1.0
+      },
+      "spectrum_weight_sums": {
+        "FREEDOM_VS_STRUCTURE": 1.0,
+        "ANALYSIS_VS_ACTION": 1.0,
+        "BEHIND_SCENES_VS_EXPRESSION": 1.0,
+        "TIME_VS_CAPITAL": 1.0
+      }
+    }
+  }
+}
