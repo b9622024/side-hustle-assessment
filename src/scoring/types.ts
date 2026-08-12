@@ -10,6 +10,11 @@ export type BusinessStatus = "NONE" | "TRIED_NOT_ACTIVE" | "ACTIVE" | "STABLE";
 export type Route = "A" | "B" | "C" | "D";
 export type ScoreMap<K extends string> = Record<K, number>;
 export type Answers = Record<QuestionId, Option>;
+export type AstrologyElement = "FIRE"|"EARTH"|"AIR"|"WATER";
+export type AstrologyModality = "CARDINAL"|"FIXED"|"MUTABLE";
+export type LifePathNumber = 1|2|3|4|5|6|7|8|9|11|22|33;
+export interface AstrologyComponent { element: AstrologyElement; modality: AstrologyModality; }
+export interface AstrologyScoringInput { sun: AstrologyComponent; moon?: AstrologyComponent; ascendant?: AstrologyComponent; }
 
 export interface AssessmentInput {
   displayName: string;
@@ -36,7 +41,7 @@ export interface ScoringResult {
   spectrums: Record<string, number>;
   readiness: { score: number; level: string };
   strangerInteraction: StrangerInteraction;
-  businessFit: { score: number; level: string };
+  businessFit: { score: number; rawScore: number; level: string };
   riskFlags: RiskFlag[];
   aiMarketingPotential: "HIGH"|"MEDIUM"|"LOW";
   route: Route;

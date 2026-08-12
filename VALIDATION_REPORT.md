@@ -1,4 +1,4 @@
-# Scoring Engine V1 驗證報告
+# Scoring Engine V1.0.1 驗證報告
 
 ## 結果
 
@@ -7,37 +7,39 @@
 - 七維度動態最大值：與 V1 config 記錄一致
 - 六型、卡點、光譜、Readiness、Business Fit、Risk Flags：通過範圍與權重驗證
 - 20 組 synthetic profiles：通過
-- 4 組 Golden Profiles：已固定
+- 4 組 V1 Behavior Golden Profiles：已固定
+- 4 組 V1.0.1 Personality Merge／ABCD Golden Profiles：已固定
+- 星座缺出生時間的權重重整：通過
+- 生命靈數 11／22／33 保留：通過
 
-## 阻擋正式 Final Type 的規格缺口
+## Personality Matrices
 
-V1 config 有 `personality_merge` 權重與 guardrail，卻沒有：
+V1.0.1 已補齊：
 
-1. 星座資料對六型的修正矩陣
-2. 生命靈數對六型的修正矩陣
+1. 四元素與三模式對六型的修正矩陣
+2. 生命靈數 1～9、11、22、33 對六型的修正矩陣
 
-引擎不猜測。缺少正式人格分數時只產生 Behavior Type，並回傳
-`PERSONALITY_MATRICES_MISSING`。
+合併仍使用 Behavior 75%＋Numerology 15%＋Astrology 10%，並保留 Behavior
+低於 3.0 時 Final Type 最高 3.4 的 guardrail。
 
-## Routing 可達性問題
+## Business Fit 校正
 
-已窮舉 10 題全部 `4^10 = 1,048,576` 種答案（business status = NONE）。
+原始加權結果的實際可達範圍為 `1.487313738893～3.224374572796`，無法碰到
+原設計的 4.0 高適配門檻。V1.0.1 保留 P／S／C／R／A／X 權重與 Behavior-only
+政策，將問卷實際可達範圍正規化至 1.0～5.0。
 
-- Route A：0
-- Route B：268,032
-- Route C：0
-- Route D：780,544
-- Behavior-only Business Fit 最大值：`3.224374572796`
-- 最大值答案：`Q1～Q10 = C A C C A A A C A A`
+## 全組合 Routing 驗證
 
-Route A 需要 Business Fit ≥ 4.0，但 Business Fit 又只能取自 Behavior Core
-Dimensions，因此星座與生命靈數日後也無法修正這個限制。照 V1 原規則，Route A
-在數學上不可達。
+已窮舉全部 `4^10 = 1,048,576` 種答案，並以固定人格 profile 分別驗證沒有既有
+事業與已有事業兩種狀態。
 
-Route C 需要 Final Type 達到 3.8；目前人格修正矩陣缺失，因此尚不能完整驗證 C。
+- NONE：A 11,798／B 659,774／C 0／D 377,004
+- ACTIVE：A 11,798／B 651,146／C 13,367／D 372,265
+- A、B、C、D 均有可達案例
+- Business Fit 實際輸出涵蓋 1.0～5.0
+- 雙 HIGH Risk Flags 等強制 D 規則仍優先
 
 ## 結論
 
-Phase 1 計分基礎可運作，但在補齊人格矩陣並決定 Route A 不可達問題之前，不能把
-ABCD Routing 宣告為正式驗證完成。依 Master Spec 第 58 條，程式保留原規則，沒有
-自行調整任何門檻或商業邏輯。
+V1.0.1 計分核心、人格合併、Business Fit 與 ABCD Routing 已通過回歸、Golden
+Profiles 與全組合可達性驗證，可作為 Phase 2 表單與後續報告介面的計分基礎。

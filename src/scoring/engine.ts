@@ -1,6 +1,6 @@
 import { config, CONFIG_GAPS } from "./config.js";
 import { DIMENSIONS, QUESTION_IDS, SIDE_HUSTLE_TYPES } from "./types.js";
-import type { Answers, AssessmentInput, Dimension, Option, PersonalityScores, QuestionId, RiskFlag, Route, ScoreMap, ScoringResult, SideHustleType } from "./types.js";
+import type { Answers, AssessmentInput, AstrologyScoringInput, Dimension, LifePathNumber, Option, PersonalityScores, QuestionId, RiskFlag, Route, ScoreMap, ScoringResult, SideHustleType } from "./types.js";
 
 const clamp = (value:number,min:number,max:number) => Math.min(max,Math.max(min,value));
 const sum = (values:number[]) => values.reduce((a,b)=>a+b,0);
@@ -49,6 +49,28 @@ export function mergeFinalTypes(behavior:ScoreMap<SideHustleType>, personality?:
   })) as ScoreMap<SideHustleType>;
 }
 
+export function calculateAstrologyTypes(input:AstrologyScoringInput):ScoreMap<SideHustleType> {
+  const components=(["sun","moon","ascendant"] as const).flatMap(key=>input[key]?[{key,value:input[key]!}]:[]);
+  const weights=config.astrology_type_matrix.component_weights;
+  const availableWeight=sum(components.map(({key})=>weights[key]));
+  return Object.fromEntries(SIDE_HUSTLE_TYPES.map(type=>[type,round(sum(components.map(({key,value})=>{
+    const base=config.astrology_type_matrix.element_scores[value.element][type];
+    const adjustment=config.astrology_type_matrix.modality_adjustments[value.modality][type];
+    return clamp(base+adjustment,1,5)*weights[key]/availableWeight;
+  })))])) as ScoreMap<SideHustleType>;
+}
+
+export function calculateNumerologyTypes(lifePath:LifePathNumber):ScoreMap<SideHustleType> {
+  return config.numerology_type_matrix[String(lifePath) as keyof typeof config.numerology_type_matrix] as ScoreMap<SideHustleType>;
+}
+
+export function calculateLifePath(birthDate:string):LifePathNumber {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) throw new Error("INVALID_BIRTH_DATE");
+  let value=birthDate.replaceAll("-","").split("").reduce((total,digit)=>total+Number(digit),0);
+  while (value>9 && value!==11 && value!==22 && value!==33) value=String(value).split("").reduce((total,digit)=>total+Number(digit),0);
+  return value as LifePathNumber;
+}
+
 export function rankTypes(scores:ScoreMap<SideHustleType>) { return SIDE_HUSTLE_TYPES.map(type=>({type,score:scores[type]})).sort((a,b)=>b.score-a.score || a.type.localeCompare(b.type)); }
 export function determineTypeState(ranked:ReturnType<typeof rankTypes>):ScoringResult["typeState"] {
   const [one,two,three]=ranked;
@@ -83,8 +105,10 @@ export function calculateReadiness(answers:Answers) {
 export function calculateStrangerInteraction(answers:Answers) { return config.stranger_interaction.mapping[answers.Q6]; }
 export function calculateBusinessFit(dimensions:ScoreMap<Dimension>,x:number) {
   const w=config.business_fit.weights;
-  const score=round(dimensions.P*w.P+dimensions.S*w.S+dimensions.C*w.C+dimensions.R*w.R+dimensions.A*w.A+x*w.X);
-  return {score,level:levelFor(score,config.business_fit.levels)};
+  const raw=dimensions.P*w.P+dimensions.S*w.S+dimensions.C*w.C+dimensions.R*w.R+dimensions.A*w.A+x*w.X;
+  const c=config.business_fit_calibration;
+  const score=round(clamp(c.output_min+(raw-c.raw_min)*(c.output_max-c.output_min)/(c.raw_max-c.raw_min),c.output_min,c.output_max));
+  return {score,rawScore:round(raw),level:levelFor(score,config.business_fit.levels)};
 }
 export function generateRiskFlags(answers:Answers):RiskFlag[] {
   return Object.entries(config.risk_flags).flatMap(([id,r])=>answers[r.trigger.question as QuestionId]===r.trigger.option?[{id:id as RiskFlag["id"],label:r.label,severity:r.severity as RiskFlag["severity"]}]:[]);
@@ -102,11 +126,11 @@ export function calculateRouting(status:AssessmentInput["businessStatus"],dimens
   const has=(id:string)=>flags.some(f=>f.id===id);
   const forceD=(businessFit<3.4&&readiness<3.6)||(types.CAPITAL_ALLOCATOR>=4&&[dimensions.P,dimensions.R,dimensions.S].filter(v=>v<3.2).length>=2)||high>=2;
   if (forceD) return "D";
-  const routeA=businessFit>=4&&readiness>=3.8&&!has("F1")&&!has("F3")&&[dimensions.P,dimensions.R,dimensions.S].filter(v=>v>=3.8).length>=2&&high<2;
+  const routeA=businessFit>=4&&readiness>=3.8&&!has("F1")&&!has("F3")&&[dimensions.P,dimensions.R,dimensions.S].filter(v=>v>=config.routing_calibration.route_a_dimension_threshold).length>=2&&high<2;
   if (routeA) return "A";
-  const routeC=(status==="ACTIVE"||status==="STABLE")&&[types.SYSTEM_OPERATOR,types.CONTENT_INFLUENCER,types.PROFESSIONAL_SKILL].some(v=>v>=3.8);
+  const routeC=(status==="ACTIVE"||status==="STABLE")&&[types.SYSTEM_OPERATOR,types.CONTENT_INFLUENCER,types.PROFESSIONAL_SKILL].some(v=>v>=config.routing_calibration.route_c_type_threshold);
   if (routeC) return "C";
-  const routeB=(businessFit>=3.4&&businessFit<=3.999999)||(businessFit>=4&&readiness>=3&&readiness<=3.799999)||has("F2")||has("F4");
+  const routeB=(businessFit>=3.4&&businessFit<=3.999999)||(config.routing_calibration.route_b_includes_high_fit_not_a_or_c&&businessFit>=4)||(businessFit>=4&&readiness>=3&&readiness<=3.799999)||has("F2")||has("F4");
   return routeB?"B":"D";
 }
 export function calculateConsultationPriority(route:Route,businessFit:number,readiness:number,ai:"HIGH"|"MEDIUM"|"LOW") {
@@ -122,7 +146,7 @@ export function scoreAssessment(input:AssessmentInput,personality?:PersonalitySc
   const warnings:string[]=[];
   let finalTypes:ScoreMap<SideHustleType>|undefined;
   if (personality) finalTypes=mergeFinalTypes(behaviorTypes,personality);
-  else warnings.push("PERSONALITY_MATRICES_MISSING");
+  else warnings.push("PERSONALITY_INPUT_NOT_PROVIDED");
   const typesForRouting=finalTypes??behaviorTypes;
   const ranked=rankTypes(typesForRouting);
   const frictions=calculateFrictions(input.answers,behavior.normalized);

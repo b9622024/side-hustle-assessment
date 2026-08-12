@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CONFIG_GAPS, DIMENSIONS, QUESTION_IDS, SIDE_HUSTLE_TYPES, config, mergeFinalTypes, scoreAssessment, scoreBehaviorDimensions, validateInput } from "../src/scoring/index.js";
+import { CONFIG_GAPS, DIMENSIONS, QUESTION_IDS, SIDE_HUSTLE_TYPES, calculateAstrologyTypes, calculateLifePath, calculateNumerologyTypes, config, mergeFinalTypes, scoreAssessment, scoreBehaviorDimensions, validateInput } from "../src/scoring/index.js";
 import type { Answers, AssessmentInput, Option } from "../src/scoring/index.js";
 
 const answers=(values:string):Answers=>Object.fromEntries(QUESTION_IDS.map((q,i)=>[q,values[i]])) as Answers;
@@ -29,9 +29,10 @@ const syntheticCases:[string,AssessmentInput][]=[
 ];
 
 describe("Scoring Config audit",()=>{
-  it("uses the exact V1 versions",()=>{
-    expect(config.meta.config_version).toBe("side-hustle-scoring-config-1.0.0");
-    expect(config.meta.scoring_engine_version).toBe("side-hustle-scoring-1.0.0");
+  it("uses the calibrated V1.0.1 versions while retaining V1.0.0 as base",()=>{
+    expect(config.meta.config_version).toBe("side-hustle-scoring-config-1.0.1");
+    expect(config.meta.scoring_engine_version).toBe("side-hustle-scoring-1.0.1");
+    expect(config.meta.base_config_version).toBe("side-hustle-scoring-config-1.0.0");
   });
   it("has ten questions and four options per question",()=>{
     expect(config.questionnaire.map(q=>q.id)).toEqual([...QUESTION_IDS]);
@@ -49,10 +50,26 @@ describe("Scoring Config audit",()=>{
     Object.entries(config.frictions).filter(([k])=>k!=="normalization_helpers").forEach(([,v])=>expect(total((v as any).formula_weights)).toBeCloseTo(1,12));
     Object.values(config.execution_spectrums).forEach(v=>expect(total(v.formula_weights)).toBeCloseTo(1,12));
   });
-  it("reports absent personality matrices instead of inventing rules",()=>{
-    expect(CONFIG_GAPS).toEqual({astrologyTypeMatrix:true,numerologyTypeMatrix:true});
+  it("provides complete personality matrices and preserves the behavior guardrail",()=>{
+    expect(CONFIG_GAPS).toEqual({astrologyTypeMatrix:false,numerologyTypeMatrix:false});
     const behavior=scoreAssessment(input("AAAAAAAAAA")).behaviorTypes;
-    expect(()=>mergeFinalTypes(behavior)).toThrow("PERSONALITY_MATRICES_MISSING");
+    const personality={astrology:calculateAstrologyTypes({sun:{element:"FIRE",modality:"CARDINAL"}}),numerology:calculateNumerologyTypes(11)};
+    const final=mergeFinalTypes(behavior,personality);
+    SIDE_HUSTLE_TYPES.forEach(type=>{
+      expect(final[type]).toBeGreaterThanOrEqual(1);
+      expect(final[type]).toBeLessThanOrEqual(5);
+      if(behavior[type]<3) expect(final[type]).toBeLessThanOrEqual(3.4);
+    });
+  });
+  it("renormalizes astrology weights when birth time components are unavailable",()=>{
+    const sunOnly=calculateAstrologyTypes({sun:{element:"EARTH",modality:"CARDINAL"}});
+    expect(sunOnly.SYSTEM_OPERATOR).toBe(4.5);
+  });
+  it("retains master life-path numbers",()=>{
+    expect(calculateLifePath("1990-01-01")).toBe(3);
+    expect(calculateLifePath("2000-01-08")).toBe(11);
+    expect(calculateLifePath("2000-09-29")).toBe(22);
+    expect(calculateLifePath("1989-01-14")).toBe(33);
   });
 });
 
