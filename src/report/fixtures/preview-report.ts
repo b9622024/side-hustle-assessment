@@ -1,4 +1,5 @@
 import { buildClientReport } from "../build-client-report";
+import { calculateBasicAstrologyProfile } from "../../astrology/basic-profile";
 
 export const previewReport = buildClientReport({
   reportId: "PREVIEW-SAMPLE-0001",
@@ -11,9 +12,5 @@ export const previewReport = buildClientReport({
     businessStatus: "ACTIVE",
     answers: { Q1: "C", Q2: "A", Q3: "C", Q4: "C", Q5: "C", Q6: "B", Q7: "A", Q8: "C", Q9: "A", Q10: "C" },
   },
-  astrology: {
-    sun: { sign: "摩羯座", element: "EARTH", modality: "CARDINAL" },
-    moon: { sign: "金牛座", element: "EARTH", modality: "FIXED" },
-    ascendant: { sign: "金牛座", element: "EARTH", modality: "FIXED" },
-  },
+  astrology: calculateBasicAstrologyProfile("1989-01-17", "11:45", "台南市"),
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildClientReport } from "../src/report/build-client-report";
 import { previewReport } from "../src/report/fixtures/preview-report";
+import { calculateBasicAstrologyProfile } from "../src/astrology/basic-profile";
 
 const forbiddenKeys = ["route", "readiness", "businessFit", "riskFlags", "aiMarketingPotential", "consultationPriority", "warnings", "rawDimensions", "dimensionMax"];
 
@@ -25,7 +26,7 @@ describe("client report projection", () => {
         businessStatus: "NONE",
         answers: { Q1: "A", Q2: "A", Q3: "A", Q4: "A", Q5: "A", Q6: "A", Q7: "A", Q8: "A", Q9: "A", Q10: "A" },
       },
-      astrology: { sun: { sign: "水瓶座", element: "AIR", modality: "FIXED" } },
+      astrology: calculateBasicAstrologyProfile("1990-02-03"),
     });
     expect(report.astrology.placements).toHaveLength(1);
     expect(report.person.birthTime).toBeUndefined();

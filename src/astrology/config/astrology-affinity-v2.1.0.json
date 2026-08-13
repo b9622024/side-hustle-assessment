@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "version": "astrology-affinity-v2.1.0",
+    "purpose": "report_interpretation_only",
+    "point_affinity_formula": "element_contribution * 0.65 + modality_contribution * 0.35",
+    "affinity_range": [-1, 1],
+    "modifier_amplitude": 0.25
+  },
+  "component_weights": {
+    "element": 0.65,
+    "modality": 0.35
+  },
+  "point_weights": {
+    "sun": 0.4,
+    "moon": 0.35,
+    "ascendant": 0.25
+  },
+  "element_matrix": {
+    "FIRE": {
+      "SYSTEM_OPERATOR": 0.05,
+      "CONTENT_INFLUENCER": 0.85,
+      "CONSULTING_SERVICE": 0.15,
+      "RELATIONSHIP_BUILDER": 0.2,
+      "PROFESSIONAL_SKILL": 0.1,
+      "CAPITAL_ALLOCATOR": 0.25
+    },
+    "EARTH": {
+      "SYSTEM_OPERATOR": 0.85,
+      "CONTENT_INFLUENCER": -0.35,
+      "CONSULTING_SERVICE": 0.45,
+      "RELATIONSHIP_BUILDER": -0.05,
+      "PROFESSIONAL_SKILL": 0.85,
+      "CAPITAL_ALLOCATOR": 0.75
+    },
+    "AIR": {
+      "SYSTEM_OPERATOR": 0.15,
+      "CONTENT_INFLUENCER": 0.9,
+      "CONSULTING_SERVICE": 0.65,
+      "RELATIONSHIP_BUILDER": 0.75,
+      "PROFESSIONAL_SKILL": 0.3,
+      "CAPITAL_ALLOCATOR": 0
+    },
+    "WATER": {
+      "SYSTEM_OPERATOR": -0.25,
+      "CONTENT_INFLUENCER": 0.15,
+      "CONSULTING_SERVICE": 0.8,
+      "RELATIONSHIP_BUILDER": 0.9,
+      "PROFESSIONAL_SKILL": 0.15,
+      "CAPITAL_ALLOCATOR": -0.45
+    }
+  },
+  "modality_matrix": {
+    "CARDINAL": {
+      "SYSTEM_OPERATOR": 0.55,
+      "CONTENT_INFLUENCER": 0.45,
+      "CONSULTING_SERVICE": 0.55,
+      "RELATIONSHIP_BUILDER": 0.35,
+      "PROFESSIONAL_SKILL": 0.25,
+      "CAPITAL_ALLOCATOR": 0.55
+    },
+    "FIXED": {
+      "SYSTEM_OPERATOR": 0.85,
+      "CONTENT_INFLUENCER": 0.05,
+      "CONSULTING_SERVICE": 0.25,
+      "RELATIONSHIP_BUILDER": 0.5,
+      "PROFESSIONAL_SKILL": 0.8,
+      "CAPITAL_ALLOCATOR": 0.75
+    },
+    "MUTABLE": {
+      "SYSTEM_OPERATOR": -0.3,
+      "CONTENT_INFLUENCER": 0.75,
+      "CONSULTING_SERVICE": 0.75,
+      "RELATIONSHIP_BUILDER": 0.55,
+      "PROFESSIONAL_SKILL": 0.5,
+      "CAPITAL_ALLOCATOR": -0.25
+    }
+  }
+}

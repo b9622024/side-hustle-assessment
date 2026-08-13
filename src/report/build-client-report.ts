@@ -1,4 +1,5 @@
 import { config } from "../scoring/config";
+import { calculateAstrologyTypeLayer } from "../astrology/type-affinity";
 import { calculateLifePath, scoreAssessment } from "../scoring/engine";
 import type { AssessmentInput, Dimension, LifePathNumber, SideHustleType } from "../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "./types";
@@ -59,6 +60,7 @@ export function buildClientReport(input: {
 }): ClientReportData {
   const lifePath = calculateLifePath(input.assessment.birthDate);
   const scoring = calculateAssessmentScoring(input.assessment, input.astrology);
+  const astrologyLayer = calculateAstrologyTypeLayer(scoring, input.astrology);
   const [primary, secondary] = scoring.rankedTypes;
   if (!primary || !secondary) throw new Error("TYPE_RANKING_INCOMPLETE");
 
@@ -66,11 +68,7 @@ export function buildClientReport(input: {
     const placement = input.astrology[key];
     return placement ? [{ key, label: astrologyLabels[key], ...placement }] : [];
   });
-  const dominantElement = placements.reduce<Record<string, number>>((counts, placement) => {
-    counts[placement.element] = (counts[placement.element] ?? 0) + 1;
-    return counts;
-  }, {});
-  const element = Object.entries(dominantElement).toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? input.astrology.sun.element;
+  const element = Object.entries(input.astrology.element_distribution).toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? input.astrology.sun.element;
   const birthday = birthdayNumber(input.assessment.birthDate);
   const masterNumber = MASTER_NUMBERS.includes(lifePath as 11 | 22 | 33) ? lifePath as 11 | 22 | 33 : undefined;
 
@@ -94,7 +92,11 @@ export function buildClientReport(input: {
     },
     astrology: {
       placements,
-      summary: `你的星盤工作風格以 ${element} 元素為主要線索；這裡用來理解偏好的工作節奏，而不是替你限制選擇。`,
+      summary: `你的出生結構較強調 ${element} 元素所代表的工作節奏。${astrologyLayer.astrology_cross_analysis.summary}`,
+      elementDistribution: input.astrology.element_distribution,
+      modalityDistribution: input.astrology.modality_distribution,
+      dataCompleteness: input.astrology.data_completeness,
+      crossAnalysis: astrologyLayer.astrology_cross_analysis,
     },
     numerology: {
       lifePath,
@@ -104,7 +106,8 @@ export function buildClientReport(input: {
       summary: `生命靈數 ${lifePath} 描繪長期動機，生日數 ${birthday} 補充你較自然的行動方式。兩者適合和實際經驗一起閱讀。`,
     },
     actionProfile: ACTION_DIMENSIONS.map((key) => ({ key, label: config.dimensions[key].label, score: scoring.dimensions[key] })),
-    sideHustleModes: scoring.rankedTypes.map(({ type, score }, index) => ({key:type,label:typeLabel(type),formalTypeScore:score,typePercentile:scoring.typeDisplayScores[type].type_percentile,displayFitIndex:scoring.typeDisplayScores[type].display_fit_index,rank:index+1})),
+    sideHustleModes: scoring.rankedTypes.map(({ type, score }, index) => ({key:type,label:typeLabel(type),formalTypeScore:score,typePercentile:scoring.typeDisplayScores[type].type_percentile,displayFitIndex:scoring.typeDisplayScores[type].display_fit_index,astrologyTypeAffinity:astrologyLayer.types[type].astrology_type_affinity,astrologyModifier:astrologyLayer.types[type].astrology_modifier,finalReportTypeScore:astrologyLayer.types[type].final_report_type_score,rank:index+1})),
+    astrologyLayer,
     typeState:scoring.typeState,
     frictions: (Object.entries(scoring.frictions) as Array<[string, number]>).map(([key, score]) => ({
       key,
