@@ -11,6 +11,9 @@ function SectionTitle({ number, title, description }: { number: string; title: s
 export function ClientReport({ data }: { data: ClientReportData }) {
   const birthDetail = [data.person.birthDate, data.person.birthTime, data.person.birthPlace].filter(Boolean).join(" · ");
   const typeLabels = Object.fromEntries(data.sideHustleModes.map((mode) => [mode.key, mode.label]));
+  const elementDistribution = data.astrology.elementDistribution ?? { FIRE: 0, EARTH: 0, AIR: 0, WATER: 0 };
+  const modalityDistribution = data.astrology.modalityDistribution ?? { CARDINAL: 0, FIXED: 0, MUTABLE: 0 };
+  const crossAnalysis = data.astrology.crossAnalysis ?? { alignments: [], tensions: [], neutral_findings: [], summary: data.astrology.summary };
   return (
     <main className="client-report">
       <header className="report-hero">
@@ -39,11 +42,11 @@ export function ClientReport({ data }: { data: ClientReportData }) {
             {data.astrology.placements.map((placement) => <article key={placement.key}><span>{placement.label}</span><strong>{placement.sign}</strong><p>{elementLabels[placement.element]} · {modalityLabels[placement.modality]}</p></article>)}
           </div>
           <div className="astrology-distributions">
-            <div><strong>四元素分布</strong>{Object.entries(data.astrology.elementDistribution).map(([key, value]) => <p key={key}><span>{elementLabels[key as keyof typeof elementLabels]}</span><i><b style={{ width: `${value * 100}%` }} /></i><em>{Math.round(value * 100)}%</em></p>)}</div>
-            <div><strong>三模式分布</strong>{Object.entries(data.astrology.modalityDistribution).map(([key, value]) => <p key={key}><span>{modalityLabels[key as keyof typeof modalityLabels]}</span><i><b style={{ width: `${value * 100}%` }} /></i><em>{Math.round(value * 100)}%</em></p>)}</div>
+            <div><strong>四元素分布</strong>{Object.entries(elementDistribution).map(([key, value]) => <p key={key}><span>{elementLabels[key as keyof typeof elementLabels]}</span><i><b style={{ width: `${value * 100}%` }} /></i><em>{Math.round(value * 100)}%</em></p>)}</div>
+            <div><strong>三模式分布</strong>{Object.entries(modalityDistribution).map(([key, value]) => <p key={key}><span>{modalityLabels[key as keyof typeof modalityLabels]}</span><i><b style={{ width: `${value * 100}%` }} /></i><em>{Math.round(value * 100)}%</em></p>)}</div>
           </div>
           <p className="section-note">{data.astrology.summary}</p>
-          <div className="astrology-echo"><strong>星座傾向與副業模式的呼應</strong><p>{data.astrology.crossAnalysis.alignments.length > 0 ? `出生工作風格與「${data.astrology.crossAnalysis.alignments.map((item) => typeLabels[item.type]).join("／")}」有部分呼應。` : "出生工作風格沒有把任何單一副業模式推成唯一答案。"} 行為測驗仍是正式主型判斷依據，星座只補充較自然的工作節奏。</p></div>
+          <div className="astrology-echo"><strong>星座傾向與副業模式的呼應</strong><p>{crossAnalysis.alignments.length > 0 ? `出生工作風格與「${crossAnalysis.alignments.map((item) => typeLabels[item.type]).join("／")}」有部分呼應。` : "出生工作風格沒有把任何單一副業模式推成唯一答案。"} 行為測驗仍是正式主型判斷依據，星座只補充較自然的工作節奏。</p></div>
         </section>
 
         <section className="report-panel">

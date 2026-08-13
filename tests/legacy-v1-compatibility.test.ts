@@ -23,7 +23,7 @@ describe("V1 snapshot compatibility",()=>{
     expect(exported.report_meta.scoring_version).toBe("side-hustle-scoring-1.0.1");
     expect(exported.report_meta.legacy_result_preserved).toBe(true);
     expect(exported.scoring_trace).toBeNull();
-    expect(exported.behavior_profile.dimensions.A?.score).toBe(1);
+    expect(exported.behavior_profile.dimensions?.A?.score).toBe(1);
     expect(exported.side_hustle_types.ranking[0]).toEqual({type:"SYSTEM_OPERATOR",score:4.1});
     expect(JSON.stringify(record.scoring_snapshot)).toBe(before);
   });

@@ -2,7 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "../supabase/admin";
 import type { Answers, AstrologyScoringInput, BusinessStatus, ScoringResult } from "../../scoring/types";
-import type { ClientReportData } from "../../report/types";
+import type { AstrologyProfile, ClientReportData } from "../../report/types";
 
 export const COACH_PAGE_SIZE = 50;
 
@@ -15,12 +15,13 @@ export interface CoachAssessmentRow {
   birth_place: string;
   business_status: BusinessStatus;
   created_at: string;
+  updated_at?: string;
   scoring_snapshot: ScoringResult;
 }
 
 export interface CoachAssessmentDetail extends CoachAssessmentRow {
   answers: Answers;
-  astrology_profile: AstrologyScoringInput & { sun: AstrologyScoringInput["sun"] & { sign: string } };
+  astrology_profile: (AstrologyScoringInput & { sun: AstrologyScoringInput["sun"] & { sign: string } }) | AstrologyProfile;
   scoring_version: string;
   client_reports: Array<{ report_data: ClientReportData }>;
 }
