@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const suffix = randomBytes(3).toString("hex").toUpperCase();
     const reportId = `SH-${datePart}-${suffix}`;
     const generatedAt = date.toISOString();
-    const astrology = calculateBasicAstrologyProfile(body.birthDate);
+    const astrology = calculateBasicAstrologyProfile(body.birthDate,body.birthTime,body.birthPlace);
     const clientReport = buildClientReport({ reportId, assessment: body, astrology, generatedAt });
     const scoring = calculateAssessmentScoring(body, astrology);
     const { persisted } = await saveAssessmentReport({ assessment: body, astrology, scoring, clientReport });

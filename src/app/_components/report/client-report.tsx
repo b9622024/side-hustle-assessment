@@ -11,7 +11,7 @@ function SectionTitle({ number, title, description }: { number: string; title: s
 export function ClientReport({ data }: { data: ClientReportData }) {
   const birthDetail = [data.person.birthDate, data.person.birthTime, data.person.birthPlace].filter(Boolean).join(" · ");
   return (
-    <main className="client-report">
+    <main className="client-report" id="client-report-export">
       <header className="report-hero">
         <div className="report-brand"><span>SH</span><div><strong>副業羅盤</strong><small>Side Hustle Compass</small></div></div>
         <div className="report-hero-copy">
@@ -55,9 +55,9 @@ export function ClientReport({ data }: { data: ClientReportData }) {
         </section>
 
         <section className="report-panel">
-          <SectionTitle number="04" title="適合的副業模式" description="綜合行為、星座工作風格與生命靈數的相對排序。" />
+        <SectionTitle number="04" title="適合的副業模式" description={`依完整理論回答分布換算的相對適配指數${data.typeState?` · ${data.typeState}`:""}`} />
           <div className="mode-list">
-            {data.sideHustleModes.map((mode) => <div key={mode.key} className={mode.rank <= 2 ? "featured" : ""}><span>{String(mode.rank).padStart(2, "0")}</span><strong>{mode.label}</strong><i><b style={{ width: `${mode.score / 5 * 100}%` }} /></i><em>{mode.score.toFixed(1)}</em></div>)}
+            {data.sideHustleModes.map((mode) => {const index=mode.displayFitIndex??(mode.score??mode.formalTypeScore??0)*2;return <div key={mode.key} className={mode.rank <= 2 ? "featured" : ""}><span>{String(mode.rank).padStart(2, "0")}</span><strong>{mode.label}{mode.finalReportTypeScore!==undefined&&<small>報告分數 {mode.finalReportTypeScore.toFixed(2)}</small>}</strong><i><b style={{ width: `${index * 10}%` }} /></i><em>{index.toFixed(1)}</em></div>;})}
           </div>
           <p className="report-caption">排序代表相對適配度，不代表只能選擇單一方向。</p>
         </section>

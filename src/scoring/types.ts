@@ -41,6 +41,11 @@ export interface ScoringTrace {
   routing_behavior_dimension_v2: ScoreMap<Dimension>;
   formal_type_precalibrated: ScoreMap<SideHustleType>;
   formal_type_final: ScoreMap<SideHustleType>;
+  type_percentile: ScoreMap<SideHustleType>;
+  display_fit_index: ScoreMap<SideHustleType>;
+  astrology_type_affinity?: ScoreMap<SideHustleType>;
+  astrology_modifier?: ScoreMap<SideHustleType>;
+  final_report_type_score?: ScoreMap<SideHustleType>;
   type_ranking: RankedType[];
   type_state: TypeState;
   readiness_components: Record<string, { question: QuestionId; answer: Option; option_score: number; weight: number; weighted_score: number }>;
@@ -76,4 +81,6 @@ export interface ScoringResult {
   consultationPriority: "HIGH"|"MEDIUM"|"LOW";
   warnings: string[];
   scoringTrace: ScoringTrace;
+  typeDisplayScores: Record<SideHustleType,{formal_type_score:number;type_percentile:number;display_fit_index:number}>;
+  astrologyReport?: ReturnType<typeof import("../astrology/type-affinity").astrologyTypeLayer>;
 }

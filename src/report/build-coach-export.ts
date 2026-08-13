@@ -37,18 +37,30 @@ export function buildCoachJsonExport(record:CoachAssessmentDetail) {
   const questionnaire=config.questionnaire.map(question=>{const id=question.id as QuestionId;const answer=record.answers[id];return {id,text:question.text,answer,answer_text:question.options[answer].text};});
   const dimensions=scoring.formalBehaviorDimensions??scoring.dimensions;
   const finalTypes=scoring.finalTypes??Object.fromEntries(scoring.rankedTypes.map(item=>[item.type,item.score]));
+  const typeDisplayScores=scoring.typeDisplayScores;
+  const astrologyTypes=scoring.astrologyReport?.types;
+  const consultation=record.consultation_settings;
   return {
     report_meta:{report_id:record.report_id,report_type:"side_hustle_suitability_action",report_display_name:"副業適性測驗",report_document_name:"副業適性行動報告",
-      model_version:"side-hustle-report-v2-rc1",questionnaire_version:config.meta.questionnaire_version,scoring_version:record.scoring_version,
-      routing_version:"side-hustle-routing-v2-rc1",astrology_version:"basic-sun-profile-1.0.0",numerology_version:"numerology-birth-date-reduction-1.0.0",
-      created_at:record.created_at,updated_at:record.created_at,...(record.scoring_version!==config.meta.config_version?{legacy_result_preserved:true}: {})},
+      model_version:"side-hustle-report-v2.1",questionnaire_version:config.meta.questionnaire_version,scoring_version:record.scoring_version,
+      routing_version:"side-hustle-routing-v2-rc1",astrology_version:"astrology-affinity-v2.1",numerology_version:"numerology-birth-date-reduction-1.0.0",
+      created_at:record.created_at,updated_at:record.updated_at??record.created_at,...(record.scoring_version!==config.meta.config_version?{legacy_result_preserved:true}: {})},
     respondent:{display_name:record.display_name},birth_data:{date:record.birth_date,time:record.birth_time,place:record.birth_place},
     business_status:{code:record.business_status,label:config.business_status_options[record.business_status]},astrology:astrologyProfile(record),numerology:numerologyProfile(record.birth_date),
     questionnaire:{version:config.meta.questionnaire_version,answers:questionnaire},scoring_trace:scoring.scoringTrace??null,
     behavior_profile:{scale:{min:1,max:5,display_decimals:1},dimensions:Object.fromEntries(Object.entries(dimensions).map(([key,score])=>[key,{label:config.dimensions[key as Dimension].label,score}])),formal_dimensions:scoring.formalBehaviorDimensions??null,routing_dimensions:scoring.routingDimensions??null},
-    side_hustle_types:{type_state:scoring.typeState,ranking:scoring.rankedTypes,scores:finalTypes,source:"behavior_only"},readiness:scoring.readiness,business_fit:scoring.businessFit,risk_flags:scoring.riskFlags,
+    side_hustle_types:{type_state:scoring.typeState,ranking:scoring.rankedTypes,types:Object.fromEntries(Object.entries(finalTypes).map(([type,formalTypeScore])=>[type,{
+      formal_type_score:formalTypeScore,
+      type_percentile:typeDisplayScores?.[type as keyof typeof typeDisplayScores]?.type_percentile??null,
+      display_fit_index:typeDisplayScores?.[type as keyof typeof typeDisplayScores]?.display_fit_index??null,
+      astrology_type_affinity:astrologyTypes?.[type as keyof typeof astrologyTypes]?.astrology_type_affinity??null,
+      astrology_modifier:astrologyTypes?.[type as keyof typeof astrologyTypes]?.astrology_modifier??null,
+      final_report_type_score:astrologyTypes?.[type as keyof typeof astrologyTypes]?.final_report_type_score??formalTypeScore,
+    }])),source:"behavior_only"},readiness:scoring.readiness,business_fit:scoring.businessFit,risk_flags:scoring.riskFlags,
     routing:{system_route:scoring.route,label:config.routing.rules[scoring.route].label,consultation_priority:scoring.consultationPriority},
     cross_analysis:{scoring_isolation_verified:true,birth_profile_role:"interpretation_and_cross_analysis_only",summary:clientReport?.astrology.summary??null},
     coach_insights:{ai_marketing_potential:scoring.aiMarketingPotential,active_risk_flags:scoring.riskFlags.map(flag=>({id:flag.id,label:flag.label,severity:flag.severity,routing_role:flag.routingRole??null})),primary_type:scoring.rankedTypes[0]??null,secondary_type:scoring.rankedTypes[1]??null},
+    ...(consultation?{consultation_context:consultation.consultation_context,selected_offer:consultation.selected_offer,backup_offer:consultation.backup_offer,coach_notes:consultation.coach_notes}:{}),
+    data_quality:{astrology_calculation:record.astrology_profile.calculation??null,consultation_settings_saved:Boolean(consultation),legacy_record:record.scoring_version!==config.meta.config_version},
   };
 }

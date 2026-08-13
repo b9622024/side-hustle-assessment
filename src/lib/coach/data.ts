@@ -1,8 +1,9 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "../supabase/admin";
-import type { Answers, AstrologyScoringInput, BusinessStatus, ScoringResult } from "../../scoring/types";
-import type { ClientReportData } from "../../report/types";
+import type { Answers, BusinessStatus, ScoringResult } from "../../scoring/types";
+import type { AstrologyProfile, ClientReportData } from "../../report/types";
+import type { ConsultationSettings } from "../../consultation/types";
 
 export const COACH_PAGE_SIZE = 50;
 
@@ -15,14 +16,16 @@ export interface CoachAssessmentRow {
   birth_place: string;
   business_status: BusinessStatus;
   created_at: string;
+  updated_at?:string|null;
   scoring_snapshot: ScoringResult;
 }
 
 export interface CoachAssessmentDetail extends CoachAssessmentRow {
   answers: Answers;
-  astrology_profile: AstrologyScoringInput & { sun: AstrologyScoringInput["sun"] & { sign: string } };
+  astrology_profile: AstrologyProfile;
   scoring_version: string;
   client_reports: Array<{ report_data: ClientReportData }>;
+  consultation_settings?: ConsultationSettings|null;
 }
 
 function safeSearch(value: string) {
@@ -47,7 +50,7 @@ export async function getCoachAssessment(reportId: string) {
   if (!/^SH-\d{8}-[A-F0-9]{6}$/.test(reportId)) notFound();
   const { data, error } = await getSupabaseAdmin()
     .from("assessments")
-    .select("id,report_id,display_name,birth_date,birth_time,birth_place,business_status,answers,astrology_profile,scoring_snapshot,scoring_version,created_at,client_reports(report_data)")
+    .select("id,report_id,display_name,birth_date,birth_time,birth_place,business_status,answers,astrology_profile,scoring_snapshot,scoring_version,consultation_settings,created_at,updated_at,client_reports(report_data)")
     .eq("report_id", reportId)
     .maybeSingle();
   if (error) throw new Error("COACH_REPORT_QUERY_FAILED", { cause: error });

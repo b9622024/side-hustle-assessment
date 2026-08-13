@@ -1,6 +1,7 @@
 import { config, CONFIG_GAPS } from "./config";
 import { DIMENSIONS, QUESTION_IDS, SIDE_HUSTLE_TYPES } from "./types";
 import type { Answers, AssessmentInput, AstrologyScoringInput, Dimension, LifePathNumber, Option, PersonalityScores, QuestionId, RiskFlag, Route, ScoreMap, ScoringResult, ScoringTrace, SideHustleType, StrangerInteraction, TypeState } from "./types";
+import { buildTypeDisplayScores } from "./type-percentiles";
 
 const clamp = (value:number,min=1,max=5) => Math.min(max,Math.max(min,value));
 const sum = (values:number[]) => values.reduce((a,b)=>a+b,0);
@@ -169,6 +170,7 @@ export function scoreAssessment(input:AssessmentInput,_legacyPersonality?:Person
   const routing=scoreDimensionLayer(input.answers,true);
   const precalibrated=calculateTypes(formal.v2);
   const finalTypes=calibrateTypes(precalibrated);
+  const typeDisplayScores=buildTypeDisplayScores(finalTypes);
   const ranked=rankTypes(finalTypes);
   const typeState=determineTypeState(ranked);
   const readiness=calculateReadiness(input.answers);
@@ -182,7 +184,9 @@ export function scoreAssessment(input:AssessmentInput,_legacyPersonality?:Person
     question_answers:{...input.answers}, formal_question_weights:formal.weights, routing_question_weights:routing.weights,
     behavior_raw_scores:formal.raw, behavior_dimension_v1:formal.v1, formal_behavior_dimension_v2:formal.v2,
     routing_behavior_dimension_v1:routing.v1, routing_behavior_dimension_v2:routing.v2,
-    formal_type_precalibrated:mapRound(precalibrated), formal_type_final:mapRound(finalTypes), type_ranking:ranked, type_state:typeState,
+    formal_type_precalibrated:mapRound(precalibrated), formal_type_final:mapRound(finalTypes),
+    type_percentile:Object.fromEntries(SIDE_HUSTLE_TYPES.map(type=>[type,typeDisplayScores[type].type_percentile])) as ScoreMap<SideHustleType>,
+    display_fit_index:Object.fromEntries(SIDE_HUSTLE_TYPES.map(type=>[type,typeDisplayScores[type].display_fit_index])) as ScoreMap<SideHustleType>, type_ranking:ranked, type_state:typeState,
     readiness_components:readiness.components, readiness_score:readiness.score, stranger_interaction:strangerInteraction,
     business_fit_components:businessFit.components, business_fit_score:businessFit.score, risk_flags:riskFlags,
     force_d_trace:routingResult.forceDTrace, routing_trace:routingTrace, system_route:routingResult.route,
@@ -193,7 +197,7 @@ export function scoreAssessment(input:AssessmentInput,_legacyPersonality?:Person
     rankedTypes:ranked,typeState,frictions:calculateFrictions(input.answers,formal.v2),spectrums:calculateSpectrums(input.answers,formal.v2),
     readiness:{score:readiness.score,level:readiness.level},strangerInteraction,
     businessFit:{score:businessFit.score,rawScore:businessFit.rawScore,level:businessFit.level},riskFlags,aiMarketingPotential,
-    route:routingResult.route,consultationPriority:calculateConsultationPriority(routingResult.route,businessFit.score,readiness.score,aiMarketingPotential),warnings:[],scoringTrace,
+    route:routingResult.route,consultationPriority:calculateConsultationPriority(routingResult.route,businessFit.score,readiness.score,aiMarketingPotential),warnings:[],scoringTrace,typeDisplayScores,
   };
 }
 

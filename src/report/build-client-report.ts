@@ -2,6 +2,7 @@ import { config } from "../scoring/config";
 import { calculateLifePath, scoreAssessment } from "../scoring/engine";
 import type { AssessmentInput, Dimension, LifePathNumber, SideHustleType } from "../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "./types";
+import { astrologyTypeLayer } from "../astrology/type-affinity";
 
 const ACTION_DIMENSIONS = ["A", "C", "S", "I", "R", "P"] as const;
 const MASTER_NUMBERS = [11, 22, 33] as const;
@@ -47,8 +48,13 @@ function buildOverview(primary: string, secondary: string, dimensions: Record<Di
 }
 
 export function calculateAssessmentScoring(assessment: AssessmentInput, astrology: AstrologyProfile) {
-  void astrology;
-  return scoreAssessment(assessment);
+  const scoring=scoreAssessment(assessment);
+  const astrologyReport=astrologyTypeLayer(scoring,astrology);
+  scoring.astrologyReport=astrologyReport;
+  scoring.scoringTrace.astrology_type_affinity=Object.fromEntries(Object.entries(astrologyReport.types).map(([type,value])=>[type,value.astrology_type_affinity])) as Record<SideHustleType,number>;
+  scoring.scoringTrace.astrology_modifier=Object.fromEntries(Object.entries(astrologyReport.types).map(([type,value])=>[type,value.astrology_modifier])) as Record<SideHustleType,number>;
+  scoring.scoringTrace.final_report_type_score=Object.fromEntries(Object.entries(astrologyReport.types).map(([type,value])=>[type,value.final_report_type_score])) as Record<SideHustleType,number>;
+  return scoring;
 }
 
 export function buildClientReport(input: {
@@ -91,10 +97,12 @@ export function buildClientReport(input: {
       primaryType: typeLabel(primary.type),
       secondaryType: typeLabel(secondary.type),
       summary: buildOverview(typeLabel(primary.type), typeLabel(secondary.type), scoring.dimensions),
+      formalPrimaryType:scoring.astrologyReport!.formal_primary_type,formalSecondaryType:scoring.astrologyReport!.formal_secondary_type,
+      reportPrimaryType:scoring.astrologyReport!.report_primary_type,reportSecondaryType:scoring.astrologyReport!.report_secondary_type,astrologyRankAdjustment:scoring.astrologyReport!.astrology_rank_adjustment,
     },
     astrology: {
       placements,
-      summary: `你的星盤工作風格以 ${element} 元素為主要線索；這裡用來理解偏好的工作節奏，而不是替你限制選擇。`,
+      summary: `你的星盤工作風格以 ${element} 元素為主要線索；星盤只在正式行為分數上提供最多 ±0.25 的有限修正，不影響準備度或系統路由。`,
     },
     numerology: {
       lifePath,
@@ -104,7 +112,8 @@ export function buildClientReport(input: {
       summary: `生命靈數 ${lifePath} 描繪長期動機，生日數 ${birthday} 補充你較自然的行動方式。兩者適合和實際經驗一起閱讀。`,
     },
     actionProfile: ACTION_DIMENSIONS.map((key) => ({ key, label: config.dimensions[key].label, score: scoring.dimensions[key] })),
-    sideHustleModes: scoring.rankedTypes.map(({ type, score }, index) => ({ key: type, label: typeLabel(type), score, rank: index + 1 })),
+    sideHustleModes: scoring.rankedTypes.map(({ type, score }, index) => ({ key: type, label: typeLabel(type), formalTypeScore:score,typePercentile:scoring.typeDisplayScores[type].type_percentile,displayFitIndex:scoring.typeDisplayScores[type].display_fit_index,astrologyTypeAffinity:scoring.astrologyReport!.types[type].astrology_type_affinity,astrologyModifier:scoring.astrologyReport!.types[type].astrology_modifier,finalReportTypeScore:scoring.astrologyReport!.types[type].final_report_type_score, rank: index + 1 })),
+    typeState:scoring.typeState,
     frictions: (Object.entries(scoring.frictions) as Array<[string, number]>).map(([key, score]) => ({
       key,
       label: config.frictions[key as Exclude<keyof typeof config.frictions, "normalization_helpers">].label,

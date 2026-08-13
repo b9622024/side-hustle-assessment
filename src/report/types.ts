@@ -4,12 +4,14 @@ export interface AstrologyPlacement {
   sign: string;
   element: AstrologyElement;
   modality: AstrologyModality;
+  longitude?: number;
 }
 
 export interface AstrologyProfile {
   sun: AstrologyPlacement;
   moon?: AstrologyPlacement;
   ascendant?: AstrologyPlacement;
+  calculation?: {engine:string;timezone:string;precision:"SUN_ONLY"|"SUN_MOON"|"SUN_MOON_ASCENDANT";location_resolved:boolean;latitude?:number;longitude?:number};
 }
 
 export interface ClientReportData {
@@ -29,6 +31,11 @@ export interface ClientReportData {
     primaryType: string;
     secondaryType: string;
     summary: string;
+    formalPrimaryType?: SideHustleType;
+    formalSecondaryType?: SideHustleType;
+    reportPrimaryType?: SideHustleType;
+    reportSecondaryType?: SideHustleType;
+    astrologyRankAdjustment?: boolean;
   };
   astrology: {
     placements: Array<AstrologyPlacement & { key: "sun" | "moon" | "ascendant"; label: string }>;
@@ -42,7 +49,8 @@ export interface ClientReportData {
     summary: string;
   };
   actionProfile: Array<{ key: Exclude<Dimension, "K">; label: string; score: number }>;
-  sideHustleModes: Array<{ key: SideHustleType; label: string; score: number; rank: number }>;
+  sideHustleModes: Array<{ key: SideHustleType; label: string; formalTypeScore?: number; typePercentile?:number; displayFitIndex?:number; astrologyTypeAffinity?:number;astrologyModifier?:number;finalReportTypeScore?:number; score?:number; rank: number }>;
+  typeState?:"CLEAR"|"MIXED"|"EXPLORATORY";
   frictions: Array<{ key: string; label: string; score: number; guidance: string }>;
   spectrums: Array<{ key: string; left: string; right: string; score: number }>;
 }
