@@ -1,5 +1,5 @@
 import { config } from "../scoring/config";
-import { calculateAstrologyTypes, calculateLifePath, calculateNumerologyTypes, scoreAssessment } from "../scoring/engine";
+import { calculateLifePath, scoreAssessment } from "../scoring/engine";
 import type { AssessmentInput, Dimension, LifePathNumber, SideHustleType } from "../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "./types";
 
@@ -47,11 +47,8 @@ function buildOverview(primary: string, secondary: string, dimensions: Record<Di
 }
 
 export function calculateAssessmentScoring(assessment: AssessmentInput, astrology: AstrologyProfile) {
-  const lifePath = calculateLifePath(assessment.birthDate);
-  return scoreAssessment(assessment, {
-    astrology: calculateAstrologyTypes(astrology),
-    numerology: calculateNumerologyTypes(lifePath),
-  });
+  void astrology;
+  return scoreAssessment(assessment);
 }
 
 export function buildClientReport(input: {

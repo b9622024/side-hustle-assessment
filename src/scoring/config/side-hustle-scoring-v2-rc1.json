@@ -1,0 +1,2262 @@
+{
+  "meta": {
+    "config_name": "副業適性測驗 Scoring Engine V2 RC1 FINAL FULL CONFIG",
+    "config_version": "side-hustle-scoring-v2-rc1",
+    "status": "RELEASE_CANDIDATE",
+    "schema_role": "single_source_of_truth",
+    "self_contained": true,
+    "language": "zh-TW",
+    "theoretical_response_space_validated": 1048576,
+    "real_user_validation": "deferred_post_implementation"
+  },
+  "dimensions": {
+    "A": {
+      "key": "ACTION",
+      "label": "自主行動力"
+    },
+    "C": {
+      "key": "CONSISTENCY",
+      "label": "持續經營力"
+    },
+    "S": {
+      "key": "SYSTEM",
+      "label": "系統學習力"
+    },
+    "I": {
+      "key": "INFLUENCE",
+      "label": "表達影響力"
+    },
+    "R": {
+      "key": "RELATIONSHIP",
+      "label": "關係連結力"
+    },
+    "P": {
+      "key": "PROBLEM_SOLVING",
+      "label": "問題解決力"
+    },
+    "K": {
+      "key": "CAPITAL",
+      "label": "資本配置偏好"
+    }
+  },
+  "business_status_options": {
+    "NONE": "還沒有，目前正在找適合自己的方向",
+    "TRIED_NOT_ACTIVE": "曾經嘗試過一些副業，但沒有持續下來",
+    "ACTIVE": "目前已經有在經營副業、接案或個人品牌",
+    "STABLE": "已經有穩定經營的副業／事業，也有固定客戶或收入"
+  },
+  "questionnaire": [
+    {
+      "id": "Q1",
+      "text": "當你對一個新的副業機會產生興趣時，你通常會先做什麼？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "先找完整的方法、流程或教學，了解怎麼做",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "先實際做一點看看，再從過程中調整",
+          "dimensions": {
+            "A": 2,
+            "C": 0,
+            "S": 0,
+            "I": 1,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "先找做過的人聊聊，了解真實經驗",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 2,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "先評估需要投入多少時間、金錢，以及可能的回報",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q2",
+      "text": "如果一件事需要持續半年，才可能慢慢看到明顯成果，你比較接近哪一種？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "只要方向合理，我可以接受慢慢累積",
+          "dimensions": {
+            "A": 0,
+            "C": 2,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "可以，但過程中最好能持續看到一些小成果",
+          "dimensions": {
+            "A": 2,
+            "C": 1,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我會持續找方法，看看能不能做得更有效率",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "如果很長時間都沒有明顯成果，我可能會換其他方向",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "Q3",
+      "text": "當身邊的人遇到一個你熟悉的問題時，你通常比較像？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "幫他分析原因，再給他具體做法",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "分享自己的經驗，讓他從中得到一些想法",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 1,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "先聽他說，陪他釐清真正卡住的地方",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 2,
+            "P": 1,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "幫他整理相關資料、工具或資訊",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "Q4",
+      "text": "如果未來要透過一種方式增加第二收入，哪一種最吸引你？",
+      "weight": 1.25,
+      "high_discrimination": true,
+      "options": {
+        "A": {
+          "text": "建立一套能持續運作、甚至可以複製的系統",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "分享自己的觀點或內容，慢慢累積影響力",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "用自己的經驗或方法幫別人解決問題",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 1,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "透過資金配置，讓資產慢慢產生更多收益",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q5",
+      "text": "如果你學會了一項很實用的新能力，你最可能怎麼做？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "繼續練習，先把它做到熟練",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "開始把心得分享給別人",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "想想這項能力可以幫誰解決問題",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "把它整理成一套更有效率、可以重複使用的方法",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 1,
+            "K": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "Q6",
+      "text": "如果副業需要接觸原本不認識的人，你比較接近哪一種？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "只要有共同話題，我不太排斥主動認識新的人",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 2,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "我比較習慣對方先來找我，但聊起來後可以很深入",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 1,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我比較喜歡透過內容、作品或專業，讓別人先認識我",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "我會比較希望自己的副業盡量不用頻繁和陌生人互動",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "Q7",
+      "text": "如果每週固定要投入大約 5～7 小時建立第二收入，你比較希望怎麼安排？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "固定安排幾個時段，按照計畫做",
+          "dimensions": {
+            "A": 0,
+            "C": 2,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "保持彈性，有空時再集中完成",
+          "dimensions": {
+            "A": 2,
+            "C": 1,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "有明確任務或進度安排，我跟著節奏執行",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 2,
+            "I": 0,
+            "R": 1,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "如果可以，我會更希望投入資金，而不是固定投入很多時間",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q8",
+      "text": "當你知道某個方法已經有很多人實際做成功，你通常會？",
+      "weight": 1.0,
+      "options": {
+        "A": {
+          "text": "先照著方法做，掌握後再慢慢調整",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "理解基本原則後，很快就會加入自己的做法",
+          "dimensions": {
+            "A": 2,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我會先想弄懂它為什麼有效，再決定怎麼做",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "即使有效，我還是不太喜歡照著既有的方法走",
+          "dimensions": {
+            "A": 2,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "Q9",
+      "text": "下面哪一種成果最容易讓你有「這件事值得做」的感覺？",
+      "weight": 1.25,
+      "high_discrimination": true,
+      "options": {
+        "A": {
+          "text": "有人因為我的幫助，真的得到改善",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 1,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "我的想法或內容被更多人看見、認同",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "我把一件事情做得越來越有效率、越來越成熟",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 2,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "我的收入或資產有很明顯的成長",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "Q10",
+      "text": "如果副業發展得很順利，你最希望它最後變成什麼？",
+      "weight": 1.25,
+      "high_discrimination": true,
+      "options": {
+        "A": {
+          "text": "一個可以長期穩定經營的第二事業",
+          "dimensions": {
+            "A": 0,
+            "C": 2,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "B": {
+          "text": "一個屬於自己的品牌與影響力",
+          "dimensions": {
+            "A": 1,
+            "C": 0,
+            "S": 0,
+            "I": 2,
+            "R": 0,
+            "P": 0,
+            "K": 0
+          }
+        },
+        "C": {
+          "text": "一項別人願意付費找我的專業服務",
+          "dimensions": {
+            "A": 0,
+            "C": 0,
+            "S": 1,
+            "I": 0,
+            "R": 0,
+            "P": 2,
+            "K": 0
+          }
+        },
+        "D": {
+          "text": "一種可以慢慢降低時間投入的資產型收入",
+          "dimensions": {
+            "A": 0,
+            "C": 1,
+            "S": 0,
+            "I": 0,
+            "R": 0,
+            "P": 0,
+            "K": 2
+          }
+        }
+      }
+    }
+  ],
+  "formal_behavior_dimension_scoring": {
+    "v1_normalization": {
+      "formula": "1 + 4 * raw_score / max_raw",
+      "computed_max_raw": {
+        "A": 13.75,
+        "C": 12.0,
+        "S": 19.25,
+        "I": 14.5,
+        "R": 9.5,
+        "P": 17.5,
+        "K": 13.5
+      },
+      "note": "V1 dimension is an intermediate value only in RC1."
+    },
+    "v2_calibration": {
+      "target_center": 3.0,
+      "target_sd": 0.85,
+      "formula": "clamp(3 + (v1_dimension - reference_mean) * scale, 1, 5)",
+      "parameters": {
+        "A": {
+          "reference_mean": 2.38181818,
+          "reference_sd": 0.62403645,
+          "scale": 1.36209993
+        },
+        "C": {
+          "reference_mean": 2.27083333,
+          "reference_sd": 0.63224962,
+          "scale": 1.34440571
+        },
+        "S": {
+          "reference_mean": 2.53246753,
+          "reference_sd": 0.55889441,
+          "scale": 1.52085973
+        },
+        "I": {
+          "reference_mean": 2.0,
+          "reference_sd": 0.6730766,
+          "scale": 1.26285776
+        },
+        "R": {
+          "reference_mean": 2.21052632,
+          "reference_sd": 0.7168336,
+          "scale": 1.1857703
+        },
+        "P": {
+          "reference_mean": 2.24285714,
+          "reference_sd": 0.58186891,
+          "scale": 1.46081013
+        },
+        "K": {
+          "reference_mean": 2.0,
+          "reference_sd": 0.68793243,
+          "scale": 1.23558647
+        }
+      }
+    },
+    "rounding_policy": "keep full precision internally; round to 1 decimal only for display"
+  },
+  "formal_type_engine": {
+    "source": "formal_behavior_dimensions_v2_only",
+    "astrology_affects_score": false,
+    "numerology_affects_score": false,
+    "type_formulas": {
+      "SYSTEM_OPERATOR": {
+        "label": "系統經營型",
+        "weights": {
+          "S": 0.4,
+          "C": 0.3,
+          "A": 0.2,
+          "P": 0.1
+        }
+      },
+      "CONTENT_INFLUENCER": {
+        "label": "內容影響型",
+        "weights": {
+          "I": 0.5,
+          "A": 0.25,
+          "S": 0.15,
+          "R": 0.1
+        }
+      },
+      "CONSULTING_SERVICE": {
+        "label": "顧問服務型",
+        "weights": {
+          "P": 0.45,
+          "R": 0.25,
+          "C": 0.2,
+          "A": 0.1
+        }
+      },
+      "RELATIONSHIP_BUILDER": {
+        "label": "關係經營型",
+        "weights": {
+          "R": 0.45,
+          "P": 0.2,
+          "C": 0.2,
+          "A": 0.15
+        }
+      },
+      "PROFESSIONAL_SKILL": {
+        "label": "專業技能型",
+        "weights": {
+          "S": 0.35,
+          "P": 0.3,
+          "A": 0.25,
+          "I": 0.1
+        }
+      },
+      "CAPITAL_ALLOCATOR": {
+        "label": "資本配置型",
+        "weights": {
+          "K": 0.65,
+          "P": 0.15,
+          "C": 0.1,
+          "A": 0.1
+        }
+      }
+    },
+    "calibration": {
+      "target_center": 3.0,
+      "target_sd": 0.85,
+      "formula": "clamp(3 + (precalibrated_type - reference_mean) * scale, 1, 5)",
+      "parameters": {
+        "SYSTEM_OPERATOR": {
+          "reference_mean": 2.99628603,
+          "reference_sd": 0.40763237,
+          "scale": 2.08521224
+        },
+        "CONTENT_INFLUENCER": {
+          "reference_mean": 2.99524484,
+          "reference_sd": 0.4778535,
+          "scale": 1.77878785
+        },
+        "CONSULTING_SERVICE": {
+          "reference_mean": 2.99548308,
+          "reference_sd": 0.40855975,
+          "scale": 2.08047906
+        },
+        "RELATIONSHIP_BUILDER": {
+          "reference_mean": 2.99552079,
+          "reference_sd": 0.40770518,
+          "scale": 2.08483984
+        },
+        "PROFESSIONAL_SKILL": {
+          "reference_mean": 2.99591723,
+          "reference_sd": 0.25615973,
+          "scale": 3.31824208
+        },
+        "CAPITAL_ALLOCATOR": {
+          "reference_mean": 2.99456533,
+          "reference_sd": 0.51965399,
+          "scale": 1.63570378
+        }
+      }
+    },
+    "type_state": {
+      "evaluation_order": [
+        "EXPLORATORY",
+        "MIXED",
+        "CLEAR"
+      ],
+      "EXPLORATORY": {
+        "any": [
+          {
+            "left": "top1",
+            "op": "<",
+            "right": 3.5
+          },
+          {
+            "expression": "top1 - top3",
+            "op": "<",
+            "right": 0.2
+          }
+        ]
+      },
+      "MIXED": {
+        "all": [
+          {
+            "expression": "top1 - top2",
+            "op": "<",
+            "right": 0.45
+          },
+          {
+            "left": "top2",
+            "op": ">=",
+            "right": 3.5
+          }
+        ],
+        "requires_not": "EXPLORATORY"
+      },
+      "CLEAR": {
+        "fallback": true
+      }
+    }
+  },
+  "birth_profile": {
+    "affects_formal_behavior_dimensions": false,
+    "affects_formal_type_scores": false,
+    "affects_readiness": false,
+    "affects_business_fit": false,
+    "affects_routing": false,
+    "astrology": {
+      "weights": {
+        "sun": 0.4,
+        "moon": 0.35,
+        "ascendant": 0.25
+      },
+      "missing_point_rule": "renormalize remaining available point weights to 1.0; never score missing point as zero",
+      "outputs": [
+        "sun",
+        "moon",
+        "ascendant",
+        "element_distribution",
+        "modality_distribution",
+        "data_completeness"
+      ],
+      "role": [
+        "report_display",
+        "cross_analysis"
+      ]
+    },
+    "numerology": {
+      "master_numbers": [
+        11,
+        22,
+        33
+      ],
+      "inputs": [
+        "life_path_number",
+        "birthday_number",
+        "digit_counts",
+        "repeated_digits",
+        "missing_digits"
+      ],
+      "role": [
+        "report_display",
+        "cross_analysis"
+      ]
+    }
+  },
+  "readiness": {
+    "components": {
+      "R1_start_style": {
+        "question": "Q1",
+        "option_scores": {
+          "A": 4.5,
+          "B": 5.0,
+          "C": 4.0,
+          "D": 3.5
+        },
+        "weight": 0.15
+      },
+      "R2_result_patience": {
+        "question": "Q2",
+        "option_scores": {
+          "A": 5.0,
+          "B": 3.5,
+          "C": 4.0,
+          "D": 1.5
+        },
+        "weight": 0.25
+      },
+      "R3_time_commitment": {
+        "question": "Q7",
+        "option_scores": {
+          "A": 5.0,
+          "B": 4.0,
+          "C": 4.5,
+          "D": 1.5
+        },
+        "weight": 0.25
+      },
+      "R4_system_learning": {
+        "question": "Q8",
+        "option_scores": {
+          "A": 5.0,
+          "B": 4.5,
+          "C": 4.0,
+          "D": 2.0
+        },
+        "weight": 0.2
+      },
+      "R5_long_term_intent": {
+        "question": "Q10",
+        "option_scores": {
+          "A": 5.0,
+          "B": 4.5,
+          "C": 4.5,
+          "D": 2.0
+        },
+        "weight": 0.15
+      }
+    },
+    "levels": [
+      {
+        "key": "READY_HIGH",
+        "label": "高度準備",
+        "min": 4.2,
+        "max": 5.0
+      },
+      {
+        "key": "READY",
+        "label": "具備準備度",
+        "min": 3.6,
+        "max": 4.199999
+      },
+      {
+        "key": "EXPLORING",
+        "label": "探索階段",
+        "min": 3.0,
+        "max": 3.599999
+      },
+      {
+        "key": "LOW",
+        "label": "暫不適合投入經營型副業",
+        "min": 1.0,
+        "max": 2.999999
+      }
+    ]
+  },
+  "stranger_interaction": {
+    "question": "Q6",
+    "mapping": {
+      "A": {
+        "score": 5.0,
+        "type": "ACTIVE_SOCIAL",
+        "label": "主動交流型"
+      },
+      "B": {
+        "score": 4.5,
+        "type": "INBOUND_DEEP",
+        "label": "被動承接深入型"
+      },
+      "C": {
+        "score": 4.5,
+        "type": "CONTENT_ATTRACTION",
+        "label": "內容吸引型"
+      },
+      "D": {
+        "score": 2.0,
+        "type": "LOW_INTERACTION",
+        "label": "陌生互動低意願型"
+      }
+    },
+    "routing_weight": 0.05
+  },
+  "risk_flags": {
+    "F1": {
+      "label": "短期成果依賴",
+      "trigger": {
+        "question": "Q2",
+        "option": "D"
+      },
+      "severity": "HIGH"
+    },
+    "F2": {
+      "label": "陌生互動阻力",
+      "trigger": {
+        "question": "Q6",
+        "option": "D"
+      },
+      "severity": "MEDIUM"
+    },
+    "F3": {
+      "label": "固定時間投入阻力",
+      "trigger": {
+        "question": "Q7",
+        "option": "D"
+      },
+      "severity": "HIGH"
+    },
+    "F4": {
+      "label": "成熟系統抗拒",
+      "trigger": {
+        "question": "Q8",
+        "option": "D"
+      },
+      "severity": "MEDIUM"
+    },
+    "routing_roles": {
+      "F1": "force-D/A exclusion",
+      "F2": "coach-only; does not independently qualify Route B",
+      "F3": "force-D/A exclusion",
+      "F4": "supporting condition for lowest Route B band"
+    }
+  },
+  "routing_behavior_dimension_scoring": {
+    "purpose": "Business Fit and ABCD routing only",
+    "question_weight_overrides": {
+      "Q9": 1.0,
+      "Q10": 1.0
+    },
+    "all_other_question_weights": "same as questionnaire",
+    "v1_normalization": {
+      "formula": "1 + 4 * raw_score / routing_max_raw"
+    },
+    "v2_calibration": {
+      "target_center": 3.0,
+      "target_sd": 0.85,
+      "formula": "clamp(3 + (routing_v1_dimension - reference_mean) * scale, 1, 5)",
+      "parameters": {
+        "A": {
+          "reference_mean": 2.37735849,
+          "reference_sd": 0.63003049,
+          "scale": 1.34914107
+        },
+        "C": {
+          "reference_mean": 2.26666667,
+          "reference_sd": 0.6265721,
+          "scale": 1.3565877
+        },
+        "S": {
+          "reference_mean": 2.54054054,
+          "reference_sd": 0.5584859,
+          "scale": 1.52197217
+        },
+        "I": {
+          "reference_mean": 2.0,
+          "reference_sd": 0.66974597,
+          "scale": 1.2691379
+        },
+        "R": {
+          "reference_mean": 2.21621622,
+          "reference_sd": 0.72268875,
+          "scale": 1.17616331
+        },
+        "P": {
+          "reference_mean": 2.25757576,
+          "reference_sd": 0.57555818,
+          "scale": 1.47682724
+        },
+        "K": {
+          "reference_mean": 2.0,
+          "reference_sd": 0.68234888,
+          "scale": 1.24569706
+        }
+      }
+    },
+    "rounding_policy": "full precision only for routing"
+  },
+  "business_fit": {
+    "source": "routing_behavior_dimensions_v2 + stranger_interaction_X",
+    "weights": {
+      "P": 0.25,
+      "S": 0.225,
+      "C": 0.225,
+      "R": 0.15,
+      "A": 0.1,
+      "X": 0.05
+    },
+    "formula": "P*0.25 + S*0.225 + C*0.225 + R*0.15 + A*0.10 + X*0.05",
+    "numeric_policy": "full precision; no display rounding before thresholds"
+  },
+  "routing": {
+    "evaluation_order": [
+      "FORCE_D",
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "rules": {
+      "FORCE_D": {
+        "any": [
+          {
+            "id": "FORCE_D_HIGH_RISK",
+            "all": [
+              {
+                "flag": "F1",
+                "op": "==",
+                "value": true
+              },
+              {
+                "flag": "F3",
+                "op": "==",
+                "value": true
+              }
+            ]
+          },
+          {
+            "id": "FORCE_D_CAPITAL_LOW_SERVICE_SYSTEM",
+            "all": [
+              {
+                "metric": "formal_type.CAPITAL_ALLOCATOR",
+                "op": ">=",
+                "value": 4.0
+              },
+              {
+                "count": {
+                  "metrics": [
+                    "routing_dimension.P",
+                    "routing_dimension.R",
+                    "routing_dimension.S"
+                  ],
+                  "predicate": {
+                    "op": "<",
+                    "value": 2.8
+                  }
+                },
+                "op": ">=",
+                "value": 2
+              }
+            ]
+          }
+        ],
+        "route": "D"
+      },
+      "A": {
+        "all": [
+          {
+            "metric": "business_fit",
+            "op": ">=",
+            "value": 3.55
+          },
+          {
+            "metric": "readiness",
+            "op": ">=",
+            "value": 3.8
+          },
+          {
+            "flag": "F1",
+            "op": "==",
+            "value": false
+          },
+          {
+            "flag": "F3",
+            "op": "==",
+            "value": false
+          },
+          {
+            "count": {
+              "metrics": [
+                "routing_dimension.P",
+                "routing_dimension.R",
+                "routing_dimension.S"
+              ],
+              "predicate": {
+                "op": ">=",
+                "value": 3.5
+              }
+            },
+            "op": ">=",
+            "value": 2
+          }
+        ],
+        "route": "A",
+        "label": "健康事業優先探索"
+      },
+      "C": {
+        "all": [
+          {
+            "field": "business_status",
+            "op": "in",
+            "value": [
+              "ACTIVE",
+              "STABLE"
+            ]
+          },
+          {
+            "any": [
+              {
+                "metric": "formal_type.SYSTEM_OPERATOR",
+                "op": ">=",
+                "value": 3.8
+              },
+              {
+                "metric": "formal_type.CONTENT_INFLUENCER",
+                "op": ">=",
+                "value": 3.8
+              },
+              {
+                "metric": "formal_type.PROFESSIONAL_SKILL",
+                "op": ">=",
+                "value": 3.8
+              }
+            ]
+          }
+        ],
+        "route": "C",
+        "label": "既有事業發展優先",
+        "requires_previous_rules_not_matched": [
+          "FORCE_D",
+          "A"
+        ]
+      },
+      "B": {
+        "any": [
+          {
+            "metric": "business_fit",
+            "op": ">=",
+            "value": 3.35
+          },
+          {
+            "all": [
+              {
+                "metric": "business_fit",
+                "op": ">=",
+                "value": 3.15
+              },
+              {
+                "metric": "readiness",
+                "op": ">=",
+                "value": 3.2
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "metric": "business_fit",
+                "op": ">=",
+                "value": 3.05
+              },
+              {
+                "metric": "readiness",
+                "op": ">=",
+                "value": 3.4
+              },
+              {
+                "flag": "F4",
+                "op": "==",
+                "value": true
+              }
+            ]
+          }
+        ],
+        "route": "B",
+        "label": "具潛力，需要進一步確認",
+        "requires_previous_rules_not_matched": [
+          "FORCE_D",
+          "A",
+          "C"
+        ],
+        "F2_is_not_a_qualifier": true
+      },
+      "D": {
+        "fallback": true,
+        "route": "D",
+        "label": "其他模式優先"
+      }
+    }
+  },
+  "client_metrics": {
+    "frictions": {
+      "normalization_helpers": {
+        "norm_formula": "10 * (dimension_score - 1) / 4",
+        "reverse_norm_formula": "10 * (5 - dimension_score) / 4"
+      },
+      "START_HESITATION": {
+        "label": "啟動猶豫",
+        "sources": {
+          "Q1": {
+            "A": 4,
+            "B": 1,
+            "C": 3,
+            "D": 5
+          },
+          "A_reverse_norm": true
+        },
+        "formula_weights": {
+          "Q1": 0.6,
+          "A_reverse_norm": 0.4
+        }
+      },
+      "CONSISTENCY_PRESSURE": {
+        "label": "穩定投入壓力",
+        "sources": {
+          "Q2": {
+            "A": 1,
+            "B": 4,
+            "C": 3,
+            "D": 9
+          },
+          "Q7": {
+            "A": 1,
+            "B": 4,
+            "C": 2,
+            "D": 10
+          },
+          "C_reverse_norm": true
+        },
+        "formula_weights": {
+          "Q2": 0.35,
+          "Q7": 0.35,
+          "C_reverse_norm": 0.3
+        }
+      },
+      "SYSTEM_RESISTANCE": {
+        "label": "系統配合阻力",
+        "sources": {
+          "Q8": {
+            "A": 1,
+            "B": 3,
+            "C": 2,
+            "D": 10
+          },
+          "S_reverse_norm": true
+        },
+        "formula_weights": {
+          "Q8": 0.7,
+          "S_reverse_norm": 0.3
+        }
+      },
+      "STRANGER_INTERACTION_PRESSURE": {
+        "label": "陌生互動壓力",
+        "sources": {
+          "Q6": {
+            "A": 1,
+            "B": 3,
+            "C": 2,
+            "D": 9
+          },
+          "R_reverse_norm": true
+        },
+        "formula_weights": {
+          "Q6": 0.8,
+          "R_reverse_norm": 0.2
+        }
+      },
+      "RESULT_ANXIETY": {
+        "label": "成果焦慮",
+        "sources": {
+          "Q2": {
+            "A": 1,
+            "B": 5,
+            "C": 3,
+            "D": 10
+          },
+          "Q9": {
+            "A": 2,
+            "B": 4,
+            "C": 2,
+            "D": 7
+          },
+          "C_reverse_norm": true
+        },
+        "formula_weights": {
+          "Q2": 0.5,
+          "Q9": 0.2,
+          "C_reverse_norm": 0.3
+        }
+      }
+    },
+    "execution_spectrums": {
+      "FREEDOM_VS_STRUCTURE": {
+        "label_left": "自由摸索",
+        "label_right": "明確系統",
+        "sources": {
+          "Q1": {
+            "A": 9,
+            "B": 2,
+            "C": 6,
+            "D": 5
+          },
+          "Q8": {
+            "A": 10,
+            "B": 6,
+            "C": 8,
+            "D": 1
+          },
+          "S_norm": true
+        },
+        "formula_weights": {
+          "Q1": 0.3,
+          "Q8": 0.4,
+          "S_norm": 0.3
+        }
+      },
+      "ANALYSIS_VS_ACTION": {
+        "label_left": "分析準備",
+        "label_right": "行動嘗試",
+        "sources": {
+          "Q1": {
+            "A": 2,
+            "B": 10,
+            "C": 4,
+            "D": 1
+          },
+          "Q5": {
+            "A": 3,
+            "B": 7,
+            "C": 7,
+            "D": 4
+          },
+          "Q8": {
+            "A": 4,
+            "B": 8,
+            "C": 2,
+            "D": 9
+          },
+          "A_norm": true,
+          "S_reverse_norm": true
+        },
+        "formula_weights": {
+          "Q1": 0.3,
+          "Q5": 0.15,
+          "Q8": 0.2,
+          "A_norm": 0.25,
+          "S_reverse_norm": 0.1
+        }
+      },
+      "BEHIND_SCENES_VS_EXPRESSION": {
+        "label_left": "幕後執行",
+        "label_right": "對外表達",
+        "sources": {
+          "Q3": {
+            "A": 3,
+            "B": 9,
+            "C": 5,
+            "D": 2
+          },
+          "Q5": {
+            "A": 2,
+            "B": 10,
+            "C": 5,
+            "D": 2
+          },
+          "Q6": {
+            "A": 6,
+            "B": 4,
+            "C": 9,
+            "D": 1
+          },
+          "Q9": {
+            "A": 4,
+            "B": 10,
+            "C": 2,
+            "D": 3
+          },
+          "I_norm": true
+        },
+        "formula_weights": {
+          "Q3": 0.15,
+          "Q5": 0.2,
+          "Q6": 0.2,
+          "Q9": 0.2,
+          "I_norm": 0.25
+        }
+      },
+      "TIME_VS_CAPITAL": {
+        "label_left": "時間經營",
+        "label_right": "資本配置",
+        "sources": {
+          "Q4": {
+            "A": 3,
+            "B": 2,
+            "C": 1,
+            "D": 10
+          },
+          "Q7": {
+            "A": 1,
+            "B": 2,
+            "C": 1,
+            "D": 10
+          },
+          "Q10": {
+            "A": 2,
+            "B": 2,
+            "C": 1,
+            "D": 10
+          },
+          "K_norm": true
+        },
+        "formula_weights": {
+          "Q4": 0.25,
+          "Q7": 0.25,
+          "Q10": 0.25,
+          "K_norm": 0.25
+        }
+      }
+    }
+  },
+  "client_visibility": {
+    "allowed": [
+      "basic_profile",
+      "astrology_profile",
+      "numerology_profile",
+      "core_dimensions.A",
+      "core_dimensions.C",
+      "core_dimensions.S",
+      "core_dimensions.I",
+      "core_dimensions.R",
+      "core_dimensions.P",
+      "side_hustle_types",
+      "client_frictions",
+      "execution_spectrums"
+    ],
+    "hidden": [
+      "readiness",
+      "business_fit",
+      "routing",
+      "risk_flags",
+      "health_business_potential",
+      "ai_marketing_potential",
+      "consultation_priority",
+      "coach_insights"
+    ]
+  },
+  "coach_output_requirements": {
+    "include_raw_answers": true,
+    "include_dimension_scores": true,
+    "include_type_source_breakdown": true,
+    "include_readiness": true,
+    "include_business_fit": true,
+    "include_risk_flags": true,
+    "include_routing": true,
+    "include_secondary_tags": true,
+    "include_cross_analysis": true,
+    "include_strengths": true,
+    "include_frictions": true,
+    "include_blind_spots": true,
+    "include_recommended_questions": true,
+    "include_recommended_cta": true
+  },
+  "scoring_trace_required": {
+    "fields": [
+      "question_answers",
+      "formal_question_weights",
+      "routing_question_weights",
+      "behavior_raw_scores",
+      "behavior_dimension_v1",
+      "formal_behavior_dimension_v2",
+      "routing_behavior_dimension_v1",
+      "routing_behavior_dimension_v2",
+      "formal_type_precalibrated",
+      "formal_type_final",
+      "type_ranking",
+      "type_state",
+      "readiness_components",
+      "readiness_score",
+      "stranger_interaction",
+      "business_fit_components",
+      "business_fit_score",
+      "risk_flags",
+      "force_d_trace",
+      "routing_trace",
+      "system_route"
+    ]
+  },
+  "golden_cases": [
+    {
+      "id": "G01",
+      "label": "PURE_SYSTEM",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "A",
+          "Q3": "D",
+          "Q4": "A",
+          "Q5": "D",
+          "Q6": "C",
+          "Q7": "A",
+          "Q8": "A",
+          "Q9": "C",
+          "Q10": "A"
+        },
+        "answers_compact": "AADADCAACA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "SYSTEM_OPERATOR",
+        "secondary_type": "PROFESSIONAL_SKILL",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 4.902759,
+          "CONTENT_INFLUENCER": 1.946276,
+          "CONSULTING_SERVICE": 1.628854,
+          "RELATIONSHIP_BUILDER": 1.429416,
+          "PROFESSIONAL_SKILL": 2.444508,
+          "CAPITAL_ALLOCATOR": 1.432863
+        },
+        "readiness": 4.925,
+        "routing_business_fit": 3.289308,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "B"
+      }
+    },
+    {
+      "id": "G02",
+      "label": "PURE_CONTENT",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "B",
+          "Q2": "B",
+          "Q3": "B",
+          "Q4": "B",
+          "Q5": "B",
+          "Q6": "C",
+          "Q7": "B",
+          "Q8": "B",
+          "Q9": "B",
+          "Q10": "B"
+        },
+        "answers_compact": "BBBBBCBBBB",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CONTENT_INFLUENCER",
+        "secondary_type": "RELATIONSHIP_BUILDER",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 1.538336,
+          "CONTENT_INFLUENCER": 5.0,
+          "CONSULTING_SERVICE": 1.0,
+          "RELATIONSHIP_BUILDER": 1.660812,
+          "PROFESSIONAL_SKILL": 1.556204,
+          "CAPITAL_ALLOCATOR": 1.444024
+        },
+        "readiness": 4.2,
+        "routing_business_fit": 2.123378,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "D"
+      }
+    },
+    {
+      "id": "G03",
+      "label": "PURE_CONSULTING",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "C",
+          "Q2": "A",
+          "Q3": "A",
+          "Q4": "C",
+          "Q5": "C",
+          "Q6": "B",
+          "Q7": "A",
+          "Q8": "C",
+          "Q9": "A",
+          "Q10": "C"
+        },
+        "answers_compact": "CAACCBACAC",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CONSULTING_SERVICE",
+        "secondary_type": "RELATIONSHIP_BUILDER",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 2.561117,
+          "CONTENT_INFLUENCER": 1.362758,
+          "CONSULTING_SERVICE": 5.0,
+          "RELATIONSHIP_BUILDER": 4.643187,
+          "PROFESSIONAL_SKILL": 2.939877,
+          "CAPITAL_ALLOCATOR": 1.956606
+        },
+        "readiness": 4.575,
+        "routing_business_fit": 3.580048,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "A"
+      }
+    },
+    {
+      "id": "G04",
+      "label": "PURE_RELATIONSHIP",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "C",
+          "Q2": "B",
+          "Q3": "C",
+          "Q4": "A",
+          "Q5": "B",
+          "Q6": "A",
+          "Q7": "C",
+          "Q8": "D",
+          "Q9": "D",
+          "Q10": "A"
+        },
+        "answers_compact": "CBCABACDDA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "RELATIONSHIP_BUILDER",
+        "secondary_type": "CONTENT_INFLUENCER",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 3.209985,
+          "CONTENT_INFLUENCER": 3.248547,
+          "CONSULTING_SERVICE": 3.043375,
+          "RELATIONSHIP_BUILDER": 4.752853,
+          "PROFESSIONAL_SKILL": 1.943116,
+          "CAPITAL_ALLOCATOR": 2.535523
+        },
+        "readiness": 3.75,
+        "routing_business_fit": 3.152812,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": true
+        },
+        "system_route": "B"
+      }
+    },
+    {
+      "id": "G05",
+      "label": "PURE_PROFESSIONAL_SKILL",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "C",
+          "Q3": "D",
+          "Q4": "C",
+          "Q5": "A",
+          "Q6": "C",
+          "Q7": "B",
+          "Q8": "C",
+          "Q9": "C",
+          "Q10": "C"
+        },
+        "answers_compact": "ACDCACBCCC",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "PROFESSIONAL_SKILL",
+        "secondary_type": "SYSTEM_OPERATOR",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 4.592158,
+          "CONTENT_INFLUENCER": 2.409708,
+          "CONSULTING_SERVICE": 3.555934,
+          "RELATIONSHIP_BUILDER": 2.485149,
+          "PROFESSIONAL_SKILL": 5.0,
+          "CAPITAL_ALLOCATOR": 1.840889
+        },
+        "readiness": 4.15,
+        "routing_business_fit": 3.630388,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "A"
+      }
+    },
+    {
+      "id": "G06",
+      "label": "PURE_CAPITAL",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "D",
+          "Q2": "A",
+          "Q3": "D",
+          "Q4": "D",
+          "Q5": "D",
+          "Q6": "D",
+          "Q7": "D",
+          "Q8": "D",
+          "Q9": "D",
+          "Q10": "D"
+        },
+        "answers_compact": "DADDDDDDDD",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CAPITAL_ALLOCATOR",
+        "secondary_type": "SYSTEM_OPERATOR",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 2.157061,
+          "CONTENT_INFLUENCER": 1.249696,
+          "CONSULTING_SERVICE": 1.663054,
+          "RELATIONSHIP_BUILDER": 1.206359,
+          "PROFESSIONAL_SKILL": 1.202066,
+          "CAPITAL_ALLOCATOR": 4.899566
+        },
+        "readiness": 2.85,
+        "routing_business_fit": 2.443537,
+        "risk_flags": {
+          "F1": false,
+          "F2": true,
+          "F3": true,
+          "F4": true
+        },
+        "system_route": "D"
+      }
+    },
+    {
+      "id": "G07",
+      "label": "MIXED_SYSTEM_SKILL",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "B",
+          "Q3": "D",
+          "Q4": "A",
+          "Q5": "D",
+          "Q6": "D",
+          "Q7": "B",
+          "Q8": "B",
+          "Q9": "C",
+          "Q10": "C"
+        },
+        "answers_compact": "ABDADDBBCC",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "SYSTEM_OPERATOR",
+        "secondary_type": "PROFESSIONAL_SKILL",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 5.0,
+          "CONTENT_INFLUENCER": 2.383851,
+          "CONSULTING_SERVICE": 2.387461,
+          "RELATIONSHIP_BUILDER": 2.002367,
+          "PROFESSIONAL_SKILL": 5.0,
+          "CAPITAL_ALLOCATOR": 2.212355
+        },
+        "readiness": 4.125,
+        "routing_business_fit": 3.32083,
+        "risk_flags": {
+          "F1": false,
+          "F2": true,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "B"
+      }
+    },
+    {
+      "id": "G08",
+      "label": "MIXED_CONSULTING_RELATIONSHIP",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "C",
+          "Q2": "D",
+          "Q3": "C",
+          "Q4": "C",
+          "Q5": "B",
+          "Q6": "B",
+          "Q7": "A",
+          "Q8": "C",
+          "Q9": "A",
+          "Q10": "A"
+        },
+        "answers_compact": "CDCCBBACAA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CONSULTING_SERVICE",
+        "secondary_type": "RELATIONSHIP_BUILDER",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 2.23998,
+          "CONTENT_INFLUENCER": 2.112643,
+          "CONSULTING_SERVICE": 5.0,
+          "RELATIONSHIP_BUILDER": 5.0,
+          "PROFESSIONAL_SKILL": 2.291313,
+          "CAPITAL_ALLOCATOR": 2.330379
+        },
+        "readiness": 3.775,
+        "routing_business_fit": 3.472721,
+        "risk_flags": {
+          "F1": true,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "B"
+      }
+    },
+    {
+      "id": "G09",
+      "label": "MIXED_CONTENT_SYSTEM",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "A",
+          "Q3": "B",
+          "Q4": "A",
+          "Q5": "B",
+          "Q6": "C",
+          "Q7": "A",
+          "Q8": "B",
+          "Q9": "B",
+          "Q10": "A"
+        },
+        "answers_compact": "AABABCABBA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CONTENT_INFLUENCER",
+        "secondary_type": "SYSTEM_OPERATOR",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 4.423685,
+          "CONTENT_INFLUENCER": 4.464577,
+          "CONSULTING_SERVICE": 1.613695,
+          "RELATIONSHIP_BUILDER": 2.146017,
+          "PROFESSIONAL_SKILL": 2.477061,
+          "CAPITAL_ALLOCATOR": 1.544476
+        },
+        "readiness": 4.825,
+        "routing_business_fit": 3.075355,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "D"
+      }
+    },
+    {
+      "id": "G10",
+      "label": "EXPLORATORY",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "B",
+          "Q2": "D",
+          "Q3": "D",
+          "Q4": "B",
+          "Q5": "A",
+          "Q6": "B",
+          "Q7": "C",
+          "Q8": "A",
+          "Q9": "A",
+          "Q10": "D"
+        },
+        "answers_compact": "BDDBABCAAD",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "PROFESSIONAL_SKILL",
+        "secondary_type": "RELATIONSHIP_BUILDER",
+        "type_state": "EXPLORATORY",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 2.936524,
+          "CONTENT_INFLUENCER": 2.967627,
+          "CONSULTING_SERVICE": 2.980208,
+          "RELATIONSHIP_BUILDER": 3.026626,
+          "PROFESSIONAL_SKILL": 3.084906,
+          "CAPITAL_ALLOCATOR": 2.989025
+        },
+        "readiness": 3.55,
+        "routing_business_fit": 3.063535,
+        "risk_flags": {
+          "F1": true,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "D"
+      }
+    },
+    {
+      "id": "G11",
+      "label": "ROUTE_A_HIGH_FIT_READY",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "A",
+          "Q3": "C",
+          "Q4": "C",
+          "Q5": "D",
+          "Q6": "B",
+          "Q7": "A",
+          "Q8": "A",
+          "Q9": "A",
+          "Q10": "A"
+        },
+        "answers_compact": "AACCDBAAAA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CONSULTING_SERVICE",
+        "secondary_type": "RELATIONSHIP_BUILDER",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 4.216196,
+          "CONTENT_INFLUENCER": 1.43951,
+          "CONSULTING_SERVICE": 5.0,
+          "RELATIONSHIP_BUILDER": 4.980225,
+          "PROFESSIONAL_SKILL": 2.905425,
+          "CAPITAL_ALLOCATOR": 2.006332
+        },
+        "readiness": 4.925,
+        "routing_business_fit": 3.960449,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "A"
+      }
+    },
+    {
+      "id": "G12",
+      "label": "ROUTE_B_FIT_LOW_READINESS",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "C",
+          "Q2": "B",
+          "Q3": "A",
+          "Q4": "C",
+          "Q5": "A",
+          "Q6": "A",
+          "Q7": "D",
+          "Q8": "D",
+          "Q9": "A",
+          "Q10": "C"
+        },
+        "answers_compact": "CBACAADDAC",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "RELATIONSHIP_BUILDER",
+        "secondary_type": "CONSULTING_SERVICE",
+        "type_state": "MIXED",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 2.26367,
+          "CONTENT_INFLUENCER": 2.072087,
+          "CONSULTING_SERVICE": 4.903324,
+          "RELATIONSHIP_BUILDER": 4.965211,
+          "PROFESSIONAL_SKILL": 3.247078,
+          "CAPITAL_ALLOCATOR": 2.689846
+        },
+        "readiness": 2.925,
+        "routing_business_fit": 3.349643,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": true,
+          "F4": true
+        },
+        "system_route": "D"
+      }
+    },
+    {
+      "id": "G13",
+      "label": "ROUTE_B_STRANGER_RESISTANCE",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "A",
+          "Q3": "A",
+          "Q4": "C",
+          "Q5": "C",
+          "Q6": "D",
+          "Q7": "A",
+          "Q8": "C",
+          "Q9": "A",
+          "Q10": "A"
+        },
+        "answers_compact": "AAACCDACAA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CONSULTING_SERVICE",
+        "secondary_type": "SYSTEM_OPERATOR",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 4.039724,
+          "CONTENT_INFLUENCER": 1.26497,
+          "CONSULTING_SERVICE": 5.0,
+          "RELATIONSHIP_BUILDER": 3.832478,
+          "PROFESSIONAL_SKILL": 3.531887,
+          "CAPITAL_ALLOCATOR": 2.567394
+        },
+        "readiness": 4.725,
+        "routing_business_fit": 3.675332,
+        "risk_flags": {
+          "F1": false,
+          "F2": true,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "B"
+      }
+    },
+    {
+      "id": "G14",
+      "label": "ROUTE_C_EXISTING_BUSINESS",
+      "input": {
+        "business_status": "ACTIVE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "A",
+          "Q3": "A",
+          "Q4": "A",
+          "Q5": "A",
+          "Q6": "A",
+          "Q7": "A",
+          "Q8": "A",
+          "Q9": "B",
+          "Q10": "A"
+        },
+        "answers_compact": "AAAAAAAABA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "SYSTEM_OPERATOR",
+        "secondary_type": "PROFESSIONAL_SKILL",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 5.0,
+          "CONTENT_INFLUENCER": 2.594876,
+          "CONSULTING_SERVICE": 2.333703,
+          "RELATIONSHIP_BUILDER": 2.64504,
+          "PROFESSIONAL_SKILL": 2.891892,
+          "CAPITAL_ALLOCATOR": 1.578696
+        },
+        "readiness": 4.925,
+        "routing_business_fit": 3.496324,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": false,
+          "F4": false
+        },
+        "system_route": "C"
+      }
+    },
+    {
+      "id": "G15",
+      "label": "ROUTE_D_CAPITAL_PREFERENCE",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "A",
+          "Q3": "A",
+          "Q4": "D",
+          "Q5": "A",
+          "Q6": "A",
+          "Q7": "D",
+          "Q8": "B",
+          "Q9": "D",
+          "Q10": "D"
+        },
+        "answers_compact": "AAADAADBDD",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "CAPITAL_ALLOCATOR",
+        "secondary_type": "SYSTEM_OPERATOR",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 3.076952,
+          "CONTENT_INFLUENCER": 1.687847,
+          "CONSULTING_SERVICE": 2.325187,
+          "RELATIONSHIP_BUILDER": 2.501578,
+          "PROFESSIONAL_SKILL": 1.565413,
+          "CAPITAL_ALLOCATOR": 5.0
+        },
+        "readiness": 3.5,
+        "routing_business_fit": 2.98844,
+        "risk_flags": {
+          "F1": false,
+          "F2": false,
+          "F3": true,
+          "F4": false
+        },
+        "system_route": "D"
+      }
+    },
+    {
+      "id": "G16",
+      "label": "ROUTE_D_HIGH_RISK",
+      "input": {
+        "business_status": "NONE",
+        "answers": {
+          "Q1": "A",
+          "Q2": "D",
+          "Q3": "C",
+          "Q4": "C",
+          "Q5": "A",
+          "Q6": "A",
+          "Q7": "D",
+          "Q8": "A",
+          "Q9": "A",
+          "Q10": "A"
+        },
+        "answers_compact": "ADCCAADAAA",
+        "birth_data_required_for_core_scoring": false
+      },
+      "expected": {
+        "primary_type": "RELATIONSHIP_BUILDER",
+        "secondary_type": "CONSULTING_SERVICE",
+        "type_state": "CLEAR",
+        "type_scores": {
+          "SYSTEM_OPERATOR": 3.032586,
+          "CONTENT_INFLUENCER": 1.712099,
+          "CONSULTING_SERVICE": 4.214538,
+          "RELATIONSHIP_BUILDER": 4.760175,
+          "PROFESSIONAL_SKILL": 1.831636,
+          "CAPITAL_ALLOCATOR": 2.854464
+        },
+        "readiness": 3.175,
+        "routing_business_fit": 3.432608,
+        "risk_flags": {
+          "F1": true,
+          "F2": false,
+          "F3": true,
+          "F4": false
+        },
+        "system_route": "D"
+      }
+    }
+  ],
+  "validation": {
+    "required_questions": [
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q5",
+      "Q6",
+      "Q7",
+      "Q8",
+      "Q9",
+      "Q10"
+    ],
+    "allowed_options": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "core_rules": [
+      "All 10 answers are required.",
+      "Formal and routing dimensions are separate calculations.",
+      "Formal type scores use formal behavior dimensions only.",
+      "Astrology and numerology never change formal type, readiness, business fit, or route.",
+      "All routing comparisons use full precision.",
+      "Exactly one system_route must be produced."
+    ],
+    "validated_response_space": 1048576,
+    "release_candidate_status": "PASS"
+  }
+}

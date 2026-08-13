@@ -29,9 +29,9 @@ const syntheticCases:[string,AssessmentInput][]=[
 ];
 
 describe("Scoring Config audit",()=>{
-  it("uses the calibrated V1.0.1 versions while retaining V1.0.0 as base",()=>{
-    expect(config.meta.config_version).toBe("side-hustle-scoring-config-1.0.1");
-    expect(config.meta.scoring_engine_version).toBe("side-hustle-scoring-1.0.1");
+  it("uses the locked RC1 FULL CONFIG while retaining the V1 compatibility marker",()=>{
+    expect(config.meta.config_version).toBe("side-hustle-scoring-v2-rc1");
+    expect(config.meta.scoring_engine_version).toBe("side-hustle-scoring-v2-rc1");
     expect(config.meta.base_config_version).toBe("side-hustle-scoring-config-1.0.0");
   });
   it("has ten questions and four options per question",()=>{
@@ -61,9 +61,10 @@ describe("Scoring Config audit",()=>{
       if(behavior[type]<3) expect(final[type]).toBeLessThanOrEqual(3.4);
     });
   });
-  it("renormalizes astrology weights when birth time components are unavailable",()=>{
+  it("isolates the legacy astrology helper from formal scoring",()=>{
     const sunOnly=calculateAstrologyTypes({sun:{element:"EARTH",modality:"CARDINAL"}});
-    expect(sunOnly.SYSTEM_OPERATOR).toBe(4.5);
+    expect(sunOnly.SYSTEM_OPERATOR).toBe(3);
+    expect(scoreAssessment(input("AAAAAAAAAA")).finalTypes).toEqual(scoreAssessment(input("AAAAAAAAAA","NONE","1989-01-17")).finalTypes);
   });
   it("retains master life-path numbers",()=>{
     expect(calculateLifePath("1990-01-01")).toBe(3);

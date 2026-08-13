@@ -2,6 +2,8 @@ import { ClientReport } from "../../../../_components/report/client-report";
 import { config } from "../../../../../scoring/config";
 import type { QuestionId } from "../../../../../scoring/types";
 import { getCoachAssessment } from "../../../../../lib/coach/data";
+import { buildCoachJsonExport } from "../../../../../report/build-coach-export";
+import { JsonExportActions } from "../../../_components/json-export-actions";
 
 const priorityLabels = { HIGH: "高", MEDIUM: "中", LOW: "低" } as const;
 const aiLabels = { HIGH: "高", MEDIUM: "中", LOW: "低" } as const;
@@ -16,10 +18,11 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
   const scoring = record.scoring_snapshot;
   const clientReport = record.client_reports[0]?.report_data;
   const astrology = record.astrology_profile;
+  const jsonExport = buildCoachJsonExport(record);
 
   return <main className="coach-main coach-report-main">
     <a className="coach-back" href="/coach">← 返回測驗名單</a>
-    <section className="coach-report-hero"><div><p className="eyebrow">Coach-only Analysis</p><h1>{record.display_name} 的完整分析</h1><p><code>{record.report_id}</code> · {new Intl.DateTimeFormat("zh-TW", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Taipei" }).format(new Date(record.created_at))}</p></div><div className="coach-report-person"><span>出生資料</span><strong>{record.birth_date}{record.birth_time ? ` ${record.birth_time.slice(0, 5)}` : ""}</strong><small>{record.birth_place}</small></div></section>
+    <section className="coach-report-hero"><div><p className="eyebrow">Coach-only Analysis</p><h1>{record.display_name} 的完整分析</h1><p><code>{record.report_id}</code> · {new Intl.DateTimeFormat("zh-TW", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Taipei" }).format(new Date(record.created_at))}</p><JsonExportActions reportId={record.report_id} data={jsonExport} /></div><div className="coach-report-person"><span>出生資料</span><strong>{record.birth_date}{record.birth_time ? ` ${record.birth_time.slice(0, 5)}` : ""}</strong><small>{record.birth_place}</small></div></section>
 
     <section className="coach-metric-grid">
       <article><span>ABCD 路由</span><strong>{scoring.route}</strong><small>教練後續對話路徑</small></article>
