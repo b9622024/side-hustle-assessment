@@ -1,0 +1,1 @@
+{"version":"side-hustle-v2-rc1-theoretical-reference-1.0.0","source_scoring_version":"side-hustle-scoring-v2-rc1","response_space":1048576,"method":"empirical_cdf_theoretical_4pow10","tie_strategy":"right_continuous_count_less_than_or_equal","generated_from":"complete_4^10_answer_space"}

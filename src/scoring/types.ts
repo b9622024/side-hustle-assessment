@@ -41,6 +41,10 @@ export interface ScoringTrace {
   routing_behavior_dimension_v2: ScoreMap<Dimension>;
   formal_type_precalibrated: ScoreMap<SideHustleType>;
   formal_type_final: ScoreMap<SideHustleType>;
+  type_percentile_method: "empirical_cdf_theoretical_4pow10";
+  type_percentile_reference_version: "side-hustle-v2-rc1-theoretical-reference-1.0.0";
+  type_percentile: ScoreMap<SideHustleType>;
+  display_fit_index: ScoreMap<SideHustleType>;
   type_ranking: RankedType[];
   type_state: TypeState;
   readiness_components: Record<string, { question: QuestionId; answer: Option; option_score: number; weight: number; weighted_score: number }>;
@@ -76,4 +80,5 @@ export interface ScoringResult {
   consultationPriority: "HIGH"|"MEDIUM"|"LOW";
   warnings: string[];
   scoringTrace: ScoringTrace;
+  typeDisplayScores: Record<SideHustleType,{formal_type_score:number;type_percentile:number;display_fit_index:number}>;
 }

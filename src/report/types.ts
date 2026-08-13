@@ -42,7 +42,8 @@ export interface ClientReportData {
     summary: string;
   };
   actionProfile: Array<{ key: Exclude<Dimension, "K">; label: string; score: number }>;
-  sideHustleModes: Array<{ key: SideHustleType; label: string; score: number; rank: number }>;
+  sideHustleModes: Array<{ key: SideHustleType; label: string; formalTypeScore: number; typePercentile:number; displayFitIndex:number; rank: number }>;
+  typeState:"CLEAR"|"MIXED"|"EXPLORATORY";
   frictions: Array<{ key: string; label: string; score: number; guidance: string }>;
   spectrums: Array<{ key: string; left: string; right: string; score: number }>;
 }

@@ -104,7 +104,8 @@ export function buildClientReport(input: {
       summary: `生命靈數 ${lifePath} 描繪長期動機，生日數 ${birthday} 補充你較自然的行動方式。兩者適合和實際經驗一起閱讀。`,
     },
     actionProfile: ACTION_DIMENSIONS.map((key) => ({ key, label: config.dimensions[key].label, score: scoring.dimensions[key] })),
-    sideHustleModes: scoring.rankedTypes.map(({ type, score }, index) => ({ key: type, label: typeLabel(type), score, rank: index + 1 })),
+    sideHustleModes: scoring.rankedTypes.map(({ type, score }, index) => ({key:type,label:typeLabel(type),formalTypeScore:score,typePercentile:scoring.typeDisplayScores[type].type_percentile,displayFitIndex:scoring.typeDisplayScores[type].display_fit_index,rank:index+1})),
+    typeState:scoring.typeState,
     frictions: (Object.entries(scoring.frictions) as Array<[string, number]>).map(([key, score]) => ({
       key,
       label: config.frictions[key as Exclude<keyof typeof config.frictions, "normalization_helpers">].label,

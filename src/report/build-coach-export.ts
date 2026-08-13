@@ -37,6 +37,7 @@ export function buildCoachJsonExport(record:CoachAssessmentDetail) {
   const questionnaire=config.questionnaire.map(question=>{const id=question.id as QuestionId;const answer=record.answers[id];return {id,text:question.text,answer,answer_text:question.options[answer].text};});
   const dimensions=scoring.formalBehaviorDimensions??scoring.dimensions;
   const finalTypes=scoring.finalTypes??Object.fromEntries(scoring.rankedTypes.map(item=>[item.type,item.score]));
+  const displayScores=scoring.typeDisplayScores;
   return {
     report_meta:{report_id:record.report_id,report_type:"side_hustle_suitability_action",report_display_name:"副業適性測驗",report_document_name:"副業適性行動報告",
       model_version:"side-hustle-report-v2-rc1",questionnaire_version:config.meta.questionnaire_version,scoring_version:record.scoring_version,
@@ -46,7 +47,7 @@ export function buildCoachJsonExport(record:CoachAssessmentDetail) {
     business_status:{code:record.business_status,label:config.business_status_options[record.business_status]},astrology:astrologyProfile(record),numerology:numerologyProfile(record.birth_date),
     questionnaire:{version:config.meta.questionnaire_version,answers:questionnaire},scoring_trace:scoring.scoringTrace??null,
     behavior_profile:{scale:{min:1,max:5,display_decimals:1},dimensions:Object.fromEntries(Object.entries(dimensions).map(([key,score])=>[key,{label:config.dimensions[key as Dimension].label,score}])),formal_dimensions:scoring.formalBehaviorDimensions??null,routing_dimensions:scoring.routingDimensions??null},
-    side_hustle_types:{type_state:scoring.typeState,ranking:scoring.rankedTypes,scores:finalTypes,source:"behavior_only"},readiness:scoring.readiness,business_fit:scoring.businessFit,risk_flags:scoring.riskFlags,
+    side_hustle_types:{formal_primary_type:scoring.rankedTypes[0]?.type,formal_secondary_type:scoring.rankedTypes[1]?.type,type_state:scoring.typeState,ranking:scoring.rankedTypes,types:Object.fromEntries(Object.entries(finalTypes).map(([type,score])=>[type,{formal_type_score:score,type_percentile:displayScores?.[type as keyof typeof displayScores]?.type_percentile??null,display_fit_index:displayScores?.[type as keyof typeof displayScores]?.display_fit_index??null}])),source:"behavior_only"},readiness:scoring.readiness,business_fit:scoring.businessFit,risk_flags:scoring.riskFlags,
     routing:{system_route:scoring.route,label:config.routing.rules[scoring.route].label,consultation_priority:scoring.consultationPriority},
     cross_analysis:{scoring_isolation_verified:true,birth_profile_role:"interpretation_and_cross_analysis_only",summary:clientReport?.astrology.summary??null},
     coach_insights:{ai_marketing_potential:scoring.aiMarketingPotential,active_risk_flags:scoring.riskFlags.map(flag=>({id:flag.id,label:flag.label,severity:flag.severity,routing_role:flag.routingRole??null})),primary_type:scoring.rankedTypes[0]??null,secondary_type:scoring.rankedTypes[1]??null},

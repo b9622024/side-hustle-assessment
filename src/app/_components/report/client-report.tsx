@@ -55,11 +55,11 @@ export function ClientReport({ data }: { data: ClientReportData }) {
         </section>
 
         <section className="report-panel">
-          <SectionTitle number="04" title="適合的副業模式" description="綜合行為、星座工作風格與生命靈數的相對排序。" />
+          <SectionTitle number="04" title="適合的副業模式" description={`行為模式相對適配指數 · ${data.typeState}`} />
           <div className="mode-list">
-            {data.sideHustleModes.map((mode) => <div key={mode.key} className={mode.rank <= 2 ? "featured" : ""}><span>{String(mode.rank).padStart(2, "0")}</span><strong>{mode.label}</strong><i><b style={{ width: `${mode.score / 5 * 100}%` }} /></i><em>{mode.score.toFixed(1)}</em></div>)}
+            {data.sideHustleModes.map((mode) => {const emphasized=data.typeState==="CLEAR"?mode.rank===1:data.typeState==="MIXED"?mode.rank<=2:false;return <div key={mode.key} className={emphasized?"featured":""}><span>{String(mode.rank).padStart(2,"0")}</span><strong>{mode.label}{mode.rank===1?<small>主型</small>:mode.rank===2?<small>副型</small>:null}</strong><i><b style={{width:`${mode.displayFitIndex*10}%`}} /></i><em>{mode.displayFitIndex.toFixed(1)}</em></div>;})}
           </div>
-          <p className="report-caption">排序代表相對適配度，不代表只能選擇單一方向。</p>
+          <p className="report-caption">分數代表你的行為模式與各副業型態的相對適配程度，用於比較不同方向，不代表成功機率。</p>
         </section>
 
         <section className="report-panel">
