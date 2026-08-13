@@ -25,6 +25,9 @@ describe("Phase 4 client PNG fixtures", () => {
       expect(html).not.toContain("準備度");
       expect(html).not.toContain("諮詢優先級");
       expect(html).not.toContain("成交策略");
+      expect(html).not.toContain("本次諮詢設定");
+      expect(html).not.toContain("selected_offer");
+      expect(html).not.toContain("coach_notes");
     });
   }
 

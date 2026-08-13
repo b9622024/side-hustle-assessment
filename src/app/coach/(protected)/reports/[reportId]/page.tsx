@@ -4,6 +4,8 @@ import type { QuestionId } from "../../../../../scoring/types";
 import { getCoachAssessment } from "../../../../../lib/coach/data";
 import { serializeFullAssessmentJson } from "../../../../../report/build-coach-export";
 import { JsonExportActions } from "../../../_components/json-export-actions";
+import { ConsultationSettingForm } from "../../../_components/consultation-setting-form";
+import { initializeConsultationSetting } from "../../../../../consultation/settings";
 
 const priorityLabels = { HIGH: "高", MEDIUM: "中", LOW: "低" } as const;
 const aiLabels = { HIGH: "高", MEDIUM: "中", LOW: "低" } as const;
@@ -28,7 +30,7 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
 
   return <main className="coach-main coach-report-main">
     <a className="coach-back" href="/coach">← 返回測驗名單</a>
-    <section className="coach-report-hero"><div><p className="eyebrow">Coach-only Analysis</p><h1>{record.display_name} 的完整分析</h1><p><code>{record.report_id}</code> · {new Intl.DateTimeFormat("zh-TW", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Taipei" }).format(new Date(record.created_at))}</p><JsonExportActions reportId={record.report_id} displayName={record.display_name} serializedJson={serializedJson} /></div><div className="coach-report-person"><span>出生資料</span><strong>{record.birth_date}{record.birth_time ? ` ${record.birth_time.slice(0, 5)}` : ""}</strong><small>{record.birth_place}</small></div></section>
+    <section className="coach-report-hero"><div><p className="eyebrow">Coach-only Analysis</p><h1>{record.display_name} 的完整分析</h1><p><code>{record.report_id}</code> · {new Intl.DateTimeFormat("zh-TW", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Taipei" }).format(new Date(record.created_at))}</p></div><div className="coach-report-person"><span>出生資料</span><strong>{record.birth_date}{record.birth_time ? ` ${record.birth_time.slice(0, 5)}` : ""}</strong><small>{record.birth_place}</small></div></section>
 
     <section className="coach-metric-grid">
       <article><span>ABCD 路由</span><strong>{scoring.route}</strong><small>教練後續對話路徑</small></article>
@@ -46,6 +48,10 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
       <section className="coach-detail-card"><h2>星座計算資料</h2><dl className="coach-data-list"><div><dt>太陽</dt><dd>{astrologySign(astrology.sun)}</dd></div><div><dt>月亮</dt><dd>{astrologySign(astrology.moon)}</dd></div><div><dt>上升</dt><dd>{astrologySign(astrology.ascendant)}</dd></div></dl><p className="coach-muted">月亮或上升無法可靠計算時，會排除該點位並重新正規化剩餘權重。</p></section>
       <section className="coach-detail-card"><h2>系統資訊</h2><dl className="coach-data-list"><div><dt>副業現況</dt><dd>{config.business_status_options[record.business_status]}</dd></div><div><dt>類型狀態</dt><dd>{scoring.typeState}</dd></div><div><dt>評分版本</dt><dd>{record.scoring_version}</dd></div></dl></section>
     </div>
+
+    <ConsultationSettingForm reportId={record.report_id} initialSetting={record.consultation_setting ?? initializeConsultationSetting(record.business_status)} previouslySaved={Boolean(record.consultation_setting)} />
+
+    <section className="coach-export-card"><div><p className="eyebrow">Export</p><h2>完整資料與客戶報告</h2><p>複製與下載使用同一份目前 assessment state。</p></div><JsonExportActions reportId={record.report_id} displayName={record.display_name} serializedJson={serializedJson} /></section>
 
     {clientReport ? <section className="coach-client-report"><header><p className="eyebrow">Client-facing Version</p><h2>客戶版完整報告預覽</h2><p>以下內容不包含上述教練專用評分。</p></header><div id="client-report-export-root" className="client-report-export-root"><ClientReport data={clientReport} /></div></section> : <section className="coach-detail-card"><h2>客戶報告不存在</h2><p className="coach-muted">請檢查資料保存流程。</p></section>}
   </main>;

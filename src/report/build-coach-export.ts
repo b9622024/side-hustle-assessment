@@ -86,6 +86,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
   const formalPrimary = scoring.rankedTypes?.[0]?.type ?? null;
   const formalSecondary = scoring.rankedTypes?.[1]?.type ?? null;
   const scoringTrace = scoring.scoringTrace ? { ...scoring.scoringTrace, astrology_scoring_trace: layer?.astrology_scoring_trace ?? null } : null;
+  const consultation = record.consultation_setting ?? null;
   return {
     report_meta: { report_id: record.report_id, report_type: "side_hustle_suitability_action", report_display_name: "副業適性測驗", model_version: "side-hustle-report-v2.1-rc", questionnaire_version: config.meta.questionnaire_version, scoring_version: record.scoring_version, routing_version: "side-hustle-routing-v2-rc1", astrology_version: ASTROLOGY_VERSION, percentile_reference_version: scoring.scoringTrace?.type_percentile_reference_version ?? PERCENTILE_REFERENCE_VERSION, created_at: record.created_at, updated_at: record.updated_at ?? record.created_at, language: "zh-TW", ...(record.scoring_version !== "side-hustle-scoring-v2-rc1" ? { legacy_result_preserved: true } : {}) },
     respondent: { display_name: record.display_name },
@@ -105,7 +106,11 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
     routing: { system_route: scoring.route ?? null, label: scoring.route ? config.routing.rules[scoring.route].label : null, consultation_priority: scoring.consultationPriority ?? null },
     cross_analysis: layer?.astrology_cross_analysis ?? { alignments: [], tensions: [], neutral_findings: [], summary: clientReport?.astrology?.summary ?? null },
     data_quality: { scoring_trace_available: Boolean(scoring.scoringTrace), percentile_available: Boolean(scoring.typeDisplayScores), astrology_v2_1_available: Boolean(layer), client_report_available: Boolean(clientReport), compatibility_mode: record.scoring_version === "side-hustle-scoring-v2-rc1" ? "CURRENT" : "LEGACY_PRESERVED", missing_fields: [...(!scoring.scoringTrace ? ["scoring_trace"] : []), ...(!scoring.typeDisplayScores ? ["type_percentile", "display_fit_index"] : []), ...(!layer ? ["astrology_v2_1"] : [])] },
-    consultation_context: null, selected_offer: null, backup_offer: null, coach_notes: null,
+    client_journey: consultation?.client_journey ?? null,
+    consultation_context: consultation?.consultation_context ?? null,
+    selected_offer: consultation?.selected_offer ?? null,
+    backup_offer: consultation?.backup_offer ?? null,
+    coach_notes: consultation?.coach_notes ?? null,
   };
 }
 
