@@ -2,6 +2,7 @@ import { config } from "../scoring/config";
 import type { AssessmentInput, ScoringResult } from "../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "../report/types";
 import { databaseIsConfigured, getSupabaseAdmin } from "../lib/supabase/admin";
+import { buildDiagnosticProfile } from "../diagnostic/profile";
 
 export interface AssessmentArtifacts {
   assessment: AssessmentInput;
@@ -25,6 +26,7 @@ export async function saveAssessmentReport(artifacts: AssessmentArtifacts): Prom
       birth_place: artifacts.assessment.birthPlace,
       business_status: artifacts.assessment.businessStatus,
       answers: artifacts.assessment.answers,
+      diagnostic_profile: artifacts.assessment.diagnostic ? buildDiagnosticProfile(artifacts.assessment.diagnostic) : null,
       astrology_profile: artifacts.astrology,
       scoring_snapshot: artifacts.scoring,
       scoring_version: config.meta.scoring_engine_version,

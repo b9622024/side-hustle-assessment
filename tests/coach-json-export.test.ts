@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildCoachJsonExport, serializeFullAssessmentJson } from "../src/report/build-coach-export.js";
 import { scoreAssessment } from "../src/scoring/engine.js";
 import type { CoachAssessmentDetail } from "../src/lib/coach/data.js";
+import type { DiagnosticProfile } from "../src/diagnostic/profile.js";
 
 const answers={Q1:"A",Q2:"A",Q3:"C",Q4:"C",Q5:"D",Q6:"B",Q7:"A",Q8:"A",Q9:"A",Q10:"A"} as const;
 const scoring=scoreAssessment({displayName:"JSON 測試",birthDate:"1989-01-17",birthTime:"11:45",birthPlace:"台南市",businessStatus:"NONE",answers});
@@ -19,6 +20,29 @@ describe("coach full JSON export",()=>{
     expect(result.side_hustle_types.formal_secondary_type).toBe(scoring.rankedTypes[1]?.type);
     expect(Object.keys(result.side_hustle_types.types)).toHaveLength(6);
     expect(result.scoring_trace?.astrology_scoring_trace).toEqual(expect.objectContaining({ source_points: ["sun"], normalized_weights: { sun: 1 } }));
+    expect(result.scoring_trace?.diagnostic_questions_excluded_from_formal_scoring).toEqual(["Q11", "Q12", "Q13"]);
+    expect(result.diagnostic_profile).toBeNull();
+  });
+  it("serializes Q11-Q13 from the persisted diagnostic profile without changing canonical copy/download output",()=>{
+    const diagnostic_profile: DiagnosticProfile={schema_version:"2.2.0-rc1",motivation:{question_id:"Q11",code:"SIDE_HUSTLE_STUCK",label:"已經開始副業，但發展不如預期"},current_status:{question_id:"Q12",code:"OFFER_EXISTS",label:"已經有商品、服務或商城"},bottlenecks:{question_id:"Q13",applicable:true,selected:[{code:"TRAFFIC",label:"不知道去哪裡找客戶"},{code:"PROSPECTING",label:"不會陌生開發"}],other_text:null}};
+    const diagnosticRecord={...record,diagnostic_profile} as CoachAssessmentDetail;
+    const built=buildCoachJsonExport(diagnosticRecord);
+    expect(built.diagnostic_profile).toEqual(diagnostic_profile);
+    expect(built.questionnaire.answers.slice(-3)).toEqual([
+      {id:"Q11",answer_code:"SIDE_HUSTLE_STUCK"},
+      {id:"Q12",answer_code:"OFFER_EXISTS"},
+      {id:"Q13",answer_codes:["TRAFFIC","PROSPECTING"],other_text:null},
+    ]);
+    expect(JSON.parse(serializeFullAssessmentJson(diagnosticRecord))).toEqual(built);
+  });
+  it("round-trips Case F OTHER text through reopen and canonical export",()=>{
+    const diagnostic_profile: DiagnosticProfile={schema_version:"2.2.0-rc1",motivation:{question_id:"Q11",code:"SIDE_HUSTLE_STUCK",label:"已經開始副業，但發展不如預期"},current_status:{question_id:"Q12",code:"SIDE_HUSTLE_ACTIVE",label:"已經開始經營副業"},bottlenecks:{question_id:"Q13",applicable:true,selected:[{code:"OTHER",label:"其他"}],other_text:"不知道怎麼定價"}};
+    const reopened={...record,diagnostic_profile} as CoachAssessmentDetail;
+    const copied=JSON.parse(serializeFullAssessmentJson(reopened));
+    const downloaded=JSON.parse(serializeFullAssessmentJson(reopened));
+    expect(copied).toEqual(downloaded);
+    expect(copied.diagnostic_profile.bottlenecks.other_text).toBe("不知道怎麼定價");
+    expect(copied.questionnaire.answers.at(-1)).toEqual({id:"Q13",answer_codes:["OTHER"],other_text:"不知道怎麼定價"});
   });
   it("serializes one canonical snapshot with stable identity and versions",()=>{
     const built=buildCoachJsonExport(record);

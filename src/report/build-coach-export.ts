@@ -82,11 +82,17 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
   const profile = normalizeAstrologyProfile(record.astrology_profile);
   const layer = getAstrologyLayer(record, profile);
   const questionnaire = config.questionnaire.map((question) => { const id = question.id as QuestionId; const answer = record.answers[id]; return { id, text: question.text, answer, answer_text: question.options[answer]?.text ?? null }; });
+  const diagnosticProfile = record.diagnostic_profile ?? null;
+  const diagnosticQuestionnaire = diagnosticProfile ? [
+    { id: "Q11", answer_code: diagnosticProfile.motivation.code },
+    { id: "Q12", answer_code: diagnosticProfile.current_status.code },
+    { id: "Q13", answer_codes: diagnosticProfile.bottlenecks.selected.map((item) => item.code), other_text: diagnosticProfile.bottlenecks.other_text },
+  ] : [];
   const dimensions = scoring.formalBehaviorDimensions ?? scoring.dimensions ?? null;
   const finalTypes = scoring.finalTypes ?? Object.fromEntries((scoring.rankedTypes ?? []).map((item) => [item.type, item.score]));
   const formalPrimary = scoring.rankedTypes?.[0]?.type ?? null;
   const formalSecondary = scoring.rankedTypes?.[1]?.type ?? null;
-  const scoringTrace = scoring.scoringTrace ? { ...scoring.scoringTrace, astrology_scoring_trace: layer?.astrology_scoring_trace ?? null } : null;
+  const scoringTrace = scoring.scoringTrace ? { ...scoring.scoringTrace, diagnostic_questions_excluded_from_formal_scoring: ["Q11", "Q12", "Q13"], astrology_scoring_trace: layer?.astrology_scoring_trace ?? null } : null;
   const consultation = record.consultation_setting ?? null;
   const birthPlaceResolution = profile?.calculation.birth_place ?? resolveBirthPlace(record.birth_place);
   return {
@@ -101,12 +107,13 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
       astrology_type_affinity: layer?.astrology_scoring_trace.astrology_type_affinity ?? null, astrology_modifier: layer?.astrology_scoring_trace.astrology_modifier ?? null,
       report_type_scores: layer?.astrology_scoring_trace.final_report_type_score ?? null, astrology_rank_adjustment: layer?.astrology_rank_adjustment ?? false, calculation: profile?.calculation ?? null, birth_place: birthPlaceResolution,
     },
-    numerology: numerologyProfile(record.birth_date), questionnaire: { version: config.meta.questionnaire_version, answers: questionnaire }, scoring_trace: scoringTrace,
+    numerology: numerologyProfile(record.birth_date), questionnaire: { version: config.meta.questionnaire_version, answers: [...questionnaire, ...diagnosticQuestionnaire] }, scoring_trace: scoringTrace,
     behavior_profile: { scale: { min: 1, max: 5, display_decimals: 1 }, dimensions: dimensions ? Object.fromEntries(Object.entries(dimensions).map(([key, score]) => [key, { label: config.dimensions[key as Dimension].label, score }])) : null, formal_dimensions: scoring.formalBehaviorDimensions ?? null, routing_dimensions: scoring.routingDimensions ?? null },
     side_hustle_types: { formal_primary_type: formalPrimary, formal_secondary_type: formalSecondary, type_state: scoring.typeState ?? null, report_primary_type: layer?.report_primary_type ?? formalPrimary, report_secondary_type: layer?.report_secondary_type ?? formalSecondary, astrology_rank_adjustment: layer?.astrology_rank_adjustment ?? false, ranking: scoring.rankedTypes ?? [], types: Object.fromEntries(SIDE_HUSTLE_TYPES.map((type) => [type, typeValue(typeof finalTypes[type] === "number" ? finalTypes[type] : null, scoring.typeDisplayScores?.[type], layer, type)])), source: "behavior_formal_with_separate_astrology_report_layer" },
     readiness: scoring.readiness ?? null, business_fit: scoring.businessFit ?? null, risk_flags: scoring.riskFlags ?? [],
     routing: { system_route: scoring.route ?? null, label: scoring.route ? config.routing.rules[scoring.route].label : null, consultation_priority: scoring.consultationPriority ?? null },
     cross_analysis: layer?.astrology_cross_analysis ?? { alignments: [], tensions: [], neutral_findings: [], summary: clientReport?.astrology?.summary ?? null },
+    diagnostic_profile: diagnosticProfile,
     data_quality: { scoring_trace_available: Boolean(scoring.scoringTrace), percentile_available: Boolean(scoring.typeDisplayScores), astrology_v2_1_available: Boolean(layer), client_report_available: Boolean(clientReport), compatibility_mode: record.scoring_version === "side-hustle-scoring-v2-rc1" ? "CURRENT" : "LEGACY_PRESERVED", missing_fields: [...(!scoring.scoringTrace ? ["scoring_trace"] : []), ...(!scoring.typeDisplayScores ? ["type_percentile", "display_fit_index"] : []), ...(!layer ? ["astrology_v2_1"] : [])] },
     client_journey: consultation?.client_journey ?? null,
     consultation_context: consultation?.consultation_context ?? null,

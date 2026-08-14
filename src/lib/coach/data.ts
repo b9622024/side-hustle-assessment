@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "../supabase/admin";
 import type { Answers, AstrologyScoringInput, BusinessStatus, ScoringResult } from "../../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "../../report/types";
 import type { ConsultationSetting } from "../../consultation/settings";
+import type { DiagnosticProfile } from "../../diagnostic/profile";
 
 export const COACH_PAGE_SIZE = 50;
 
@@ -18,6 +19,7 @@ export interface CoachAssessmentRow {
   created_at: string;
   updated_at?: string;
   consultation_setting?: ConsultationSetting | null;
+  diagnostic_profile?: DiagnosticProfile | null;
   scoring_snapshot: ScoringResult;
 }
 
@@ -50,7 +52,7 @@ export async function getCoachAssessment(reportId: string) {
   if (!/^SH-\d{8}-[A-F0-9]{6}$/.test(reportId)) notFound();
   const { data, error } = await getSupabaseAdmin()
     .from("assessments")
-    .select("id,report_id,display_name,birth_date,birth_time,birth_place,business_status,answers,astrology_profile,scoring_snapshot,scoring_version,consultation_setting,created_at,updated_at,client_reports(report_data)")
+    .select("id,report_id,display_name,birth_date,birth_time,birth_place,business_status,answers,diagnostic_profile,astrology_profile,scoring_snapshot,scoring_version,consultation_setting,created_at,updated_at,client_reports(report_data)")
     .eq("report_id", reportId)
     .maybeSingle();
   if (error) throw new Error("COACH_REPORT_QUERY_FAILED", { cause: error });

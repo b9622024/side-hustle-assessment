@@ -5,12 +5,15 @@ import type { AssessmentInput } from "../../../scoring/types";
 import { calculateBasicAstrologyProfile } from "../../../astrology/basic-profile";
 import { buildClientReport, calculateAssessmentScoring } from "../../../report/build-client-report";
 import { saveAssessmentReport } from "../../../persistence/save-assessment-report";
+import { validateDiagnosticInput } from "../../../diagnostic/profile";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json() as AssessmentInput;
     if (!body.birthPlace?.trim()) return NextResponse.json({ error: "INVALID_BIRTH_PLACE" }, { status: 400 });
     validateInput(body);
+    if (!body.diagnostic) throw new Error("INVALID_DIAGNOSTIC_MISSING");
+    validateDiagnosticInput(body.diagnostic);
     const date = new Date();
     const datePart = `${date.getUTCFullYear()}${String(date.getUTCMonth() + 1).padStart(2, "0")}${String(date.getUTCDate()).padStart(2, "0")}`;
     const suffix = randomBytes(3).toString("hex").toUpperCase();

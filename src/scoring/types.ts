@@ -24,6 +24,7 @@ export interface AssessmentInput {
   birthPlace?: string;
   businessStatus: BusinessStatus;
   answers: Answers;
+  diagnostic?: import("../diagnostic/profile").DiagnosticInput;
 }
 
 export interface RiskFlag { id: "F1"|"F2"|"F3"|"F4"; label: string; severity: "HIGH"|"MEDIUM"; routingRole?: string; }
