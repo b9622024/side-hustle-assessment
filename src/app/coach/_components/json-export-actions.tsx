@@ -125,6 +125,9 @@ export function prepareClientReportChartsForExport(target: HTMLElement) {
 }
 
 async function waitForExportLayout(target: HTMLElement) {
+  await Promise.all(Array.from(target.querySelectorAll<HTMLImageElement>(".radar-export-image")).map(async (image) => {
+    if (typeof image.decode === "function") await image.decode().catch(() => undefined);
+  }));
   for (let frame = 0; frame < 3; frame++) await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   target.querySelector("svg.radar")?.getBoundingClientRect();
 }
