@@ -7,10 +7,10 @@ import { TAIWAN_LOCATIONS } from "../../astrology/locations";
 type Option = { value: string; text: string };
 type Question = { id: string; text: string; options: Option[] };
 type BusinessOption = { value: string; label: string };
-type Draft = { displayName: string; birthDate: string; birthTime: string; birthPlace: string; birthPlaceRegion: string; businessStatus: string; answers: Record<string, string> };
+type Draft = { displayName: string; birthDate: string; birthTime: string; birthTimeUnknown: boolean; birthPlace: string; birthPlaceRegion: string; businessStatus: string; answers: Record<string, string> };
 
 const STORAGE_KEY = "side-hustle-assessment-draft-v1";
-const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthPlace: "", birthPlaceRegion: "", businessStatus: "", answers: {} };
+const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthTimeUnknown: false, birthPlace: "", birthPlaceRegion: "", businessStatus: "", answers: {} };
 
 export function AssessmentForm({ questions, businessOptions }: { questions: Question[]; businessOptions: BusinessOption[] }) {
   const router = useRouter();
@@ -46,6 +46,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
     if (step === 0) {
       if (!draft.displayName.trim()) return "請填寫姓名或暱稱。";
       if (!draft.birthDate || Number.isNaN(Date.parse(`${draft.birthDate}T00:00:00`))) return "請選擇有效的出生日期。";
+      if (!draft.birthTimeUnknown && !draft.birthTime) return "請輸入出生時間，或勾選「我不知道出生時間」。";
       if (!draft.birthPlaceRegion) return "請選擇出生縣市或其他／海外。";
       if (!draft.birthPlace.trim()) return "請填寫出生地點。";
     }
@@ -96,10 +97,14 @@ function ProfileStep({ draft, update }: { draft: Draft; update: <K extends keyof
     update("birthPlaceRegion", value);
     update("birthPlace", value === "OTHER_OVERSEAS" ? "" : value);
   }
-  return <div className="step-content"><StepHeading number="01" title="先認識你" description="出生資料只用於工作風格與生命靈數的交叉分析。出生時間不確定可以留白。" /><div className="field-grid">
+  function updateBirthTimeUnknown(unknown: boolean) {
+    update("birthTimeUnknown", unknown);
+    if (unknown) update("birthTime", "");
+  }
+  return <div className="step-content"><StepHeading number="01" title="先認識你" description="出生資料只用於工作風格與生命靈數的交叉分析。" /><div className="field-grid">
     <label className="field full"><span>姓名或暱稱</span><input value={draft.displayName} onChange={(event) => update("displayName", event.target.value)} placeholder="例如：小安" autoComplete="name" /></label>
-    <label className="field"><span>出生日期</span><input type="date" value={draft.birthDate} onChange={(event) => update("birthDate", event.target.value)} /></label>
-    <label className="field"><span>出生時間 <small>選填</small></span><input type="time" value={draft.birthTime} onChange={(event) => update("birthTime", event.target.value)} /></label>
+    <label className="field native-date-time-field"><span>出生日期</span><span className="native-date-time-shell"><input type="date" value={draft.birthDate} onChange={(event) => update("birthDate", event.target.value)} /></span></label>
+    <div className="field birth-time-field"><span>出生時間</span>{!draft.birthTimeUnknown ? <span className="native-date-time-shell"><input aria-label="出生時間" type="time" value={draft.birthTime} onChange={(event) => update("birthTime", event.target.value)} /></span> : <div className="birth-time-unavailable" aria-live="polite">將以未提供出生時間的安全模式產生報告</div>}<label className="birth-time-unknown"><input type="checkbox" checked={draft.birthTimeUnknown} onChange={(event) => updateBirthTimeUnknown(event.target.checked)} /><span>我不知道出生時間</span></label><small className="birth-time-help">若不知道出生時間，仍可完成測驗；報告將無法精準計算上升星座，部分星座工作風格分析會改用較簡化版本。</small></div>
     <label className="field full"><span>出生縣市／地區</span><select value={draft.birthPlaceRegion} onChange={(event) => updateBirthPlaceRegion(event.target.value)}><option value="">請選擇</option>{TAIWAN_LOCATIONS.map((location) => <option key={location.canonical_name} value={location.canonical_name}>{location.canonical_name}</option>)}<option value="OTHER_OVERSEAS">其他／海外</option></select></label>
     {draft.birthPlaceRegion === "OTHER_OVERSEAS" ? <label className="field full"><span>其他／海外出生地點</span><input value={draft.birthPlace} onChange={(event) => update("birthPlace", event.target.value)} placeholder="例如：日本東京、美國洛杉磯" /><small className="field-help">海外地點若無法可靠取得座標，將安全降級為太陽＋月亮，上升星座不會猜測。</small></label> : null}
   </div></div>;

@@ -36,6 +36,7 @@ describe("AssessmentForm", () => {
     await screen.findByRole("heading", { name: "先認識你" });
     await user.type(screen.getByLabelText("姓名或暱稱"), "小安");
     await user.type(screen.getByLabelText("出生日期"), "1989-01-17");
+    await user.click(screen.getByLabelText("我不知道出生時間"));
     await user.selectOptions(screen.getByLabelText("出生縣市／地區"), "台南市");
     await user.click(screen.getByRole("button", { name: "繼續" }));
     await user.click(screen.getByLabelText("尚未開始副業"));
@@ -52,5 +53,16 @@ describe("AssessmentForm", () => {
     await user.click(screen.getByRole("button", { name: "完成測驗" }));
     await waitFor(() => expect(push).toHaveBeenCalledWith("/complete?id=SH-20260812-A1B2C3"));
     expect(window.localStorage.getItem("side-hustle-assessment-draft-v1")).toBeNull();
+  });
+
+  it("safely records an unknown birth time without pretending an exact time exists", async () => {
+    const user = userEvent.setup();
+    render(<AssessmentForm questions={questions} businessOptions={businessOptions} />);
+    await screen.findByRole("heading", { name: "先認識你" });
+    expect(screen.getByLabelText("出生時間")).toBeTruthy();
+    await user.click(screen.getByLabelText("我不知道出生時間"));
+    expect(screen.queryByLabelText("出生時間")).toBeNull();
+    expect(screen.getByText(/無法精準計算上升星座/)).toBeTruthy();
+    expect(screen.getByText(/安全模式產生報告/)).toBeTruthy();
   });
 });

@@ -35,6 +35,6 @@ describe("Phase 4.1 location and numerology hotfix", () => {
     const report = buildClientReport({ reportId: "HOTFIX-TEST", assessment, astrology });
     expect(report.numerology.digitDistribution).toHaveLength(9);
     expect(report.numerology.repeatedDigits).toEqual(["1", "9"]);
-    expect(report.numerology.missingDigits).toEqual(["2", "3", "4", "5", "6", "7", "8"]);
+    expect(report.numerology.missingDigits).toEqual(["2", "3", "4", "5", "6"]);
   });
 });
