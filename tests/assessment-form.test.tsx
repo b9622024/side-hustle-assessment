@@ -36,7 +36,7 @@ describe("AssessmentForm", () => {
     await screen.findByRole("heading", { name: "先認識你" });
     await user.type(screen.getByLabelText("姓名或暱稱"), "小安");
     await user.type(screen.getByLabelText("出生日期"), "1989-01-17");
-    await user.type(screen.getByLabelText("出生地點"), "台南市");
+    await user.selectOptions(screen.getByLabelText("出生縣市／地區"), "台南市");
     await user.click(screen.getByRole("button", { name: "繼續" }));
     await user.click(screen.getByLabelText("尚未開始副業"));
     await user.click(screen.getByRole("button", { name: "繼續" }));

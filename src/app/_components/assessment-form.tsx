@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { TAIWAN_LOCATIONS } from "../../astrology/locations";
 
 type Option = { value: string; text: string };
 type Question = { id: string; text: string; options: Option[] };
 type BusinessOption = { value: string; label: string };
-type Draft = { displayName: string; birthDate: string; birthTime: string; birthPlace: string; businessStatus: string; answers: Record<string, string> };
+type Draft = { displayName: string; birthDate: string; birthTime: string; birthPlace: string; birthPlaceRegion: string; businessStatus: string; answers: Record<string, string> };
 
 const STORAGE_KEY = "side-hustle-assessment-draft-v1";
-const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthPlace: "", businessStatus: "", answers: {} };
+const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthPlace: "", birthPlaceRegion: "", businessStatus: "", answers: {} };
 
 export function AssessmentForm({ questions, businessOptions }: { questions: Question[]; businessOptions: BusinessOption[] }) {
   const router = useRouter();
@@ -24,7 +25,11 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) setDraft({ ...EMPTY_DRAFT, ...JSON.parse(saved) as Draft });
+      if (saved) {
+        const parsed = { ...EMPTY_DRAFT, ...JSON.parse(saved) as Draft };
+        const knownTaiwanPlace = TAIWAN_LOCATIONS.some((location) => location.canonical_name === parsed.birthPlace);
+        setDraft({ ...parsed, birthPlaceRegion: parsed.birthPlaceRegion || (knownTaiwanPlace ? parsed.birthPlace : parsed.birthPlace ? "OTHER_OVERSEAS" : "") });
+      }
     } catch { window.localStorage.removeItem(STORAGE_KEY); }
     setHydrated(true);
   }, []);
@@ -41,6 +46,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
     if (step === 0) {
       if (!draft.displayName.trim()) return "請填寫姓名或暱稱。";
       if (!draft.birthDate || Number.isNaN(Date.parse(`${draft.birthDate}T00:00:00`))) return "請選擇有效的出生日期。";
+      if (!draft.birthPlaceRegion) return "請選擇出生縣市或其他／海外。";
       if (!draft.birthPlace.trim()) return "請填寫出生地點。";
     }
     if (step === 1 && !draft.businessStatus) return "請選擇目前最接近你的副業狀態。";
@@ -86,11 +92,16 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
 }
 
 function ProfileStep({ draft, update }: { draft: Draft; update: <K extends keyof Draft>(key: K, value: Draft[K]) => void }) {
+  function updateBirthPlaceRegion(value: string) {
+    update("birthPlaceRegion", value);
+    update("birthPlace", value === "OTHER_OVERSEAS" ? "" : value);
+  }
   return <div className="step-content"><StepHeading number="01" title="先認識你" description="出生資料只用於工作風格與生命靈數的交叉分析。出生時間不確定可以留白。" /><div className="field-grid">
     <label className="field full"><span>姓名或暱稱</span><input value={draft.displayName} onChange={(event) => update("displayName", event.target.value)} placeholder="例如：小安" autoComplete="name" /></label>
     <label className="field"><span>出生日期</span><input type="date" value={draft.birthDate} onChange={(event) => update("birthDate", event.target.value)} /></label>
     <label className="field"><span>出生時間 <small>選填</small></span><input type="time" value={draft.birthTime} onChange={(event) => update("birthTime", event.target.value)} /></label>
-    <label className="field full"><span>出生地點</span><input value={draft.birthPlace} onChange={(event) => update("birthPlace", event.target.value)} placeholder="例如：台北市、台南市" /></label>
+    <label className="field full"><span>出生縣市／地區</span><select value={draft.birthPlaceRegion} onChange={(event) => updateBirthPlaceRegion(event.target.value)}><option value="">請選擇</option>{TAIWAN_LOCATIONS.map((location) => <option key={location.canonical_name} value={location.canonical_name}>{location.canonical_name}</option>)}<option value="OTHER_OVERSEAS">其他／海外</option></select></label>
+    {draft.birthPlaceRegion === "OTHER_OVERSEAS" ? <label className="field full"><span>其他／海外出生地點</span><input value={draft.birthPlace} onChange={(event) => update("birthPlace", event.target.value)} placeholder="例如：日本東京、美國洛杉磯" /><small className="field-help">海外地點若無法可靠取得座標，將安全降級為太陽＋月亮，上升星座不會猜測。</small></label> : null}
   </div></div>;
 }
 

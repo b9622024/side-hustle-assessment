@@ -4,6 +4,7 @@ import { calculateAstrologyTypeLayer } from "../astrology/type-affinity";
 import type { CoachAssessmentDetail } from "../lib/coach/data";
 import { SIDE_HUSTLE_TYPES, type Dimension, type QuestionId, type SideHustleType } from "../scoring/types";
 import type { AstrologyLayerResult, AstrologyPlacement, AstrologyProfile } from "./types";
+import { resolveBirthPlace } from "../astrology/locations";
 
 const MASTER_NUMBERS = [11, 22, 33] as const;
 const PERCENTILE_REFERENCE_VERSION = "side-hustle-v2-rc1-theoretical-reference-1.0.0";
@@ -87,17 +88,18 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
   const formalSecondary = scoring.rankedTypes?.[1]?.type ?? null;
   const scoringTrace = scoring.scoringTrace ? { ...scoring.scoringTrace, astrology_scoring_trace: layer?.astrology_scoring_trace ?? null } : null;
   const consultation = record.consultation_setting ?? null;
+  const birthPlaceResolution = profile?.calculation.birth_place ?? resolveBirthPlace(record.birth_place);
   return {
     report_meta: { report_id: record.report_id, report_type: "side_hustle_suitability_action", report_display_name: "副業適性測驗", model_version: "side-hustle-report-v2.1-rc", questionnaire_version: config.meta.questionnaire_version, scoring_version: record.scoring_version, routing_version: "side-hustle-routing-v2-rc1", astrology_version: ASTROLOGY_VERSION, percentile_reference_version: scoring.scoringTrace?.type_percentile_reference_version ?? PERCENTILE_REFERENCE_VERSION, created_at: record.created_at, updated_at: record.updated_at ?? record.created_at, language: "zh-TW", ...(record.scoring_version !== "side-hustle-scoring-v2-rc1" ? { legacy_result_preserved: true } : {}) },
     respondent: { display_name: record.display_name },
-    birth_data: { date: record.birth_date, time: record.birth_time, place: record.birth_place, birth_time_known: Boolean(record.birth_time) },
+    birth_data: { date: record.birth_date, time: record.birth_time, place: record.birth_place, birth_time_known: Boolean(record.birth_time), birth_place: birthPlaceResolution },
     business_status: { code: record.business_status, label: config.business_status_options[record.business_status] },
     astrology: {
       sun: normalizePlacement(profile?.sun, "sun"), moon: normalizePlacement(profile?.moon, "moon"), ascendant: normalizePlacement(profile?.ascendant, "ascendant"),
       element_distribution: profile?.element_distribution ?? null, modality_distribution: profile?.modality_distribution ?? null,
       data_completeness: profile?.data_completeness ?? { birth_time_known: Boolean(record.birth_time), included_points: [], excluded_points: [...POINT_KEYS], normalized_weights: {} },
       astrology_type_affinity: layer?.astrology_scoring_trace.astrology_type_affinity ?? null, astrology_modifier: layer?.astrology_scoring_trace.astrology_modifier ?? null,
-      report_type_scores: layer?.astrology_scoring_trace.final_report_type_score ?? null, astrology_rank_adjustment: layer?.astrology_rank_adjustment ?? false, calculation: profile?.calculation ?? null,
+      report_type_scores: layer?.astrology_scoring_trace.final_report_type_score ?? null, astrology_rank_adjustment: layer?.astrology_rank_adjustment ?? false, calculation: profile?.calculation ?? null, birth_place: birthPlaceResolution,
     },
     numerology: numerologyProfile(record.birth_date), questionnaire: { version: config.meta.questionnaire_version, answers: questionnaire }, scoring_trace: scoringTrace,
     behavior_profile: { scale: { min: 1, max: 5, display_decimals: 1 }, dimensions: dimensions ? Object.fromEntries(Object.entries(dimensions).map(([key, score]) => [key, { label: config.dimensions[key as Dimension].label, score }])) : null, formal_dimensions: scoring.formalBehaviorDimensions ?? null, routing_dimensions: scoring.routingDimensions ?? null },

@@ -18,6 +18,33 @@ function triggerDownload(href: string, filename: string) {
   link.remove();
 }
 
+function isIosSafariLike() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+async function deliverPng(blob: Blob, filename: string, preparedWindow: Window | null) {
+  const file = new File([blob], filename, { type: "image/png" });
+  if (isIosSafariLike() && typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      preparedWindow?.close();
+      return "SHARED" as const;
+    } catch (error) {
+      console.warn("[client-png-export] Web Share failed; opening PNG fallback.", error);
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  if (isIosSafariLike() && preparedWindow) {
+    preparedWindow.location.href = url;
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return "OPENED" as const;
+  }
+  preparedWindow?.close();
+  triggerDownload(url, filename);
+  window.setTimeout(() => URL.revokeObjectURL(url), 5_000);
+  return "DOWNLOADED" as const;
+}
+
 export function JsonExportActions({ reportId, displayName, serializedJson }: { reportId: string; displayName: string; serializedJson: string }) {
   const [state, setState] = useState<ExportState>("idle");
   const [message, setMessage] = useState("");
@@ -54,22 +81,28 @@ export function JsonExportActions({ reportId, displayName, serializedJson }: { r
   async function downloadClientPng() {
     const target = document.getElementById("client-report-export-root");
     if (!target) { setState("error"); setMessage("找不到客戶報告內容，請重新整理後再試一次。"); return; }
+    const preparedWindow = isIosSafariLike() ? window.open("", "_blank") : null;
+    if (preparedWindow) preparedWindow.document.body.textContent = "PNG 正在產生，請稍候…";
     try {
       setState("generating-png"); setMessage("正在產生客戶版 PNG…");
       target.dataset.exportMode = "true";
       if (document.fonts?.ready) await document.fonts.ready;
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-      const { toPng } = await import("html-to-image");
-      let dataUrl: string;
+      const { toBlob } = await import("html-to-image");
+      let pngBlob: Blob | null;
       try {
-        dataUrl = await toPng(target, { backgroundColor: "#f5f2ea", pixelRatio: 2, cacheBust: true, skipAutoScale: false });
-      } catch {
-        dataUrl = await toPng(target, { backgroundColor: "#f5f2ea", pixelRatio: 1.5, cacheBust: true, skipAutoScale: false });
+        pngBlob = await toBlob(target, { backgroundColor: "#f5f2ea", pixelRatio: 2, cacheBust: true, skipAutoScale: false });
+      } catch (firstError) {
+        console.warn("[client-png-export] High-resolution render failed; retrying at safe resolution.", firstError);
+        pngBlob = await toBlob(target, { backgroundColor: "#f5f2ea", pixelRatio: 1.25, cacheBust: true, skipAutoScale: false });
       }
-      triggerDownload(dataUrl, `副業適性行動報告-${filenameName}-${filenameId}.png`);
-      setState("idle"); setMessage("客戶版 PNG 下載已開始"); resetLater();
-    } catch {
-      setState("error"); setMessage("PNG 產生失敗，可能是圖片或瀏覽器記憶體限制，請關閉其他分頁後再試一次。");
+      if (!pngBlob) throw new Error("PNG_BLOB_EMPTY");
+      const delivery = await deliverPng(pngBlob, `副業適性行動報告-${filenameName}-${filenameId}.png`, preparedWindow);
+      setState("idle"); setMessage(delivery === "SHARED" ? "已開啟系統分享，可儲存到照片或檔案" : delivery === "OPENED" ? "PNG 已在新分頁開啟，可長按或使用分享功能儲存" : "客戶版 PNG 下載已開始"); resetLater();
+    } catch (error) {
+      preparedWindow?.close();
+      console.error("[client-png-export] PNG generation or delivery failed.", error);
+      setState("error"); setMessage("PNG 產生失敗，請稍後再試。");
     } finally {
       delete target.dataset.exportMode;
     }

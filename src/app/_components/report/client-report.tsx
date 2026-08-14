@@ -14,6 +14,8 @@ export function ClientReport({ data }: { data: ClientReportData }) {
   const elementDistribution = data.astrology.elementDistribution ?? { FIRE: 0, EARTH: 0, AIR: 0, WATER: 0 };
   const modalityDistribution = data.astrology.modalityDistribution ?? { CARDINAL: 0, FIXED: 0, MUTABLE: 0 };
   const crossAnalysis = data.astrology.crossAnalysis ?? { alignments: [], tensions: [], neutral_findings: [], summary: data.astrology.summary };
+  const repeatedDigits = data.numerology.repeatedDigits ?? data.numerology.digitDistribution.filter((item) => item.count >= 2).map((item) => String(item.digit));
+  const missingDigits = data.numerology.missingDigits ?? data.numerology.digitDistribution.filter((item) => item.count === 0).map((item) => String(item.digit));
   return (
     <main className="client-report">
       <header className="report-hero">
@@ -51,11 +53,12 @@ export function ClientReport({ data }: { data: ClientReportData }) {
 
         <section className="report-panel">
           <SectionTitle number="02" title="生命靈數傾向" description="看見長期動機、自然表現與數字能量分布。" />
-          <div className="number-summary"><div><span>生命靈數</span><strong>{data.numerology.lifePath}</strong></div><div><span>生日數</span><strong>{data.numerology.birthdayNumber}</strong></div>{data.numerology.masterNumber ? <div><span>大師數</span><strong>{data.numerology.masterNumber}</strong></div> : null}</div>
-          <div className="digit-bars" aria-label="出生日期數字分布">
-            {data.numerology.digitDistribution.map((item) => <div key={item.digit}><span>{item.digit}</span><i><b style={{ height: `${Math.max(8, item.count * 25)}%` }} /></i><small>{item.count}</small></div>)}
+          <div className="number-summary"><div><span>核心生命靈數</span><strong>{data.numerology.lifePath}</strong>{data.numerology.masterNumber ? <small>大師數，保留原數字</small> : null}</div><div><span>生日數</span><strong>{data.numerology.birthdayNumber}</strong></div></div>
+          <div className="numerology-matrix" aria-label="出生日期數字九宮格">
+            {data.numerology.digitDistribution.map((item) => <div key={item.digit} className={item.count >= 2 ? "repeated" : item.count === 0 ? "missing" : "single"}><strong>{item.digit}</strong><span>× {item.count}</span></div>)}
           </div>
-          <p className="section-note">{data.numerology.summary}</p>
+          <dl className="numerology-digest"><div><dt>重複</dt><dd>{repeatedDigits.length ? repeatedDigits.join("、") : "無"}</dd></div><div><dt>缺少</dt><dd>{missingDigits.length ? missingDigits.join("、") : "無"}</dd></div></dl>
+          <p className="report-caption">本區依出生日期呈現核心生命靈數與數字分布，用於觀察工作風格傾向，不單獨決定你的副業適性結果。</p>
         </section>
 
         <section className="report-panel">

@@ -71,6 +71,7 @@ export function buildClientReport(input: {
   const element = Object.entries(input.astrology.element_distribution).toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? input.astrology.sun.element;
   const birthday = birthdayNumber(input.assessment.birthDate);
   const masterNumber = MASTER_NUMBERS.includes(lifePath as 11 | 22 | 33) ? lifePath as 11 | 22 | 33 : undefined;
+  const digits = digitDistribution(input.assessment.birthDate);
 
   return {
     report: {
@@ -101,7 +102,9 @@ export function buildClientReport(input: {
     numerology: {
       lifePath,
       birthdayNumber: birthday,
-      digitDistribution: digitDistribution(input.assessment.birthDate),
+      digitDistribution: digits,
+      repeatedDigits: digits.filter((item) => item.count >= 2).map((item) => String(item.digit)),
+      missingDigits: digits.filter((item) => item.count === 0).map((item) => String(item.digit)),
       ...(masterNumber ? { masterNumber } : {}),
       summary: `生命靈數 ${lifePath} 描繪長期動機，生日數 ${birthday} 補充你較自然的行動方式。兩者適合和實際經驗一起閱讀。`,
     },

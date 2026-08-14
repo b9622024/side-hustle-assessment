@@ -1,4 +1,5 @@
 import type { AstrologyElement, AstrologyModality, Dimension, SideHustleType } from "../scoring/types";
+import type { ResolvedBirthPlace } from "../astrology/locations";
 
 export interface AstrologyPlacement {
   sign: string;
@@ -30,6 +31,7 @@ export interface AstrologyProfile {
     location_resolved: boolean;
     latitude?: number;
     longitude?: number;
+    birth_place?: ResolvedBirthPlace;
   };
 }
 
@@ -107,6 +109,8 @@ export interface ClientReportData {
     lifePath: number;
     birthdayNumber: number;
     digitDistribution: Array<{ digit: number; count: number }>;
+    repeatedDigits: string[];
+    missingDigits: string[];
     masterNumber?: 11 | 22 | 33;
     summary: string;
   };
