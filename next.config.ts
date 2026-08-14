@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   agentRules: false,
+  env: { NEXT_PUBLIC_APP_BUILT_AT: new Date().toISOString() },
   async headers() {
     return [{
       source: "/coach/:path*",

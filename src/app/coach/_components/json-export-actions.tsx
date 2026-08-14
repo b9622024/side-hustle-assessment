@@ -29,8 +29,74 @@ function forceStyle(snapshots: StyledElementSnapshot[], element: HTMLElement | S
   for (const [property, value] of Object.entries(properties)) element.style.setProperty(property, value, "important");
 }
 
+function drawRadarExportImage(svg: SVGElement) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 400;
+  canvas.height = 400;
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+  context.scale(2, 2);
+  context.lineJoin = "round";
+  const center = 100;
+  const point = (index: number, radius: number) => {
+    const angle = -Math.PI / 2 + index * (Math.PI * 2 / 6);
+    return { x: center + Math.cos(angle) * radius, y: center + Math.sin(angle) * radius };
+  };
+  const polygon = (radius: number) => {
+    context.beginPath();
+    for (let index = 0; index < 6; index++) {
+      const current = point(index, radius);
+      if (index === 0) context.moveTo(current.x, current.y); else context.lineTo(current.x, current.y);
+    }
+    context.closePath();
+  };
+  context.strokeStyle = "#dce3e2";
+  context.lineWidth = 1;
+  for (const radius of [18, 36, 54, 72]) { polygon(radius); context.stroke(); }
+  context.strokeStyle = "#e4e8e7";
+  for (let index = 0; index < 6; index++) {
+    const outer = point(index, 72);
+    context.beginPath(); context.moveTo(center, center); context.lineTo(outer.x, outer.y); context.stroke();
+  }
+  const dataShape = svg.querySelector<SVGPolygonElement>(".radar-shape")?.getAttribute("points")?.trim().split(/\s+/).map((pair) => {
+    const coordinates = pair.split(",");
+    return { x: Number(coordinates[0]), y: Number(coordinates[1]) };
+  }) ?? [];
+  if (dataShape.length === 6) {
+    context.beginPath();
+    dataShape.forEach((current, index) => { if (index === 0) context.moveTo(current.x, current.y); else context.lineTo(current.x, current.y); });
+    context.closePath(); context.fillStyle = "rgba(47,129,120,.2)"; context.fill(); context.strokeStyle = "#2f8178"; context.lineWidth = 2; context.stroke();
+  }
+  context.fillStyle = "#172944";
+  context.font = "700 11px Georgia, serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  const labels = Array.from(svg.querySelectorAll<SVGTextElement>(".radar-label")).map((label) => label.textContent ?? "");
+  labels.forEach((label, index) => { const position = point(index, 88); context.fillText(label, position.x, position.y); });
+  const image = document.createElement("img");
+  image.className = "radar-export-image";
+  image.alt = "六項副業行動能力雷達圖";
+  image.width = 400;
+  image.height = 400;
+  image.src = canvas.toDataURL("image/png");
+  image.style.cssText = "display:block;width:100%;height:auto;max-height:290px;object-fit:contain";
+  return image;
+}
+
+function createSpectrumExportMarker(marker: HTMLElement) {
+  const track = marker.parentElement;
+  if (!track) return null;
+  const markerRect = marker.getBoundingClientRect();
+  const trackRect = track.getBoundingClientRect();
+  const exportMarker = document.createElement("span");
+  exportMarker.dataset.spectrumExportMarker = "true";
+  exportMarker.style.cssText = `position:absolute;left:${markerRect.left + markerRect.width / 2 - trackRect.left - 5}px;top:-2.5px;width:10px;height:10px;border:0;border-radius:50%;background:#172944;box-shadow:none;filter:none;transform:none`;
+  return exportMarker;
+}
+
 export function prepareClientReportChartsForExport(target: HTMLElement) {
   const snapshots: StyledElementSnapshot[] = [];
+  const addedElements: HTMLElement[] = [];
   const radar = target.querySelector<SVGElement>("svg.radar");
   if (radar) {
     forceStyle(snapshots, radar, { overflow: "visible", background: "transparent", color: "#172944" });
@@ -38,11 +104,22 @@ export function prepareClientReportChartsForExport(target: HTMLElement) {
     for (const element of radar.querySelectorAll<SVGElement>(".radar-axis")) forceStyle(snapshots, element, { fill: "none", stroke: "#e4e8e7", "stroke-width": "1px" });
     for (const element of radar.querySelectorAll<SVGElement>(".radar-shape")) forceStyle(snapshots, element, { fill: "#2f8178", "fill-opacity": "0.2", stroke: "#2f8178", "stroke-width": "2px" });
     for (const element of radar.querySelectorAll<SVGElement>(".radar-label")) forceStyle(snapshots, element, { fill: "#172944", stroke: "none", color: "#172944" });
+    const exportImage = drawRadarExportImage(radar);
+    if (exportImage) {
+      radar.insertAdjacentElement("afterend", exportImage);
+      addedElements.push(exportImage);
+      forceStyle(snapshots, radar, { display: "none" });
+    }
   }
-  for (const marker of target.querySelectorAll<HTMLElement>(".spectrum-list b")) forceStyle(snapshots, marker, { "box-shadow": "none", filter: "none" });
+  for (const marker of target.querySelectorAll<HTMLElement>(".spectrum-list b")) {
+    const exportMarker = createSpectrumExportMarker(marker);
+    if (exportMarker) { marker.parentElement?.append(exportMarker); addedElements.push(exportMarker); }
+    forceStyle(snapshots, marker, { display: exportMarker ? "none" : "block", "box-shadow": "none", filter: "none" });
+  }
   target.dataset.chartExportReady = "true";
   return () => {
     delete target.dataset.chartExportReady;
+    for (const element of addedElements) element.remove();
     for (const { element, style } of snapshots) style === null ? element.removeAttribute("style") : element.setAttribute("style", style);
   };
 }
