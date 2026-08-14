@@ -22,6 +22,36 @@ function isIosSafariLike() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 }
 
+type StyledElementSnapshot = { element: HTMLElement | SVGElement; style: string | null };
+
+function forceStyle(snapshots: StyledElementSnapshot[], element: HTMLElement | SVGElement, properties: Record<string, string>) {
+  snapshots.push({ element, style: element.getAttribute("style") });
+  for (const [property, value] of Object.entries(properties)) element.style.setProperty(property, value, "important");
+}
+
+export function prepareClientReportChartsForExport(target: HTMLElement) {
+  const snapshots: StyledElementSnapshot[] = [];
+  const radar = target.querySelector<SVGElement>("svg.radar");
+  if (radar) {
+    forceStyle(snapshots, radar, { overflow: "visible", background: "transparent", color: "#172944" });
+    for (const element of radar.querySelectorAll<SVGElement>(".radar-grid")) forceStyle(snapshots, element, { fill: "none", stroke: "#dce3e2", "stroke-width": "1px" });
+    for (const element of radar.querySelectorAll<SVGElement>(".radar-axis")) forceStyle(snapshots, element, { fill: "none", stroke: "#e4e8e7", "stroke-width": "1px" });
+    for (const element of radar.querySelectorAll<SVGElement>(".radar-shape")) forceStyle(snapshots, element, { fill: "#2f8178", "fill-opacity": "0.2", stroke: "#2f8178", "stroke-width": "2px" });
+    for (const element of radar.querySelectorAll<SVGElement>(".radar-label")) forceStyle(snapshots, element, { fill: "#172944", stroke: "none", color: "#172944" });
+  }
+  for (const marker of target.querySelectorAll<HTMLElement>(".spectrum-list b")) forceStyle(snapshots, marker, { "box-shadow": "none", filter: "none" });
+  target.dataset.chartExportReady = "true";
+  return () => {
+    delete target.dataset.chartExportReady;
+    for (const { element, style } of snapshots) style === null ? element.removeAttribute("style") : element.setAttribute("style", style);
+  };
+}
+
+async function waitForExportLayout(target: HTMLElement) {
+  for (let frame = 0; frame < 3; frame++) await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  target.querySelector("svg.radar")?.getBoundingClientRect();
+}
+
 async function deliverPng(blob: Blob, filename: string, preparedWindow: Window | null) {
   const file = new File([blob], filename, { type: "image/png" });
   if (isIosSafariLike() && typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
@@ -82,12 +112,14 @@ export function JsonExportActions({ reportId, displayName, serializedJson }: { r
     const target = document.getElementById("client-report-export-root");
     if (!target) { setState("error"); setMessage("找不到客戶報告內容，請重新整理後再試一次。"); return; }
     const preparedWindow = isIosSafariLike() ? window.open("", "_blank") : null;
+    let restoreChartStyles = () => {};
     if (preparedWindow) preparedWindow.document.body.textContent = "PNG 正在產生，請稍候…";
     try {
       setState("generating-png"); setMessage("正在產生客戶版 PNG…");
       target.dataset.exportMode = "true";
+      restoreChartStyles = prepareClientReportChartsForExport(target);
       if (document.fonts?.ready) await document.fonts.ready;
-      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      await waitForExportLayout(target);
       const { toBlob } = await import("html-to-image");
       let pngBlob: Blob | null;
       try {
@@ -104,6 +136,7 @@ export function JsonExportActions({ reportId, displayName, serializedJson }: { r
       console.error("[client-png-export] PNG generation or delivery failed.", error);
       setState("error"); setMessage("PNG 產生失敗，請稍後再試。");
     } finally {
+      restoreChartStyles();
       delete target.dataset.exportMode;
     }
   }

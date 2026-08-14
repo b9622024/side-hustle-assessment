@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { JsonExportActions } from "../src/app/coach/_components/json-export-actions";
+import { JsonExportActions, prepareClientReportChartsForExport } from "../src/app/coach/_components/json-export-actions";
 
 const { toBlob } = vi.hoisted(() => ({ toBlob: vi.fn() }));
 vi.mock("html-to-image", () => ({ toBlob }));
@@ -49,6 +49,23 @@ describe("JSON and client PNG export actions", () => {
     expect(target.dataset.exportMode).toBeUndefined();
     expect(click).toHaveBeenCalled();
     target.remove();
+  });
+
+  it("forces portable radar colors and removes spectrum marker shadow during capture", () => {
+    const target = document.createElement("div");
+    target.innerHTML = '<svg class="radar"><polygon class="radar-grid"></polygon><line class="radar-axis"></line><polygon class="radar-shape"></polygon><text class="radar-label">A</text></svg><div class="spectrum-list"><i><b style="left: 40%"></b></i></div>';
+    const restore = prepareClientReportChartsForExport(target);
+    const shape = target.querySelector<SVGElement>(".radar-shape")!;
+    const grid = target.querySelector<SVGElement>(".radar-grid")!;
+    const marker = target.querySelector<HTMLElement>(".spectrum-list b")!;
+    expect(shape.style.getPropertyValue("fill")).toBe("rgb(47, 129, 120)");
+    expect(shape.style.getPropertyPriority("fill")).toBe("important");
+    expect(grid.style.getPropertyValue("fill")).toBe("none");
+    expect(marker.style.getPropertyValue("box-shadow")).toBe("none");
+    expect(target.dataset.chartExportReady).toBe("true");
+    restore();
+    expect(shape.getAttribute("style")).toBeNull();
+    expect(marker.getAttribute("style")).toBe("left: 40%");
   });
 
   it("shows an understandable clipboard error", async () => {
