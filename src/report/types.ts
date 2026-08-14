@@ -1,5 +1,6 @@
 import type { AstrologyElement, AstrologyModality, Dimension, SideHustleType } from "../scoring/types";
 import type { ResolvedBirthPlace } from "../astrology/locations";
+import type { DiagnosticInterpretation } from "../diagnostic/interpretation";
 
 export interface AstrologyPlacement {
   sign: string;
@@ -120,4 +121,5 @@ export interface ClientReportData {
   typeState:"CLEAR"|"MIXED"|"EXPLORATORY";
   frictions: Array<{ key: string; label: string; score: number; guidance: string }>;
   spectrums: Array<{ key: string; left: string; right: string; score: number }>;
+  diagnostic?: DiagnosticInterpretation | null;
 }

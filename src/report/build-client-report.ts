@@ -3,6 +3,8 @@ import { calculateAstrologyTypeLayer } from "../astrology/type-affinity";
 import { calculateLifePath, scoreAssessment } from "../scoring/engine";
 import type { AssessmentInput, Dimension, LifePathNumber, SideHustleType } from "../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "./types";
+import { buildDiagnosticProfile } from "../diagnostic/profile";
+import { buildDiagnosticInterpretation } from "../diagnostic/interpretation";
 
 const ACTION_DIMENSIONS = ["A", "C", "S", "I", "R", "P"] as const;
 const MASTER_NUMBERS = [11, 22, 33] as const;
@@ -72,6 +74,7 @@ export function buildClientReport(input: {
   const birthday = birthdayNumber(input.assessment.birthDate);
   const masterNumber = MASTER_NUMBERS.includes(lifePath as 11 | 22 | 33) ? lifePath as 11 | 22 | 33 : undefined;
   const digits = digitDistribution(input.assessment.birthDate);
+  const diagnosticProfile = input.assessment.diagnostic ? buildDiagnosticProfile(input.assessment.diagnostic) : null;
 
   return {
     report: {
@@ -122,6 +125,7 @@ export function buildClientReport(input: {
       const spectrum = config.execution_spectrums[key as keyof typeof config.execution_spectrums];
       return { key, left: spectrum.label_left, right: spectrum.label_right, score };
     }),
+    diagnostic: buildDiagnosticInterpretation(diagnosticProfile, scoring),
   };
 }
 

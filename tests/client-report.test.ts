@@ -31,4 +31,21 @@ describe("client report projection", () => {
     expect(report.astrology.placements).toHaveLength(1);
     expect(report.person.birthTime).toBeUndefined();
   });
+
+  it("adds client diagnostic sections without exposing coach-only routing context", () => {
+    const report = buildClientReport({
+      reportId: "TEST-DIAGNOSTIC",
+      generatedAt: "2026-08-12T00:00:00.000Z",
+      assessment: {
+        displayName: "診斷測試者", birthDate: "1990-02-03", businessStatus: "NONE",
+        answers: { Q1: "A", Q2: "A", Q3: "A", Q4: "A", Q5: "A", Q6: "A", Q7: "A", Q8: "A", Q9: "A", Q10: "A" },
+        diagnostic: { motivationCode: "CAREER_EXIT", currentStatusV2: "RESEARCHING", bottleneckAnswers: [] },
+      },
+      astrology: calculateBasicAstrologyProfile("1990-02-03"),
+    });
+    expect(report.diagnostic).toEqual(expect.objectContaining({ diagnostic_stage: "CAREER_TRANSITION_WATCHING", next_step_route: "CAREER_EXPLORATION" }));
+    const clientSections = JSON.stringify(report.diagnostic?.client_sections);
+    expect(clientSections).not.toContain("health_business_recommendation");
+    expect(clientSections).not.toContain("conversation_strategy");
+  });
 });

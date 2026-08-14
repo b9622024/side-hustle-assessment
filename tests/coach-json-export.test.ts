@@ -27,7 +27,10 @@ describe("coach full JSON export",()=>{
     const diagnostic_profile: DiagnosticProfile={schema_version:"2.2.0-rc1",motivation:{question_id:"Q11",code:"SIDE_HUSTLE_STUCK",label:"已經開始副業，但發展不如預期"},current_status:{question_id:"Q12",code:"OFFER_EXISTS",label:"已經有商品、服務或商城"},bottlenecks:{question_id:"Q13",applicable:true,selected:[{code:"TRAFFIC",label:"不知道去哪裡找客戶"},{code:"PROSPECTING",label:"不會陌生開發"}],other_text:null}};
     const diagnosticRecord={...record,diagnostic_profile} as CoachAssessmentDetail;
     const built=buildCoachJsonExport(diagnosticRecord);
-    expect(built.diagnostic_profile).toEqual(diagnostic_profile);
+    expect(built.diagnostic_profile).toEqual({ ...diagnostic_profile, diagnostic_stage: "TRAFFIC_BOTTLENECK" });
+    expect(built.diagnostic_interpretation).toEqual(expect.objectContaining({ next_step_route: "CLIENT_ACQUISITION", bottleneck_profile: expect.objectContaining({ primary_code: "TRAFFIC", secondary_code: "PROSPECTING" }) }));
+    expect(built.routing_context).toEqual(expect.objectContaining({ system_route: scoring.route, conversation_strategy: expect.any(Object) }));
+    expect(built.coach_summary).toEqual(expect.objectContaining({ primary_bottleneck: "TRAFFIC", next_step_route: "CLIENT_ACQUISITION" }));
     expect(built.questionnaire.answers.slice(-3)).toEqual([
       {id:"Q11",answer_code:"SIDE_HUSTLE_STUCK"},
       {id:"Q12",answer_code:"OFFER_EXISTS"},

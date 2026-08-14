@@ -5,6 +5,7 @@ import type { CoachAssessmentDetail } from "../lib/coach/data";
 import { SIDE_HUSTLE_TYPES, type Dimension, type QuestionId, type SideHustleType } from "../scoring/types";
 import type { AstrologyLayerResult, AstrologyPlacement, AstrologyProfile } from "./types";
 import { resolveBirthPlace } from "../astrology/locations";
+import { buildDiagnosticInterpretation } from "../diagnostic/interpretation";
 
 const MASTER_NUMBERS = [11, 22, 33] as const;
 const PERCENTILE_REFERENCE_VERSION = "side-hustle-v2-rc1-theoretical-reference-1.0.0";
@@ -83,6 +84,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
   const layer = getAstrologyLayer(record, profile);
   const questionnaire = config.questionnaire.map((question) => { const id = question.id as QuestionId; const answer = record.answers[id]; return { id, text: question.text, answer, answer_text: question.options[answer]?.text ?? null }; });
   const diagnosticProfile = record.diagnostic_profile ?? null;
+  const diagnosticInterpretation = buildDiagnosticInterpretation(diagnosticProfile, scoring);
   const diagnosticQuestionnaire = diagnosticProfile ? [
     { id: "Q11", answer_code: diagnosticProfile.motivation.code },
     { id: "Q12", answer_code: diagnosticProfile.current_status.code },
@@ -113,7 +115,10 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
     readiness: scoring.readiness ?? null, business_fit: scoring.businessFit ?? null, risk_flags: scoring.riskFlags ?? [],
     routing: { system_route: scoring.route ?? null, label: scoring.route ? config.routing.rules[scoring.route].label : null, consultation_priority: scoring.consultationPriority ?? null },
     cross_analysis: layer?.astrology_cross_analysis ?? { alignments: [], tensions: [], neutral_findings: [], summary: clientReport?.astrology?.summary ?? null },
-    diagnostic_profile: diagnosticProfile,
+    diagnostic_profile: diagnosticProfile ? { ...diagnosticProfile, diagnostic_stage: diagnosticInterpretation?.diagnostic_stage ?? null } : null,
+    diagnostic_interpretation: diagnosticInterpretation ? { schema_version: diagnosticInterpretation.schema_version, bottleneck_profile: diagnosticInterpretation.bottleneck_profile, next_step_route: diagnosticInterpretation.next_step_route, not_recommended: diagnosticInterpretation.not_recommended } : null,
+    routing_context: diagnosticInterpretation ? { system_route: scoring.route, health_business_recommendation: diagnosticInterpretation.health_business_recommendation, conversation_strategy: diagnosticInterpretation.conversation_strategy } : null,
+    coach_summary: diagnosticInterpretation?.coach_summary ?? null,
     data_quality: { scoring_trace_available: Boolean(scoring.scoringTrace), percentile_available: Boolean(scoring.typeDisplayScores), astrology_v2_1_available: Boolean(layer), client_report_available: Boolean(clientReport), compatibility_mode: record.scoring_version === "side-hustle-scoring-v2-rc1" ? "CURRENT" : "LEGACY_PRESERVED", missing_fields: [...(!scoring.scoringTrace ? ["scoring_trace"] : []), ...(!scoring.typeDisplayScores ? ["type_percentile", "display_fit_index"] : []), ...(!layer ? ["astrology_v2_1"] : [])] },
     client_journey: consultation?.client_journey ?? null,
     consultation_context: consultation?.consultation_context ?? null,

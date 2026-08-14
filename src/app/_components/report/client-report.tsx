@@ -87,6 +87,29 @@ export function ClientReport({ data }: { data: ClientReportData }) {
             {data.spectrums.map((item) => <article key={item.key}><div><span>{item.left}</span><span>{item.right}</span></div><i><b style={{ left: `${item.score * 10}%` }} /></i><small>目前位置 {item.score.toFixed(1)}</small></article>)}
           </div>
         </section>
+
+        {data.diagnostic ? <>
+          <section className="report-panel diagnostic-report-panel">
+            <SectionTitle number="07" title="你為什麼正在找第二條路" description="理解這次探索背後真正想改變的事情。" />
+            <div className="diagnostic-highlight"><strong>{data.diagnostic.client_sections.motivation.title}</strong><p>{data.diagnostic.client_sections.motivation.interpretation}</p></div>
+          </section>
+
+          <section className="report-panel diagnostic-report-panel">
+            <SectionTitle number="08" title="你目前在哪個階段" description="先確認所在位置，才能選擇適合的行動節奏。" />
+            <div className="diagnostic-highlight"><strong>{data.diagnostic.client_sections.stage.title}</strong><p>{data.diagnostic.client_sections.stage.interpretation}</p></div>
+          </section>
+
+          <section className="report-panel diagnostic-report-panel">
+            <SectionTitle number="09" title="你現在真正卡住的地方" description={data.diagnostic.client_sections.bottleneck.inferred ? "依目前回答提供的保守推測。" : "依你回報的經營阻力整理。"} />
+            <div className="diagnostic-highlight"><strong>{data.diagnostic.client_sections.bottleneck.title}</strong><p>{data.diagnostic.client_sections.bottleneck.interpretation}</p></div>
+          </section>
+
+          <section className="report-panel diagnostic-report-panel diagnostic-next-step">
+            <SectionTitle number="10" title="你目前最適合的下一步" description="把方向收斂成現在最值得先完成的一件事。" />
+            <div className="diagnostic-highlight"><strong>{data.diagnostic.client_sections.next_step.title}</strong><p>{data.diagnostic.client_sections.next_step.interpretation}</p></div>
+            {data.diagnostic.client_sections.next_step.not_recommended.length ? <div className="diagnostic-not-recommended"><span>目前不建議</span><ul>{data.diagnostic.client_sections.next_step.not_recommended.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
+          </section>
+        </> : null}
       </div>
       <footer className="report-footer"><span>副業羅盤 · Side Hustle Compass</span><span>本報告用於自我探索與行動規劃，不構成財務或職涯保證。</span></footer>
     </main>
