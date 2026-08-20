@@ -50,7 +50,7 @@ describe("AssessmentForm", () => {
 
     await user.click(screen.getByLabelText(/想增加額外收入/));
     await user.click(screen.getByRole("button", { name: "繼續" }));
-    await user.click(screen.getByLabelText(/還沒有開始，目前只是了解/));
+    await user.click(screen.getByLabelText(/目前只是先了解/));
     await user.click(screen.getByRole("button", { name: "繼續" }));
 
     expect(screen.getByRole("heading", { name: "你的資料已經準備好了" })).toBeTruthy();
@@ -58,7 +58,7 @@ describe("AssessmentForm", () => {
     await user.click(screen.getByRole("button", { name: "完成測驗" }));
     await waitFor(() => expect(push).toHaveBeenCalledWith("/complete?id=SH-20260812-A1B2C3"));
     const request = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit;
-    expect(JSON.parse(String(request.body)).diagnostic).toEqual({ motivationCode: "SECOND_INCOME", currentStatusV2: "NOT_STARTED", bottleneckAnswers: [] });
+    expect(JSON.parse(String(request.body)).diagnostic).toEqual({ motivationCode: "SECOND_INCOME", currentStatusV2: "EXPLORING_ONLY", bottleneckAnswers: [] });
     expect(window.localStorage.getItem("side-hustle-assessment-draft-v1")).toBeNull();
   });
 
@@ -77,7 +77,7 @@ describe("AssessmentForm", () => {
     const user = userEvent.setup();
     window.localStorage.setItem("side-hustle-assessment-draft-v1", JSON.stringify({ ...{
       displayName: "測試者", birthDate: "1989-01-17", birthTime: "", birthTimeUnknown: true, birthPlace: "台南市", birthPlaceRegion: "台南市", businessStatus: "NONE",
-      answers: Object.fromEntries(questions.map((question) => [question.id, "A"])), motivationCode: "SIDE_HUSTLE_STUCK", currentStatusV2: "OFFER_EXISTS", bottleneckAnswers: [], bottleneckOtherText: "",
+      answers: Object.fromEntries(questions.map((question) => [question.id, "A"])), motivationCode: "SIDE_HUSTLE_STUCK", currentStatusV2: "IN_PROGRESS", bottleneckAnswers: [], bottleneckOtherText: "",
     } }));
     render(<AssessmentForm questions={questions} businessOptions={businessOptions} />);
     await screen.findByRole("heading", { name: "先認識你" });
@@ -87,7 +87,7 @@ describe("AssessmentForm", () => {
     await user.click(screen.getByLabelText(/不知道要做什麼內容/));
     expect(screen.getByLabelText(/沒時間穩定經營/).hasAttribute("disabled")).toBe(true);
     await user.click(screen.getByRole("button", { name: "上一頁" }));
-    await user.click(screen.getByLabelText(/還沒有開始，目前只是了解/));
+    await user.click(screen.getByLabelText(/目前只是先了解/));
     await user.click(screen.getByRole("button", { name: "繼續" }));
     expect(screen.getByRole("heading", { name: "你的資料已經準備好了" })).toBeTruthy();
     await waitFor(() => expect(JSON.parse(window.localStorage.getItem("side-hustle-assessment-draft-v1")!).bottleneckAnswers).toEqual([]));

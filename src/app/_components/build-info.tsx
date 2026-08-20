@@ -1,4 +1,4 @@
-const APP_VERSION = "v2.2-customer-report-final-hotfix";
+const APP_VERSION = "v2.2-q12-diagnostic-stage-hotfix";
 
 function formatBuildTime(value: string | undefined) {
   if (!value) return "unknown";

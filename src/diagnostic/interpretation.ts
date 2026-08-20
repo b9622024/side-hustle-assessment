@@ -1,9 +1,13 @@
-import type { DiagnosticProfile, BottleneckCode, MotivationCode, CurrentStatusCode } from "./profile";
-import type { RiskFlag, ScoringResult, SideHustleType } from "../scoring/types";
+import { isLegacyDiagnosticProfile, type ActionStageCode, type BottleneckCode, type CurrentStatusCode, type DiagnosticProfile, type MotivationCode } from "./profile";
+import type { BusinessStatus, RiskFlag, ScoringResult, SideHustleType } from "../scoring/types";
 
 export const DIAGNOSTIC_INTERPRETATION_VERSION = "2.2.0-rc1" as const;
 
-export type DiagnosticStage = "EXPLORATION" | "RESEARCH" | "SECOND_INCOME_STARTING" | "CAREER_TRANSITION_WATCHING" | "SIDE_HUSTLE_ACTIVE" | "TRAFFIC_BOTTLENECK" | "CONVERSION_BOTTLENECK" | "GROWTH_STAGE";
+export type LegacyDiagnosticStage = "EXPLORATION" | "RESEARCH" | "SECOND_INCOME_STARTING" | "CAREER_TRANSITION_WATCHING" | "SIDE_HUSTLE_ACTIVE" | "TRAFFIC_BOTTLENECK" | "CONVERSION_BOTTLENECK" | "GROWTH_STAGE";
+export type DiagnosticStage = LegacyDiagnosticStage
+  | "SECOND_INCOME_EXPLORING" | "SECOND_INCOME_TESTING_READY" | "SECOND_INCOME_IN_PROGRESS"
+  | "CAREER_TRANSITION_EXPLORING" | "CAREER_TRANSITION_TESTING_READY" | "CAREER_TRANSITION_STARTING" | "CAREER_TRANSITION_IN_PROGRESS"
+  | "BUSINESS_GROWTH_EXPLORING" | "BUSINESS_GROWTH_TESTING_READY" | "BUSINESS_GROWTH_STARTING" | "BUSINESS_GROWTH_IN_PROGRESS";
 export type InferredBottleneckCode = "DIRECTION" | "LOW_READINESS" | "TIME_COMMITMENT" | "SHORT_TERM_EXPECTATION" | "SYSTEM_RESISTANCE" | "STRANGER_INTERACTION";
 export type DiagnosticBottleneckCode = BottleneckCode | InferredBottleneckCode;
 export type NextStepRoute = "CAREER_EXPLORATION" | "FOUNDATIONAL_ACTION" | "CLIENT_ACQUISITION" | "CONVERSION_FIRST" | "CONTENT_GROWTH" | "EXISTING_BUSINESS_GROWTH" | "SKILL_SERVICE" | "CAPITAL_ROUTE" | "SYSTEM_SECOND_INCOME";
@@ -32,8 +36,12 @@ export interface DiagnosticInterpretation {
   not_recommended: string[];
   health_business_recommendation: HealthBusinessRecommendation;
   conversation_strategy: ConversationStrategy;
+  legacy_current_status: { code: CurrentStatusCode; label: string } | null;
   coach_summary: {
     motivation: string;
+    business_status: BusinessStatus | null;
+    action_stage: CurrentStatusCode;
+    diagnostic_stage: DiagnosticStage;
     stage: DiagnosticStage;
     formal_primary_type: SideHustleType;
     formal_secondary_type: SideHustleType;
@@ -55,11 +63,15 @@ export interface DiagnosticInterpretation {
 const ACTIVE_STATUSES = new Set<CurrentStatusCode>(["SIDE_HUSTLE_ACTIVE", "OFFER_EXISTS", "CUSTOMERS_EXIST", "BUSINESS_ESTABLISHED"]);
 const CAREER_MOTIVATIONS = new Set<MotivationCode>(["CAREER_DISSATISFACTION", "CAREER_EXIT"]);
 const EARLY_STATUSES = new Set<CurrentStatusCode>(["NOT_STARTED", "RESEARCHING", "READY_TO_START"]);
+const BUSINESS_GROWTH_MOTIVATIONS = new Set<MotivationCode>(["SIDE_HUSTLE_STUCK", "BUILD_OWN_BUSINESS"]);
 const BOTTLENECK_PRIORITY: DiagnosticBottleneckCode[] = ["CONVERSION", "TRAFFIC", "PROSPECTING", "CONTENT", "SALES", "TIME", "CONSISTENCY", "GROWTH_DIRECTION", "OTHER"];
 
 export const diagnosticStageLabels: Record<DiagnosticStage, string> = {
   EXPLORATION: "方向探索期", RESEARCH: "研究比較期", SECOND_INCOME_STARTING: "第二收入起步期", CAREER_TRANSITION_WATCHING: "職涯轉換觀望期",
   SIDE_HUSTLE_ACTIVE: "副業經營期", TRAFFIC_BOTTLENECK: "客源瓶頸期", CONVERSION_BOTTLENECK: "成交瓶頸期", GROWTH_STAGE: "既有事業成長期",
+  SECOND_INCOME_EXPLORING: "第二收入探索期", SECOND_INCOME_TESTING_READY: "第二收入測試準備期", SECOND_INCOME_IN_PROGRESS: "第二收入執行期",
+  CAREER_TRANSITION_EXPLORING: "職涯轉換探索期", CAREER_TRANSITION_TESTING_READY: "職涯轉換測試準備期", CAREER_TRANSITION_STARTING: "職涯轉換啟動期", CAREER_TRANSITION_IN_PROGRESS: "職涯轉換執行期",
+  BUSINESS_GROWTH_EXPLORING: "新事業路徑探索期", BUSINESS_GROWTH_TESTING_READY: "新事業路徑測試準備期", BUSINESS_GROWTH_STARTING: "新事業路徑啟動期", BUSINESS_GROWTH_IN_PROGRESS: "新事業路徑執行期",
 };
 export const bottleneckLabels: Record<DiagnosticBottleneckCode, string> = {
   TRAFFIC: "客源", CONVERSION: "成交轉換", CONTENT: "內容方向", PROSPECTING: "陌生開發", TIME: "時間投入", SALES: "銷售互動", GROWTH_DIRECTION: "成長方向", CONSISTENCY: "持續經營", OTHER: "其他阻力",
@@ -73,7 +85,7 @@ export const healthBusinessLabels: Record<HealthBusinessRecommendation, string> 
   PRIORITY_EXPLORE: "優先探索", EXPLORE_GENTLY: "溫和探索", ONLY_IF_INTERESTED: "有興趣時再了解", NOT_PRIMARY: "不是本次優先", NOT_RECOMMENDED: "目前不建議",
 };
 
-export function determineDiagnosticStage(profile: DiagnosticProfile): DiagnosticStage {
+function determineLegacyDiagnosticStage(profile: DiagnosticProfile): LegacyDiagnosticStage {
   const motivation = profile.motivation.code;
   const status = profile.current_status.code;
   const selected = new Set(profile.bottlenecks.selected.map((item) => item.code));
@@ -87,6 +99,23 @@ export function determineDiagnosticStage(profile: DiagnosticProfile): Diagnostic
   return "EXPLORATION";
 }
 
+const ACTION_STAGE_SUFFIX: Record<ActionStageCode, "EXPLORING" | "TESTING_READY" | "STARTING" | "IN_PROGRESS"> = {
+  EXPLORING_ONLY: "EXPLORING",
+  READY_TO_TEST: "TESTING_READY",
+  READY_TO_START: "STARTING",
+  IN_PROGRESS: "IN_PROGRESS",
+};
+
+export function determineDiagnosticStage(profile: DiagnosticProfile): DiagnosticStage {
+  if (isLegacyDiagnosticProfile(profile)) return determineLegacyDiagnosticStage(profile);
+  const actionStage = profile.current_status.code as ActionStageCode;
+  const suffix = ACTION_STAGE_SUFFIX[actionStage];
+  if (!suffix) throw new Error("INVALID_ACTION_STAGE");
+  if (CAREER_MOTIVATIONS.has(profile.motivation.code)) return `CAREER_TRANSITION_${suffix}` as DiagnosticStage;
+  if (BUSINESS_GROWTH_MOTIVATIONS.has(profile.motivation.code)) return `BUSINESS_GROWTH_${suffix}` as DiagnosticStage;
+  return (suffix === "STARTING" ? "SECOND_INCOME_STARTING" : `SECOND_INCOME_${suffix}`) as DiagnosticStage;
+}
+
 function hasRisk(flags: RiskFlag[], id: RiskFlag["id"]) { return flags.some((flag) => flag.id === id); }
 
 export function buildBottleneckProfile(profile: DiagnosticProfile, scoring: ScoringResult): BottleneckProfile {
@@ -97,7 +126,7 @@ export function buildBottleneckProfile(profile: DiagnosticProfile, scoring: Scor
   }
   const signals: InferredBottleneckCode[] = [];
   const directionMotivations: MotivationCode[] = ["SELF_EXPLORATION", "SECOND_INCOME", "INCOME_DIVERSIFICATION", "FUTURE_SECURITY"];
-  if (["NOT_STARTED", "RESEARCHING"].includes(profile.current_status.code) && directionMotivations.includes(profile.motivation.code)) signals.push("DIRECTION");
+  if (["NOT_STARTED", "RESEARCHING", "EXPLORING_ONLY", "READY_TO_TEST"].includes(profile.current_status.code) && directionMotivations.includes(profile.motivation.code)) signals.push("DIRECTION");
   if (scoring.readiness.score < 3.2) signals.push("LOW_READINESS");
   if (hasRisk(scoring.riskFlags, "F3")) signals.push("TIME_COMMITMENT");
   if (hasRisk(scoring.riskFlags, "F1")) signals.push("SHORT_TERM_EXPECTATION");
@@ -107,14 +136,14 @@ export function buildBottleneckProfile(profile: DiagnosticProfile, scoring: Scor
   return { reported: false, primary_code: signals[0]!, secondary_code: null, source: "INFERRED", supporting_signals: signals.slice(1) };
 }
 
-export function determineNextStep(profile: DiagnosticProfile, stage: DiagnosticStage, bottleneck: BottleneckProfile, scoring: ScoringResult): NextStepRoute {
+export function determineNextStep(profile: DiagnosticProfile, stage: DiagnosticStage, bottleneck: BottleneckProfile, scoring: ScoringResult, businessStatus?: BusinessStatus): NextStepRoute {
   const motivation = profile.motivation.code;
-  if (CAREER_MOTIVATIONS.has(motivation) && ["CAREER_TRANSITION_WATCHING", "EXPLORATION", "RESEARCH", "SECOND_INCOME_STARTING"].includes(stage)) return "CAREER_EXPLORATION";
+  if (CAREER_MOTIVATIONS.has(motivation)) return "CAREER_EXPLORATION";
   if (scoring.readiness.score < 3.2 || (hasRisk(scoring.riskFlags, "F1") && hasRisk(scoring.riskFlags, "F3"))) return "FOUNDATIONAL_ACTION";
   if (bottleneck.primary_code === "CONVERSION") return "CONVERSION_FIRST";
   if (["TRAFFIC", "PROSPECTING"].includes(bottleneck.primary_code)) return "CLIENT_ACQUISITION";
   if (bottleneck.primary_code === "CONTENT") return "CONTENT_GROWTH";
-  if (["CUSTOMERS_EXIST", "BUSINESS_ESTABLISHED"].includes(profile.current_status.code) && ["GROWTH_DIRECTION", "CONSISTENCY", "TIME"].includes(bottleneck.primary_code)) return "EXISTING_BUSINESS_GROWTH";
+  if ((businessStatus === "ACTIVE" || businessStatus === "STABLE") && ["GROWTH_DIRECTION", "CONSISTENCY", "TIME"].includes(bottleneck.primary_code)) return "EXISTING_BUSINESS_GROWTH";
   if (scoring.rankedTypes[0]?.type === "CAPITAL_ALLOCATOR" && scoring.finalTypes.CAPITAL_ALLOCATOR >= 4 && scoring.scoringTrace.force_d_trace.capital_low_service_system) return "CAPITAL_ROUTE";
   const topTwo = scoring.rankedTypes.slice(0, 2).map((item) => item.type);
   if (topTwo.some((type) => type === "PROFESSIONAL_SKILL" || type === "CONSULTING_SERVICE") && (scoring.businessFit.score < 3.55 || scoring.route === "D")) return "SKILL_SERVICE";
@@ -125,7 +154,7 @@ export function determineNextStep(profile: DiagnosticProfile, stage: DiagnosticS
 
 export function determineHealthBusinessRecommendation(profile: DiagnosticProfile, stage: DiagnosticStage, scoring: ScoringResult): HealthBusinessRecommendation {
   if (scoring.route === "A") {
-    const gentle = ["SELF_EXPLORATION", "CAREER_EXIT", "CAREER_DISSATISFACTION"].includes(profile.motivation.code) || stage === "CAREER_TRANSITION_WATCHING";
+    const gentle = ["SELF_EXPLORATION", "CAREER_EXIT", "CAREER_DISSATISFACTION"].includes(profile.motivation.code) || stage.startsWith("CAREER_TRANSITION_");
     return !gentle && scoring.readiness.score >= 3.8 ? "PRIORITY_EXPLORE" : "EXPLORE_GENTLY";
   }
   if (scoring.route === "B") return "ONLY_IF_INTERESTED";
@@ -133,7 +162,13 @@ export function determineHealthBusinessRecommendation(profile: DiagnosticProfile
   return "NOT_RECOMMENDED";
 }
 
-function buildConversationStrategy(motivation: MotivationCode, bottleneck: BottleneckProfile): ConversationStrategy {
+function buildConversationStrategy(motivation: MotivationCode, bottleneck: BottleneckProfile, businessStatus?: BusinessStatus): ConversationStrategy {
+  if (businessStatus === "ACTIVE" || businessStatus === "STABLE") return {
+    opening_focus: "先了解現有副業或事業在做什麼、目前收入與客戶是否穩定，以及仍有多少部分高度依賴本人時間。",
+    diagnostic_focus: "釐清現有事業為什麼還不能滿足這次的第二收入／職涯目標，以及是否真的需要再開一條新路。",
+    avoid: "不要把新路徑的準備階段，誤解成客戶目前沒有既有事業，也不要急著叫他放棄原有累積。",
+    possible_transition: "若確實需要新增一條路，再依 Action Stage 討論低風險測試、具體第一步或既有執行優化。",
+  };
   if (CAREER_MOTIVATIONS.has(motivation)) return {
     opening_focus: "先理解他現在工作最不滿意的是什麼，以及想離開的是環境、收入、成長還是生活方式。",
     diagnostic_focus: "確認他是否真的願意利用下班時間建立第二套能力，而不是只想逃離現在工作。",
@@ -178,6 +213,17 @@ function stageInterpretation(stage: DiagnosticStage) {
     TRAFFIC_BOTTLENECK: "你已經有可提供的方向，但客源還不夠穩定。現階段要先建立可重複的接觸與開發方式。",
     CONVERSION_BOTTLENECK: "你已經有人看見或接觸，真正需要改善的是理解需求、建立信任到完成成交的過程。",
     GROWTH_STAGE: "你已有一定累積，現在的重點不是重新開始，而是讓獲客、內容與執行流程更穩定。",
+    SECOND_INCOME_EXPLORING: "你目前先在理解可能性，近期還沒有要正式開始。這個階段適合縮小方向，不需要急著投入大量時間或金錢。",
+    SECOND_INCOME_TESTING_READY: "你已經在找方向，也願意近期開始測試。下一步是選一個低風險、能快速取得回饋的小實驗。",
+    SECOND_INCOME_IN_PROGRESS: "你已經在執行新的收入路徑，接下來要依真實回饋改善卡點與加速有效做法。",
+    CAREER_TRANSITION_EXPLORING: "你想替離開現有職涯保留另一條路，但目前主要仍在理解階段。先增加選擇，不需要急著裸辭。",
+    CAREER_TRANSITION_TESTING_READY: "你已準備用低風險方式測試第二條職涯路徑。重點是取得真實經驗，而不是把想離職直接當成創業理由。",
+    CAREER_TRANSITION_STARTING: "你已決定啟動第二條職涯／收入路徑，現在需要選定具體方法與第一步，同時保留現有安全基礎。",
+    CAREER_TRANSITION_IN_PROGRESS: "你已開始建立新的職涯路徑，現階段要改善執行與結果，再依證據評估是否適合轉換。",
+    BUSINESS_GROWTH_EXPLORING: "你正在理解另一條事業或收入路徑的可能性，現階段先確認它是否真的補足既有事業的限制。",
+    BUSINESS_GROWTH_TESTING_READY: "你準備測試新的事業路徑，應先釐清它與現有事業的關係，避免重複投入或彼此分散。",
+    BUSINESS_GROWTH_STARTING: "你已決定啟動新的事業路徑，下一步是界定方法、資源與第一個可驗證的行動。",
+    BUSINESS_GROWTH_IN_PROGRESS: "你已在執行新的事業路徑，接下來要找出瓶頸，並判斷應優化新路徑或整合既有事業。",
   };
   return copy[stage];
 }
@@ -199,7 +245,7 @@ function nextStepInterpretation(route: NextStepRoute) {
 
 function notRecommended(stage: DiagnosticStage, bottleneck: BottleneckProfile, nextStep: NextStepRoute) {
   const items: string[] = [];
-  if (stage === "CAREER_TRANSITION_WATCHING") items.push("不建議因為工作不開心就立即裸辭");
+  if (stage === "CAREER_TRANSITION_WATCHING" || stage.startsWith("CAREER_TRANSITION_")) items.push("不建議因為工作不開心就立即裸辭");
   if (bottleneck.primary_code === "LOW_READINESS" || nextStep === "FOUNDATIONAL_ACTION") items.push("不建議同時開太多副業方向");
   if (["TRAFFIC", "PROSPECTING"].includes(bottleneck.primary_code)) items.push("不建議在沒有穩定客源前一直換商品");
   if (nextStep === "CAPITAL_ROUTE") items.push("不建議選擇高度依賴陌生開發與服務客戶的模式");
@@ -207,11 +253,11 @@ function notRecommended(stage: DiagnosticStage, bottleneck: BottleneckProfile, n
   return items.slice(0, 2);
 }
 
-export function buildDiagnosticInterpretation(profile: DiagnosticProfile | null | undefined, scoring: ScoringResult): DiagnosticInterpretation | null {
+export function buildDiagnosticInterpretation(profile: DiagnosticProfile | null | undefined, scoring: ScoringResult, businessStatus?: BusinessStatus): DiagnosticInterpretation | null {
   if (!profile) return null;
   const stage = determineDiagnosticStage(profile);
   const bottleneck = buildBottleneckProfile(profile, scoring);
-  const nextStep = determineNextStep(profile, stage, bottleneck, scoring);
+  const nextStep = determineNextStep(profile, stage, bottleneck, scoring, businessStatus);
   const health = determineHealthBusinessRecommendation(profile, stage, scoring);
   const notRecommendedItems = notRecommended(stage, bottleneck, nextStep);
   const formalPrimary = scoring.rankedTypes[0]?.type;
@@ -226,8 +272,9 @@ export function buildDiagnosticInterpretation(profile: DiagnosticProfile | null 
     next_step_route: nextStep,
     not_recommended: notRecommendedItems,
     health_business_recommendation: health,
-    conversation_strategy: buildConversationStrategy(profile.motivation.code, bottleneck),
-    coach_summary: { motivation: profile.motivation.label, stage, formal_primary_type: formalPrimary, formal_secondary_type: formalSecondary, primary_bottleneck: bottleneck.primary_code, secondary_bottleneck: bottleneck.secondary_code, readiness: scoring.readiness.score, business_fit: scoring.businessFit.score, next_step_route: nextStep, health_business_recommendation: health },
+    conversation_strategy: buildConversationStrategy(profile.motivation.code, bottleneck, businessStatus),
+    legacy_current_status: isLegacyDiagnosticProfile(profile) ? { code: profile.current_status.code, label: profile.current_status.label } : null,
+    coach_summary: { motivation: profile.motivation.label, business_status: businessStatus ?? null, action_stage: profile.current_status.code, diagnostic_stage: stage, stage, formal_primary_type: formalPrimary, formal_secondary_type: formalSecondary, primary_bottleneck: bottleneck.primary_code, secondary_bottleneck: bottleneck.secondary_code, readiness: scoring.readiness.score, business_fit: scoring.businessFit.score, next_step_route: nextStep, health_business_recommendation: health },
     client_sections: {
       motivation: { title: profile.motivation.label, interpretation: motivationInterpretation(profile.motivation.code) },
       stage: { title: diagnosticStageLabels[stage], interpretation: stageInterpretation(stage) },

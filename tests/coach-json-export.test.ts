@@ -3,6 +3,7 @@ import { buildCoachJsonExport, serializeFullAssessmentJson } from "../src/report
 import { scoreAssessment } from "../src/scoring/engine.js";
 import type { CoachAssessmentDetail } from "../src/lib/coach/data.js";
 import type { DiagnosticProfile } from "../src/diagnostic/profile.js";
+import { buildDiagnosticProfile } from "../src/diagnostic/profile.js";
 
 const answers={Q1:"A",Q2:"A",Q3:"C",Q4:"C",Q5:"D",Q6:"B",Q7:"A",Q8:"A",Q9:"A",Q10:"A"} as const;
 const scoring=scoreAssessment({displayName:"JSON 測試",birthDate:"1989-01-17",birthTime:"11:45",birthPlace:"台南市",businessStatus:"NONE",answers});
@@ -27,10 +28,10 @@ describe("coach full JSON export",()=>{
     const diagnostic_profile: DiagnosticProfile={schema_version:"2.2.0-rc1",motivation:{question_id:"Q11",code:"SIDE_HUSTLE_STUCK",label:"已經開始副業，但發展不如預期"},current_status:{question_id:"Q12",code:"OFFER_EXISTS",label:"已經有商品、服務或商城"},bottlenecks:{question_id:"Q13",applicable:true,selected:[{code:"TRAFFIC",label:"不知道去哪裡找客戶"},{code:"PROSPECTING",label:"不會陌生開發"}],other_text:null}};
     const diagnosticRecord={...record,diagnostic_profile} as CoachAssessmentDetail;
     const built=buildCoachJsonExport(diagnosticRecord);
-    expect(built.diagnostic_profile).toEqual({ ...diagnostic_profile, diagnostic_stage: "TRAFFIC_BOTTLENECK" });
+    expect(built.diagnostic_profile).toEqual({ ...diagnostic_profile, diagnostic_stage: "TRAFFIC_BOTTLENECK", legacy_current_status: { code: "OFFER_EXISTS", label: "已經有商品、服務或商城" } });
     expect(built.diagnostic_interpretation).toEqual(expect.objectContaining({ next_step_route: "CLIENT_ACQUISITION", bottleneck_profile: expect.objectContaining({ primary_code: "TRAFFIC", secondary_code: "PROSPECTING" }) }));
     expect(built.routing_context).toEqual(expect.objectContaining({ system_route: scoring.route, conversation_strategy: expect.any(Object) }));
-    expect(built.coach_summary).toEqual(expect.objectContaining({ primary_bottleneck: "TRAFFIC", next_step_route: "CLIENT_ACQUISITION" }));
+    expect(built.coach_summary).toEqual(expect.objectContaining({ business_status: "NONE", action_stage: "OFFER_EXISTS", diagnostic_stage: "TRAFFIC_BOTTLENECK", primary_bottleneck: "TRAFFIC", next_step_route: "CLIENT_ACQUISITION" }));
     expect(built.questionnaire.answers.slice(-3)).toEqual([
       {id:"Q11",answer_code:"SIDE_HUSTLE_STUCK"},
       {id:"Q12",answer_code:"OFFER_EXISTS"},
@@ -46,6 +47,15 @@ describe("coach full JSON export",()=>{
     expect(copied).toEqual(downloaded);
     expect(copied.diagnostic_profile.bottlenecks.other_text).toBe("不知道怎麼定價");
     expect(copied.questionnaire.answers.at(-1)).toEqual({id:"Q13",answer_codes:["OTHER"],other_text:"不知道怎麼定價"});
+  });
+  it("keeps existing business status separate from the new-route action stage",()=>{
+    const diagnostic_profile = buildDiagnosticProfile({ motivationCode: "CAREER_EXIT", currentStatusV2: "READY_TO_TEST", bottleneckAnswers: [] });
+    const built = buildCoachJsonExport({ ...record, business_status: "STABLE", diagnostic_profile } as CoachAssessmentDetail);
+    expect(built.business_status.code).toBe("STABLE");
+    expect(built.diagnostic_profile?.current_status.code).toBe("READY_TO_TEST");
+    expect(built.diagnostic_profile?.diagnostic_stage).toBe("CAREER_TRANSITION_TESTING_READY");
+    expect(built.diagnostic_profile?.legacy_current_status).toBeUndefined();
+    expect(built.coach_summary).toEqual(expect.objectContaining({ business_status: "STABLE", action_stage: "READY_TO_TEST", diagnostic_stage: "CAREER_TRANSITION_TESTING_READY" }));
   });
   it("serializes one canonical snapshot with stable identity and versions",()=>{
     const built=buildCoachJsonExport(record);

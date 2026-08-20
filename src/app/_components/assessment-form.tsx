@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TAIWAN_LOCATIONS } from "../../astrology/locations";
-import { BOTTLENECK_OPTIONS, CURRENT_STATUS_OPTIONS, MOTIVATION_OPTIONS, bottleneckIsApplicable, type BottleneckCode, type CurrentStatusCode, type MotivationCode } from "../../diagnostic/profile";
+import { BOTTLENECK_OPTIONS, CURRENT_STATUS_OPTIONS, MOTIVATION_OPTIONS, bottleneckIsApplicable, type ActionStageCode, type BottleneckCode, type MotivationCode } from "../../diagnostic/profile";
 
 type Option = { value: string; text: string };
 type Question = { id: string; text: string; options: Option[] };
 type BusinessOption = { value: string; label: string };
-type Draft = { displayName: string; birthDate: string; birthTime: string; birthTimeUnknown: boolean; birthPlace: string; birthPlaceRegion: string; businessStatus: string; answers: Record<string, string>; motivationCode: MotivationCode | ""; currentStatusV2: CurrentStatusCode | ""; bottleneckAnswers: BottleneckCode[]; bottleneckOtherText: string };
+type Draft = { displayName: string; birthDate: string; birthTime: string; birthTimeUnknown: boolean; birthPlace: string; birthPlaceRegion: string; businessStatus: string; answers: Record<string, string>; motivationCode: MotivationCode | ""; currentStatusV2: ActionStageCode | ""; bottleneckAnswers: BottleneckCode[]; bottleneckOtherText: string };
 
 const STORAGE_KEY = "side-hustle-assessment-draft-v1";
 const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthTimeUnknown: false, birthPlace: "", birthPlaceRegion: "", businessStatus: "", answers: {}, motivationCode: "", currentStatusV2: "", bottleneckAnswers: [], bottleneckOtherText: "" };
@@ -30,6 +30,8 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
       const saved = window.localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = { ...EMPTY_DRAFT, ...JSON.parse(saved) as Draft };
+        const currentStatusIsValid = CURRENT_STATUS_OPTIONS.some((option) => option.code === parsed.currentStatusV2);
+        if (!currentStatusIsValid) { parsed.currentStatusV2 = ""; parsed.bottleneckAnswers = []; parsed.bottleneckOtherText = ""; }
         const knownTaiwanPlace = TAIWAN_LOCATIONS.some((location) => location.canonical_name === parsed.birthPlace);
         setDraft({ ...parsed, birthPlaceRegion: parsed.birthPlaceRegion || (knownTaiwanPlace ? parsed.birthPlace : parsed.birthPlace ? "OTHER_OVERSEAS" : "") });
       }
@@ -98,7 +100,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
     {currentStep === "business" && <BusinessStep value={draft.businessStatus} options={businessOptions} onChange={(value) => update("businessStatus", value)} />}
     {currentStep.startsWith("behavior-") && <QuestionStep questions={groups[Number(currentStep.slice(9))] ?? []} answers={draft.answers} onChange={(id, value) => update("answers", { ...draft.answers, [id]: value })} />}
     {currentStep === "motivation" && <DiagnosticSingleStep number="Q11" title="你現在為什麼想找工作以外的另一種可能？" value={draft.motivationCode} options={MOTIVATION_OPTIONS} onChange={(value) => update("motivationCode", value as MotivationCode)} />}
-    {currentStep === "current-status" && <DiagnosticSingleStep number="Q12" title="你目前最接近哪個狀態？" value={draft.currentStatusV2} options={CURRENT_STATUS_OPTIONS} onChange={(value) => { const next = value as CurrentStatusCode; setDraft((current) => ({ ...current, currentStatusV2: next, ...(!bottleneckIsApplicable(next) ? { bottleneckAnswers: [], bottleneckOtherText: "" } : {}) })); setError(""); }} />}
+    {currentStep === "current-status" && <DiagnosticSingleStep number="Q12" title="針對你這次想建立的下一條收入／職涯路徑，你目前最接近哪一個狀態？" value={draft.currentStatusV2} options={CURRENT_STATUS_OPTIONS} onChange={(value) => { const next = value as ActionStageCode; setDraft((current) => ({ ...current, currentStatusV2: next, ...(!bottleneckIsApplicable(next) ? { bottleneckAnswers: [], bottleneckOtherText: "" } : {}) })); setError(""); }} />}
     {currentStep === "bottleneck" && <BottleneckStep selected={draft.bottleneckAnswers} otherText={draft.bottleneckOtherText} onToggle={(code) => update("bottleneckAnswers", draft.bottleneckAnswers.includes(code) ? draft.bottleneckAnswers.filter((item) => item !== code) : [...draft.bottleneckAnswers, code])} onOtherText={(value) => update("bottleneckOtherText", value)} />}
     {currentStep === "review" && <ReviewStep draft={draft} businessOptions={businessOptions} answered={Object.keys(draft.answers).length} total={questions.length} onEdit={() => setStep(0)} />}
     {error && <p className="form-error" role="alert">{error}</p>}

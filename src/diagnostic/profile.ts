@@ -1,4 +1,5 @@
-export const DIAGNOSTIC_SCHEMA_VERSION = "2.2.0-rc1" as const;
+export const DIAGNOSTIC_SCHEMA_VERSION = "2.2.1-q12-hotfix" as const;
+export const LEGACY_DIAGNOSTIC_SCHEMA_VERSION = "2.2.0-rc1" as const;
 
 export const MOTIVATION_OPTIONS = [
   { code: "SECOND_INCOME", label: "想增加額外收入" },
@@ -12,6 +13,13 @@ export const MOTIVATION_OPTIONS = [
 ] as const;
 
 export const CURRENT_STATUS_OPTIONS = [
+  { code: "EXPLORING_ONLY", label: "目前只是先了解，近期還沒有打算正式開始" },
+  { code: "READY_TO_TEST", label: "已經在找方向，希望近期開始測試" },
+  { code: "READY_TO_START", label: "已經決定要開始，只差選方法或第一步" },
+  { code: "IN_PROGRESS", label: "已經正在執行一條新路徑，希望改善或加速結果" },
+] as const;
+
+export const LEGACY_CURRENT_STATUS_OPTIONS = [
   { code: "NOT_STARTED", label: "還沒有開始，目前只是了解" },
   { code: "RESEARCHING", label: "正在研究不同的副業／第二收入方向" },
   { code: "READY_TO_START", label: "已經決定想開始，但還沒有真正執行" },
@@ -20,6 +28,16 @@ export const CURRENT_STATUS_OPTIONS = [
   { code: "CUSTOMERS_EXIST", label: "已經有一些客戶" },
   { code: "BUSINESS_ESTABLISHED", label: "已經有自己的品牌或事業" },
 ] as const;
+
+export const LEGACY_TO_ACTION_STAGE = {
+  NOT_STARTED: "EXPLORING_ONLY",
+  RESEARCHING: "READY_TO_TEST",
+  READY_TO_START: "READY_TO_START",
+  SIDE_HUSTLE_ACTIVE: "IN_PROGRESS",
+  OFFER_EXISTS: "IN_PROGRESS",
+  CUSTOMERS_EXIST: "IN_PROGRESS",
+  BUSINESS_ESTABLISHED: "IN_PROGRESS",
+} as const satisfies Record<LegacyCurrentStatusCode, ActionStageCode>;
 
 export const BOTTLENECK_OPTIONS = [
   { code: "TRAFFIC", label: "不知道去哪裡找客戶" },
@@ -34,27 +52,33 @@ export const BOTTLENECK_OPTIONS = [
 ] as const;
 
 export type MotivationCode = typeof MOTIVATION_OPTIONS[number]["code"];
-export type CurrentStatusCode = typeof CURRENT_STATUS_OPTIONS[number]["code"];
+export type ActionStageCode = typeof CURRENT_STATUS_OPTIONS[number]["code"];
+export type LegacyCurrentStatusCode = typeof LEGACY_CURRENT_STATUS_OPTIONS[number]["code"];
+export type CurrentStatusCode = ActionStageCode | LegacyCurrentStatusCode;
 export type BottleneckCode = typeof BOTTLENECK_OPTIONS[number]["code"];
 
 export interface DiagnosticInput {
   motivationCode: MotivationCode;
-  currentStatusV2: CurrentStatusCode;
+  currentStatusV2: ActionStageCode;
   bottleneckAnswers: BottleneckCode[];
   bottleneckOtherText?: string;
 }
 
 export interface DiagnosticProfile {
-  schema_version: typeof DIAGNOSTIC_SCHEMA_VERSION;
+  schema_version: typeof DIAGNOSTIC_SCHEMA_VERSION | typeof LEGACY_DIAGNOSTIC_SCHEMA_VERSION;
   motivation: { question_id: "Q11"; code: MotivationCode; label: string };
   current_status: { question_id: "Q12"; code: CurrentStatusCode; label: string };
   bottlenecks: { question_id: "Q13"; applicable: boolean; selected: Array<{ code: BottleneckCode; label: string }>; other_text: string | null };
 }
 
-const APPLICABLE_STATUSES = new Set<CurrentStatusCode>(["SIDE_HUSTLE_ACTIVE", "OFFER_EXISTS", "CUSTOMERS_EXIST", "BUSINESS_ESTABLISHED"]);
+const APPLICABLE_STATUSES = new Set<ActionStageCode>(["IN_PROGRESS"]);
 
-export function bottleneckIsApplicable(status: CurrentStatusCode | "") {
-  return Boolean(status && APPLICABLE_STATUSES.has(status as CurrentStatusCode));
+export function bottleneckIsApplicable(status: ActionStageCode | "") {
+  return Boolean(status && APPLICABLE_STATUSES.has(status as ActionStageCode));
+}
+
+export function isLegacyDiagnosticProfile(profile: DiagnosticProfile) {
+  return profile.schema_version === LEGACY_DIAGNOSTIC_SCHEMA_VERSION;
 }
 
 function findOption<T extends readonly { code: string; label: string }[]>(options: T, code: string) {

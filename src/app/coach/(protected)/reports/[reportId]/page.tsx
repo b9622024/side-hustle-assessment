@@ -26,7 +26,7 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
   const record = await getCoachAssessment(reportId);
   const scoring = record.scoring_snapshot;
   const clientReport = record.client_reports[0]?.report_data;
-  const diagnostic = buildDiagnosticInterpretation(record.diagnostic_profile, scoring);
+  const diagnostic = buildDiagnosticInterpretation(record.diagnostic_profile, scoring, record.business_status);
   const clientReportForDisplay = clientReport ? { ...clientReport, diagnostic: clientReport.diagnostic ?? diagnostic } : null;
   const astrology = record.astrology_profile;
   const serializedJson = serializeFullAssessmentJson(record);
@@ -48,7 +48,10 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
       <div className="coach-diagnostic-heading"><div><p className="eyebrow">V2.2 Diagnostic Layer</p><h2>第二條路診斷摘要</h2></div><span>{diagnosticStageLabels[diagnostic.diagnostic_stage]}</span></div>
       <dl className="coach-diagnostic-grid">
         <div><dt>核心動機</dt><dd>{diagnostic.coach_summary.motivation}</dd></div>
-        <div><dt>目前階段</dt><dd>{diagnosticStageLabels[diagnostic.coach_summary.stage]}</dd></div>
+        <div><dt>既有副業／事業狀態</dt><dd>{config.business_status_options[record.business_status]}</dd></div>
+        <div><dt>本次新路徑行動階段</dt><dd>{record.diagnostic_profile?.current_status.label ?? diagnostic.coach_summary.action_stage}</dd></div>
+        <div><dt>綜合診斷階段</dt><dd>{diagnosticStageLabels[diagnostic.coach_summary.diagnostic_stage]}</dd></div>
+        {diagnostic.legacy_current_status ? <div><dt>舊版 Q12</dt><dd>{diagnostic.legacy_current_status.label}（Legacy）</dd></div> : null}
         <div><dt>主型</dt><dd>{config.type_formulas[diagnostic.coach_summary.formal_primary_type].label}</dd></div>
         <div><dt>副型</dt><dd>{config.type_formulas[diagnostic.coach_summary.formal_secondary_type].label}</dd></div>
         <div><dt>主要卡點</dt><dd>{bottleneckLabels[diagnostic.coach_summary.primary_bottleneck]}</dd></div>

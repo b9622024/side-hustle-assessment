@@ -125,7 +125,7 @@ export function buildClientReport(input: {
       const spectrum = config.execution_spectrums[key as keyof typeof config.execution_spectrums];
       return { key, left: spectrum.label_left, right: spectrum.label_right, score };
     }),
-    diagnostic: buildDiagnosticInterpretation(diagnosticProfile, scoring),
+    diagnostic: buildDiagnosticInterpretation(diagnosticProfile, scoring, input.assessment.businessStatus),
   };
 }
 

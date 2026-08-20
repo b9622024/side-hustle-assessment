@@ -48,7 +48,7 @@ describe("Phase 4 client PNG fixtures", () => {
       assessment: {
         displayName: "PNG 測試", birthDate: "1990-02-03", businessStatus: "NONE",
         answers: { Q1: "A", Q2: "A", Q3: "A", Q4: "A", Q5: "A", Q6: "A", Q7: "A", Q8: "A", Q9: "A", Q10: "A" },
-        diagnostic: { motivationCode: "CAREER_EXIT", currentStatusV2: "RESEARCHING", bottleneckAnswers: [] },
+        diagnostic: { motivationCode: "CAREER_EXIT", currentStatusV2: "READY_TO_TEST", bottleneckAnswers: [] },
       },
       astrology: calculateBasicAstrologyProfile("1990-02-03"),
     });

@@ -84,7 +84,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
   const layer = getAstrologyLayer(record, profile);
   const questionnaire = config.questionnaire.map((question) => { const id = question.id as QuestionId; const answer = record.answers[id]; return { id, text: question.text, answer, answer_text: question.options[answer]?.text ?? null }; });
   const diagnosticProfile = record.diagnostic_profile ?? null;
-  const diagnosticInterpretation = buildDiagnosticInterpretation(diagnosticProfile, scoring);
+  const diagnosticInterpretation = buildDiagnosticInterpretation(diagnosticProfile, scoring, record.business_status);
   const diagnosticQuestionnaire = diagnosticProfile ? [
     { id: "Q11", answer_code: diagnosticProfile.motivation.code },
     { id: "Q12", answer_code: diagnosticProfile.current_status.code },
@@ -115,7 +115,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
     readiness: scoring.readiness ?? null, business_fit: scoring.businessFit ?? null, risk_flags: scoring.riskFlags ?? [],
     routing: { system_route: scoring.route ?? null, label: scoring.route ? config.routing.rules[scoring.route].label : null, consultation_priority: scoring.consultationPriority ?? null },
     cross_analysis: layer?.astrology_cross_analysis ?? { alignments: [], tensions: [], neutral_findings: [], summary: clientReport?.astrology?.summary ?? null },
-    diagnostic_profile: diagnosticProfile ? { ...diagnosticProfile, diagnostic_stage: diagnosticInterpretation?.diagnostic_stage ?? null } : null,
+    diagnostic_profile: diagnosticProfile ? { ...diagnosticProfile, diagnostic_stage: diagnosticInterpretation?.diagnostic_stage ?? null, ...(diagnosticInterpretation?.legacy_current_status ? { legacy_current_status: diagnosticInterpretation.legacy_current_status } : {}) } : null,
     diagnostic_interpretation: diagnosticInterpretation ? { schema_version: diagnosticInterpretation.schema_version, bottleneck_profile: diagnosticInterpretation.bottleneck_profile, next_step_route: diagnosticInterpretation.next_step_route, not_recommended: diagnosticInterpretation.not_recommended } : null,
     routing_context: diagnosticInterpretation ? { system_route: scoring.route, health_business_recommendation: diagnosticInterpretation.health_business_recommendation, conversation_strategy: diagnosticInterpretation.conversation_strategy } : null,
     coach_summary: diagnosticInterpretation?.coach_summary ?? null,
