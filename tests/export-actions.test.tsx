@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { JsonExportActions, prepareClientReportChartsForExport } from "../src/app/coach/_components/json-export-actions";
+import { isStandaloneDisplayMode, JsonExportActions, prepareClientReportChartsForExport } from "../src/app/coach/_components/json-export-actions";
 
 const { toBlob } = vi.hoisted(() => ({ toBlob: vi.fn() }));
 vi.mock("html-to-image", () => ({ toBlob }));
@@ -23,6 +23,8 @@ describe("JSON and client PNG export actions", () => {
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: createObjectURL });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: revokeObjectURL });
+    Object.defineProperty(window, "matchMedia", { configurable: true, value: vi.fn().mockReturnValue({ matches: false }) });
+    Object.defineProperty(navigator, "standalone", { configurable: true, value: false });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
   });
 
@@ -76,6 +78,25 @@ describe("JSON and client PNG export actions", () => {
     expect(exportRadar.getAttribute("style")).toBe("display:none");
     expect(marker.getAttribute("style")).toBe("left: 40%");
     expect(target.querySelector("[data-spectrum-export-marker]")).toBeNull();
+  });
+
+  it("does not open a new tab in standalone mode and shows an inline save preview", async () => {
+    Object.defineProperty(window, "matchMedia", { configurable: true, value: vi.fn().mockReturnValue({ matches: true }) });
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    const target = document.createElement("div");
+    target.id = "client-report-export-root";
+    document.body.append(target);
+    expect(isStandaloneDisplayMode()).toBe(true);
+    render(<JsonExportActions reportId="SH-TEST-001" displayName="測試者" serializedJson={serializedJson} />);
+    fireEvent.click(screen.getByRole("button", { name: "下載客戶版 PNG" }));
+    await waitFor(() => expect(screen.getByRole("dialog", { name: "客戶報告圖片預覽" })).toBeTruthy());
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.getByRole("img").getAttribute("src")).toBe("blob:test");
+    expect(screen.getByRole("status").textContent).toContain("長按圖片儲存");
+    fireEvent.click(screen.getByRole("button", { name: "關閉" }));
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
+    open.mockRestore();
+    target.remove();
   });
 
   it("shows an understandable clipboard error", async () => {

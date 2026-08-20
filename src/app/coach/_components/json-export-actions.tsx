@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ExportState = "idle" | "copying" | "copied" | "downloading-json" | "generating-png" | "error";
 
@@ -20,6 +20,13 @@ function triggerDownload(href: string, filename: string) {
 
 function isIosSafariLike() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+type NavigatorWithStandalone = Navigator & { standalone?: boolean };
+
+export function isStandaloneDisplayMode() {
+  if (typeof window === "undefined") return false;
+  return Boolean(window.matchMedia?.("(display-mode: standalone)").matches || (navigator as NavigatorWithStandalone).standalone);
 }
 
 type StyledElementSnapshot = { element: HTMLElement | SVGElement; style: string | null };
@@ -67,7 +74,7 @@ async function waitForExportLayout(target: HTMLElement) {
   target.querySelector("svg.radar-export-safe")?.getBoundingClientRect();
 }
 
-async function deliverPng(blob: Blob, filename: string, preparedWindow: Window | null) {
+async function deliverPng(blob: Blob, filename: string, preparedWindow: Window | null, standalone: boolean) {
   const file = new File([blob], filename, { type: "image/png" });
   if (isIosSafariLike() && typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
     try {
@@ -79,23 +86,37 @@ async function deliverPng(blob: Blob, filename: string, preparedWindow: Window |
     }
   }
   const url = URL.createObjectURL(blob);
+  if (standalone) {
+    preparedWindow?.close();
+    return { method: "INLINE", previewUrl: url } as const;
+  }
   if (isIosSafariLike() && preparedWindow) {
     preparedWindow.location.href = url;
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    return "OPENED" as const;
+    return { method: "OPENED" } as const;
   }
   preparedWindow?.close();
   triggerDownload(url, filename);
   window.setTimeout(() => URL.revokeObjectURL(url), 5_000);
-  return "DOWNLOADED" as const;
+  return { method: "DOWNLOADED" } as const;
 }
 
 export function JsonExportActions({ reportId, displayName, serializedJson }: { reportId: string; displayName: string; serializedJson: string }) {
   const [state, setState] = useState<ExportState>("idle");
   const [message, setMessage] = useState("");
+  const [pngPreviewUrl, setPngPreviewUrl] = useState<string | null>(null);
   const busy = state === "copying" || state === "downloading-json" || state === "generating-png";
   const filenameName = safeFilenamePart(displayName);
   const filenameId = safeFilenamePart(reportId);
+
+  useEffect(() => () => {
+    if (pngPreviewUrl) URL.revokeObjectURL(pngPreviewUrl);
+  }, [pngPreviewUrl]);
+
+  function closePngPreview() {
+    if (pngPreviewUrl) URL.revokeObjectURL(pngPreviewUrl);
+    setPngPreviewUrl(null);
+  }
 
   function resetLater() {
     window.setTimeout(() => { setState("idle"); setMessage(""); }, 2200);
@@ -126,7 +147,8 @@ export function JsonExportActions({ reportId, displayName, serializedJson }: { r
   async function downloadClientPng() {
     const target = document.getElementById("client-report-export-root");
     if (!target) { setState("error"); setMessage("找不到客戶報告內容，請重新整理後再試一次。"); return; }
-    const preparedWindow = isIosSafariLike() ? window.open("", "_blank") : null;
+    const standalone = isStandaloneDisplayMode();
+    const preparedWindow = isIosSafariLike() && !standalone ? window.open("", "_blank") : null;
     let restoreChartStyles = () => {};
     if (preparedWindow) preparedWindow.document.body.textContent = "PNG 正在產生，請稍候…";
     try {
@@ -144,8 +166,16 @@ export function JsonExportActions({ reportId, displayName, serializedJson }: { r
         pngBlob = await toBlob(target, { backgroundColor: "#f5f2ea", pixelRatio: 1.25, cacheBust: true, skipAutoScale: false });
       }
       if (!pngBlob) throw new Error("PNG_BLOB_EMPTY");
-      const delivery = await deliverPng(pngBlob, `副業適性行動報告-${filenameName}-${filenameId}.png`, preparedWindow);
-      setState("idle"); setMessage(delivery === "SHARED" ? "已開啟系統分享，可儲存到照片或檔案" : delivery === "OPENED" ? "PNG 已在新分頁開啟，可長按或使用分享功能儲存" : "客戶版 PNG 下載已開始"); resetLater();
+      const delivery = await deliverPng(pngBlob, `副業適性行動報告-${filenameName}-${filenameId}.png`, preparedWindow, standalone);
+      if (delivery === "SHARED") {
+        setState("idle"); setMessage("已開啟系統分享，可儲存到照片或檔案"); resetLater();
+      } else if (delivery.method === "INLINE") {
+        closePngPreview();
+        setPngPreviewUrl(delivery.previewUrl);
+        setState("idle"); setMessage("圖片已產生，可長按圖片儲存到照片或檔案");
+      } else {
+        setState("idle"); setMessage(delivery.method === "OPENED" ? "PNG 已在新分頁開啟，可長按或使用分享功能儲存" : "客戶版 PNG 下載已開始"); resetLater();
+      }
     } catch (error) {
       preparedWindow?.close();
       console.error("[client-png-export] PNG generation or delivery failed.", error);
@@ -163,6 +193,13 @@ export function JsonExportActions({ reportId, displayName, serializedJson }: { r
       <button className="button secondary" type="button" onClick={downloadClientPng} disabled={busy}>{state === "generating-png" ? "正在產生 PNG…" : "下載客戶版 PNG"}</button>
     </div>
     <p className={`coach-export-message${state === "error" ? " error" : ""}`} role="status" aria-live="polite">{message}</p>
+    {pngPreviewUrl ? <div className="coach-png-preview" role="dialog" aria-modal="true" aria-label="客戶報告圖片預覽">
+      <div className="coach-png-preview-card">
+        <header><div><strong>客戶報告圖片已產生</strong><p>長按下方圖片，選擇「儲存到照片」或「儲存到檔案」。</p></div><button type="button" onClick={closePngPreview}>關閉</button></header>
+        {/* A blob URL is required here so iOS standalone mode can save the generated file. */}
+        <img src={pngPreviewUrl} alt={`副業適性行動報告－${displayName}`} />
+      </div>
+    </div> : null}
   </div>;
 }
 
