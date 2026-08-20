@@ -24,9 +24,6 @@ describe("JSON and client PNG export actions", () => {
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: createObjectURL });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: revokeObjectURL });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
-    const context = { scale: vi.fn(), beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), closePath: vi.fn(), stroke: vi.fn(), fill: vi.fn(), fillText: vi.fn() };
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => context as unknown as CanvasRenderingContext2D);
-    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue("data:image/png;base64,radar");
   });
 
   afterEach(() => { cleanup(); vi.clearAllTimers(); vi.useRealTimers(); });
@@ -54,28 +51,30 @@ describe("JSON and client PNG export actions", () => {
     target.remove();
   });
 
-  it("forces portable radar colors and removes spectrum marker shadow during capture", () => {
+  it("switches to the export-safe radar and removes spectrum marker shadow during capture", () => {
     const target = document.createElement("div");
-    target.innerHTML = '<svg class="radar"><polygon class="radar-grid"></polygon><line class="radar-axis"></line><polygon class="radar-shape" points="100,60 135,80 135,120 100,140 65,120 65,80"></polygon><text class="radar-label">A</text><text class="radar-label">C</text><text class="radar-label">S</text><text class="radar-label">I</text><text class="radar-label">R</text><text class="radar-label">P</text></svg><div class="spectrum-list"><i><b style="left: 40%"></b></i></div>';
+    target.innerHTML = '<svg class="radar radar-web" data-radar-values="A:4.0|C:3.0|S:2.0|I:1.0|R:2.5|P:3.5"></svg><svg class="radar radar-export-safe" data-radar-values="A:4.0|C:3.0|S:2.0|I:1.0|R:2.5|P:3.5" style="display:none"><polygon data-radar-respondent="true" points="100,40 135,80 135,120 100,140 65,120 65,80" fill="#2f8178" fill-opacity="0.2" stroke="#2f8178"></polygon></svg><div class="spectrum-list"><i><b style="left: 40%"></b></i></div>';
     const restore = prepareClientReportChartsForExport(target);
-    const shape = target.querySelector<SVGElement>(".radar-shape")!;
-    const grid = target.querySelector<SVGElement>(".radar-grid")!;
+    const webRadar = target.querySelector<SVGElement>(".radar-web")!;
+    const exportRadar = target.querySelector<SVGElement>(".radar-export-safe")!;
+    const shape = exportRadar.querySelector<SVGPolygonElement>("[data-radar-respondent]")!;
     const marker = target.querySelector<HTMLElement>(".spectrum-list b")!;
-    const radarImage = target.querySelector<HTMLImageElement>(".radar-export-image")!;
     const exportMarker = target.querySelector<HTMLElement>("[data-spectrum-export-marker]")!;
-    expect(shape.style.getPropertyValue("fill")).toBe("rgb(47, 129, 120)");
-    expect(shape.style.getPropertyPriority("fill")).toBe("important");
-    expect(grid.style.getPropertyValue("fill")).toBe("none");
+    expect(webRadar.style.display).toBe("none");
+    expect(exportRadar.style.display).toBe("block");
+    expect(exportRadar.dataset.radarValues).toBe(webRadar.dataset.radarValues);
+    expect(shape.getAttribute("fill")).toBe("#2f8178");
+    expect(shape.getAttribute("stroke")).toBe("#2f8178");
+    expect(shape.getAttribute("fill-opacity")).toBe("0.2");
     expect(marker.style.getPropertyValue("box-shadow")).toBe("none");
     expect(marker.style.getPropertyValue("display")).toBe("none");
-    expect(radarImage.src).toContain("data:image/png");
     expect(exportMarker.style.boxShadow).toBe("none");
     expect(exportMarker.style.transform).toBe("none");
     expect(target.dataset.chartExportReady).toBe("true");
     restore();
-    expect(shape.getAttribute("style")).toBeNull();
+    expect(webRadar.getAttribute("style")).toBeNull();
+    expect(exportRadar.getAttribute("style")).toBe("display:none");
     expect(marker.getAttribute("style")).toBe("left: 40%");
-    expect(target.querySelector(".radar-export-image")).toBeNull();
     expect(target.querySelector("[data-spectrum-export-marker]")).toBeNull();
   });
 

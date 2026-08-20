@@ -42,7 +42,7 @@ describe("Phase 4 client PNG fixtures", () => {
     expect(html).not.toContain(">上升<");
   });
 
-  it("includes Phase B sections 07-10 while excluding coach-only diagnostic data", () => {
+  it("keeps Phase B data while hiding sections 07-10 from the customer report", () => {
     const report = buildClientReport({
       reportId: "TEST-PHASE-B-PNG", generatedAt: "2026-08-15T00:00:00.000Z",
       assessment: {
@@ -53,14 +53,12 @@ describe("Phase 4 client PNG fixtures", () => {
       astrology: calculateBasicAstrologyProfile("1990-02-03"),
     });
     const html = renderToStaticMarkup(<ClientReport data={report} />);
-    expect(html).toContain("07");
-    expect(html).toContain("你為什麼正在找第二條路");
-    expect(html).toContain("08");
-    expect(html).toContain("你目前在哪個階段");
-    expect(html).toContain("09");
-    expect(html).toContain("你現在真正卡住的地方");
-    expect(html).toContain("10");
-    expect(html).toContain("你目前最適合的下一步");
+    expect(report.diagnostic).not.toBeNull();
+    expect(report.diagnostic?.next_step_route).toBeTruthy();
+    expect(html).not.toContain("你為什麼正在找第二條路");
+    expect(html).not.toContain("你目前在哪個階段");
+    expect(html).not.toContain("你現在真正卡住的地方");
+    expect(html).not.toContain("你目前最適合的下一步");
     expect(html).not.toContain("health_business_recommendation");
     expect(html).not.toContain("conversation_strategy");
     expect(html).not.toContain("Business Fit");
