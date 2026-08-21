@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BuildInfo } from "./_components/build-info";
 
 export const metadata: Metadata = {
   title: "副業適性測驗｜找出適合你的第二收入模式",
@@ -8,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-Hant"><body>{children}<BuildInfo /></body></html>;
+  return <html lang="zh-Hant"><body>{children}</body></html>;
 }
