@@ -50,8 +50,9 @@ function distribution<T extends string>(points: Partial<Record<PointKey, Astrolo
 }
 
 export function calculateBasicAstrologyProfile(birthDate: string, birthTime?: string, birthPlace?: string): AstrologyProfile {
-  const birthTimeKnown = Boolean(birthTime);
-  const date = taiwanLocalDate(birthDate, birthTime ?? "12:00");
+  const normalizedBirthTime = birthTime?.trim() || undefined;
+  const birthTimeKnown = Boolean(normalizedBirthTime);
+  const date = taiwanLocalDate(birthDate, normalizedBirthTime ?? "12:00");
   const points: Partial<Record<PointKey, AstrologyPlacement>> = { sun: placement(SunPosition(date).elon, "calculated_true_ecliptic_longitude") };
   if (birthTimeKnown) points.moon = placement(EclipticGeoMoon(date).lon, "calculated_from_exact_time");
   const birthPlaceResolution = resolveBirthPlace(birthPlace);
