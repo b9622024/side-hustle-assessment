@@ -26,6 +26,15 @@ describe("Astrology V2.1 profile", () => {
     });
   });
 
+  it("treats an empty birth time from the form as unavailable", () => {
+    const profile = calculateBasicAstrologyProfile("1989-01-17", "", "台南市");
+
+    expect(profile.data_completeness.birth_time_known).toBe(false);
+    expect(profile.data_completeness.included_points).toEqual(["sun"]);
+    expect(profile.moon).toBeUndefined();
+    expect(profile.ascendant).toBeUndefined();
+  });
+
   it("renormalizes Sun and Moon when the location cannot support Ascendant", () => {
     const profile = calculateBasicAstrologyProfile("1990-02-03", "10:30", "未解析地點");
     expect(profile.moon).toBeDefined();
