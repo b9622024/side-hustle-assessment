@@ -24,6 +24,27 @@ describe("coach full JSON export",()=>{
     expect(result.scoring_trace?.diagnostic_questions_excluded_from_formal_scoring).toEqual(["Q11", "Q12", "Q13"]);
     expect(result.diagnostic_profile).toBeNull();
   });
+  it("serializes Kiki client-report friction and spectrum snapshots without recalculation",()=>{
+    const frictions = [
+      { key: "START_HESITATION", label: "啟動猶豫", score: 5.297185436796, guidance: "先把第一步縮小到能在 30 分鐘內完成，讓回饋取代反覆評估。" },
+      { key: "CONSISTENCY_PRESSURE", label: "穩定投入壓力", score: 5.062702053357, guidance: "用固定但輕量的週節奏累積，避免一開始就設定過重產量。" },
+      { key: "SYSTEM_RESISTANCE", label: "系統配合阻力", score: 2.111118584394, guidance: "保留可調整空間，同時只建立一套最必要的追蹤流程。" },
+      { key: "STRANGER_INTERACTION_PRESSURE", label: "陌生互動壓力", score: 1.456750705128, guidance: "先從熟人轉介、內容暖身或小型對談建立互動安全感。" },
+      { key: "RESULT_ANXIETY", label: "成果焦慮", score: 5.912702053358, guidance: "把短期指標改為完成次數與有效回饋，不只看收入結果。" },
+    ];
+    const spectrums = [
+      { key: "FREEDOM_VS_STRUCTURE", left: "自由摸索", right: "明確系統", score: 7.088881415607 },
+      { key: "ANALYSIS_VS_ACTION", left: "分析準備", right: "行動嘗試", score: 3.084631963467 },
+      { key: "BEHIND_SCENES_VS_EXPRESSION", left: "幕後執行", right: "對外表達", score: 4.646182093104 },
+      { key: "TIME_VS_CAPITAL", left: "時間經營", right: "資本配置", score: 2.914195384027 },
+    ];
+    const clientRecord = { ...record, client_reports: [{ report_data: { frictions, spectrums } }] } as unknown as CoachAssessmentDetail;
+    const result = buildCoachJsonExport(clientRecord);
+    expect(result.client_frictions?.map((item) => item.score)).toEqual(frictions.map((item) => item.score));
+    expect(result.execution_spectrums?.map((item) => item.position)).toEqual(spectrums.map((item) => item.score));
+    expect(result.client_frictions?.every((item) => item.scale.max === 10 && Boolean(item.client_interpretation))).toBe(true);
+    expect(result.execution_spectrums?.every((item) => item.scale.max === 10)).toBe(true);
+  });
   it("serializes Q11-Q13 from the persisted diagnostic profile without changing canonical copy/download output",()=>{
     const diagnostic_profile: DiagnosticProfile={schema_version:"2.2.0-rc1",motivation:{question_id:"Q11",code:"SIDE_HUSTLE_STUCK",label:"已經開始副業，但發展不如預期"},current_status:{question_id:"Q12",code:"OFFER_EXISTS",label:"已經有商品、服務或商城"},bottlenecks:{question_id:"Q13",applicable:true,selected:[{code:"TRAFFIC",label:"不知道去哪裡找客戶"},{code:"PROSPECTING",label:"不會陌生開發"}],other_text:null}};
     const diagnosticRecord={...record,diagnostic_profile} as CoachAssessmentDetail;
