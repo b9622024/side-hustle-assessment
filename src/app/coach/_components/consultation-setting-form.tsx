@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CLIENT_STAGES, CLIENT_STAGE_LABELS, CONSULTATION_MODES, CONSULTATION_MODE_LABELS, PRIMARY_GOALS, PRIMARY_GOAL_LABELS,
+  PREFERRED_CONVERSION_PATHS, PREFERRED_CONVERSION_PATH_LABELS, MEETING_FEASIBILITIES, MEETING_FEASIBILITY_LABELS,
+  MEETING_FEASIBILITY_REASONS, MEETING_FEASIBILITY_REASON_LABELS, COMMERCIAL_PERMISSION_SOURCES, COMMERCIAL_PERMISSION_SOURCE_LABELS,
   formatPrice, offerForGoal, type ConsultationOffer, type ConsultationSetting, type PrimaryGoal,
 } from "../../../consultation/settings";
 import { saveConsultationSetting } from "../consultation-actions";
@@ -40,8 +42,15 @@ export function ConsultationSettingForm({ reportId, initialSetting, previouslySa
   const [message, setMessage] = useState(previouslySaved ? "已載入先前儲存的設定。" : "尚未儲存，以下為初始化建議值。");
 
   const context = setting.consultation_context;
+  const commercial = setting.commercial_context;
   const updateContext = (patch: Partial<typeof context>) => setSetting((current) => ({ ...current, consultation_context: { ...current.consultation_context, ...patch } }));
-  const changePrimaryGoal = (goal: PrimaryGoal) => setSetting((current) => ({ ...current, consultation_context: { ...current.consultation_context, primary_goal: goal }, selected_offer: goal === "ANALYSIS_ONLY" ? null : offerForGoal(goal) }));
+  const updateCommercial = (patch: Partial<typeof commercial>) => setSetting((current) => ({ ...current, commercial_context: { ...current.commercial_context, ...patch } }));
+  const changePrimaryGoal = (goal: PrimaryGoal) => setSetting((current) => ({
+    ...current,
+    consultation_context: { ...current.consultation_context, primary_goal: goal },
+    commercial_context: goal === "ANGEL_PLAN" ? { ...current.commercial_context, angel_plan_candidate: true, preferred_conversion_path: "DIRECT_ANGEL_PLAN" } : current.commercial_context,
+    selected_offer: goal === "ANALYSIS_ONLY" ? null : offerForGoal(goal),
+  }));
   const setSelectedOffer = (offer: ConsultationOffer) => setSetting((current) => ({ ...current, selected_offer: cloneOffer(offer) }));
   const setBackupOffer = (offer: ConsultationOffer | null) => setSetting((current) => ({ ...current, backup_offer: offer ? cloneOffer(offer) : null }));
 
@@ -62,6 +71,27 @@ export function ConsultationSettingForm({ reportId, initialSetting, previouslySa
 
     <label className="consultation-health-toggle"><input type="checkbox" checked={context.allow_health_business_discussion} onChange={(event) => updateContext({ allow_health_business_discussion: event.target.checked })} /><span><strong>適合時，可詢問客戶是否有興趣了解健康事業</strong><small>預設關閉，不受 Route A 自動影響。</small></span></label>
 
+    <fieldset className="consultation-offer-editor"><legend>Commercial Context</legend>
+      <div className="consultation-form-grid">
+        <label className="consultation-field"><span>商業討論 permission</span><select value={commercial.commercial_permission_source} onChange={(event) => {
+          const commercial_permission_source = event.target.value as typeof commercial.commercial_permission_source;
+          updateCommercial({ commercial_permission_source, client_explicit_rejection: commercial_permission_source === "EXPLICIT_CLIENT_NO" });
+        }}>{COMMERCIAL_PERMISSION_SOURCES.map((value) => <option key={value} value={value}>{COMMERCIAL_PERMISSION_SOURCE_LABELS[value]}</option>)}</select></label>
+        <label className="consultation-field"><span>偏好轉換路徑</span><select value={commercial.preferred_conversion_path} onChange={(event) => updateCommercial({ preferred_conversion_path: event.target.value as typeof commercial.preferred_conversion_path })}>{PREFERRED_CONVERSION_PATHS.map((value) => <option key={value} value={value}>{PREFERRED_CONVERSION_PATH_LABELS[value]}</option>)}</select></label>
+        <label className="consultation-field"><span>實體會面可行性</span><select value={commercial.meeting_feasibility} onChange={(event) => {
+          const meeting_feasibility = event.target.value as typeof commercial.meeting_feasibility;
+          updateCommercial({ meeting_feasibility, ...(meeting_feasibility === "NOT_APPLICABLE" ? { meeting_feasibility_reason: null } : {}) });
+        }}>{MEETING_FEASIBILITIES.map((value) => <option key={value} value={value}>{MEETING_FEASIBILITY_LABELS[value]}</option>)}</select></label>
+        <label className="consultation-field"><span>會面限制原因</span><select value={commercial.meeting_feasibility_reason ?? ""} disabled={commercial.meeting_feasibility === "NOT_APPLICABLE"} onChange={(event) => updateCommercial({ meeting_feasibility_reason: event.target.value ? event.target.value as NonNullable<typeof commercial.meeting_feasibility_reason> : null })}><option value="">未指定</option>{MEETING_FEASIBILITY_REASONS.map((value) => <option key={value} value={value}>{MEETING_FEASIBILITY_REASON_LABELS[value]}</option>)}</select></label>
+      </div>
+      <div className="consultation-journey"><div>
+        <label><input type="checkbox" checked={commercial.angel_plan_candidate} onChange={(event) => updateCommercial({ angel_plan_candidate: event.target.checked })} /><span>將天使計畫列為候選解法</span></label>
+        <label><input type="checkbox" checked={commercial.client_explicit_rejection} onChange={(event) => updateCommercial({ client_explicit_rejection: event.target.checked, commercial_permission_source: event.target.checked ? "EXPLICIT_CLIENT_NO" : "NOT_YET_ASKED" })} /><span>客戶本人已明確拒絕商業方案討論</span></label>
+        <label><input type="checkbox" checked={commercial.health_business_explicit_rejection} onChange={(event) => updateCommercial({ health_business_explicit_rejection: event.target.checked })} /><span>客戶本人已明確拒絕健康事業</span></label>
+      </div></div>
+      <p>出生地不會用來推斷會面可行性。只有客戶本人明確拒絕時，才勾選拒絕欄位。</p>
+    </fieldset>
+
     <fieldset className="consultation-journey"><legend>過去接觸紀錄</legend><div>{journeyFields.map(([key, label]) => <label key={key}><input type="checkbox" checked={setting.client_journey[key]} onChange={(event) => setSetting((current) => ({ ...current, client_journey: { ...current.client_journey, [key]: event.target.checked } }))} /><span>{label}</span></label>)}</div></fieldset>
 
     {setting.selected_offer ? <OfferEditor title="主要方案" offer={setting.selected_offer} onChange={setSelectedOffer} /> : <div className="consultation-analysis-only"><strong>本次只做解析</strong><p>主要方案會輸出為 null，不會因系統 Route 自動加入任何成交內容。</p></div>}
@@ -71,7 +101,7 @@ export function ConsultationSettingForm({ reportId, initialSetting, previouslySa
 
     <label className="consultation-field coach-notes"><span>本次顧問補充指令</span><textarea rows={6} value={setting.coach_notes} onChange={(event) => { const coach_notes = event.target.value; setSetting((current) => ({ ...current, coach_notes, consultation_context: { ...current.consultation_context, coach_notes } })); }} placeholder="輸入這次個案背景、希望談話特別確認的事情、成交限制、已知資訊，或希望後續 GPT 注意的內容。" /></label>
 
-    <aside className="consultation-json-summary"><strong>JSON 本次諮詢摘要</strong><dl><div><dt>客戶階段</dt><dd>{CLIENT_STAGE_LABELS[context.client_stage]}</dd></div><div><dt>諮詢模式</dt><dd>{CONSULTATION_MODE_LABELS[context.consultation_mode]}</dd></div><div><dt>本次目標</dt><dd>{PRIMARY_GOAL_LABELS[context.primary_goal]}</dd></div><div><dt>主要方案</dt><dd>{setting.selected_offer?.offer_name || "無"}</dd></div><div><dt>備用方案</dt><dd>{setting.backup_offer?.offer_name || "無"}</dd></div><div><dt>健康事業討論</dt><dd>{context.allow_health_business_discussion ? "是" : "否"}</dd></div></dl></aside>
+    <aside className="consultation-json-summary"><strong>JSON 本次諮詢摘要</strong><dl><div><dt>客戶階段</dt><dd>{CLIENT_STAGE_LABELS[context.client_stage]}</dd></div><div><dt>諮詢模式</dt><dd>{CONSULTATION_MODE_LABELS[context.consultation_mode]}</dd></div><div><dt>本次目標</dt><dd>{PRIMARY_GOAL_LABELS[context.primary_goal]}</dd></div><div><dt>主要方案</dt><dd>{setting.selected_offer?.offer_name || "無"}</dd></div><div><dt>備用方案</dt><dd>{setting.backup_offer?.offer_name || "無"}</dd></div><div><dt>舊健康事業開關</dt><dd>{context.allow_health_business_discussion ? "是" : "否"}</dd></div><div><dt>天使計畫候選</dt><dd>{commercial.angel_plan_candidate ? "是" : "否"}</dd></div><div><dt>偏好路徑</dt><dd>{PREFERRED_CONVERSION_PATH_LABELS[commercial.preferred_conversion_path]}</dd></div><div><dt>會面可行性</dt><dd>{MEETING_FEASIBILITY_LABELS[commercial.meeting_feasibility]}</dd></div><div><dt>Permission</dt><dd>{COMMERCIAL_PERMISSION_SOURCE_LABELS[commercial.commercial_permission_source]}</dd></div></dl></aside>
 
     <div className="consultation-save-row"><button className="button primary" type="button" onClick={save} disabled={saving}>{saving ? "正在儲存…" : "儲存本次諮詢設定"}</button><p role="status" aria-live="polite">{message}</p></div>
   </section>;

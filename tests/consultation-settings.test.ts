@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildFullAssessmentJson, serializeFullAssessmentJson } from "../src/report/build-coach-export";
-import { initializeConsultationSetting, normalizeConsultationSetting, offerForGoal } from "../src/consultation/settings";
+import { initializeConsultationSetting, normalizeConsultationSetting, offerForGoal, type ConsultationSetting } from "../src/consultation/settings";
 import { scoreAssessment } from "../src/scoring/engine";
 import { config } from "../src/scoring/config";
 import type { Answers, BusinessStatus, Route } from "../src/scoring/types";
@@ -21,6 +21,7 @@ describe("Phase 5 consultation settings", () => {
     const exported = buildFullAssessmentJson(record());
     expect(exported.client_journey).toBeNull();
     expect(exported.consultation_context).toBeNull();
+    expect(exported.commercial_context).toBeNull();
     expect(exported.selected_offer).toBeNull();
     expect(exported.backup_offer).toBeNull();
     expect(exported.coach_notes).toBeNull();
@@ -65,6 +66,74 @@ describe("Phase 5 consultation settings", () => {
     expect(setting.backup_offer.offer_name).toBe("三天體驗");
     setting.backup_offer.price.amount = 999;
     expect(setting.selected_offer.price.amount).toBeNull();
+  });
+
+  it("does not treat a legacy false switch as an explicit rejection", () => {
+    const legacy = initializeConsultationSetting("NONE") as unknown as Record<string, unknown>;
+    delete legacy.commercial_context;
+    const normalized = normalizeConsultationSetting(legacy);
+    expect(normalized.consultation_context.allow_health_business_discussion).toBe(false);
+    expect(normalized.commercial_context).toEqual(expect.objectContaining({
+      client_explicit_rejection: false,
+      health_business_explicit_rejection: false,
+      commercial_permission_source: "LEGACY_UNKNOWN",
+      commercial_permission_status: "LEGACY_UNKNOWN",
+    }));
+  });
+
+  it("marks a legacy false switch plus Angel Plan intent as a permission conflict", () => {
+    const legacy = initializeConsultationSetting("NONE") as unknown as Record<string, unknown>;
+    const context = legacy.consultation_context as Record<string, unknown>;
+    context.primary_goal = "ANGEL_PLAN";
+    legacy.selected_offer = offerForGoal("ANGEL_PLAN");
+    delete legacy.commercial_context;
+    const normalized = normalizeConsultationSetting(legacy);
+    expect(normalized.commercial_context).toEqual(expect.objectContaining({
+      angel_plan_candidate: true,
+      preferred_conversion_path: "DIRECT_ANGEL_PLAN",
+      client_explicit_rejection: false,
+      commercial_permission_source: "LEGACY_UNKNOWN",
+      commercial_permission_status: "LEGACY_PERMISSION_CONFLICT",
+    }));
+    const assessment = record();
+    assessment.consultation_setting = legacy as unknown as ConsultationSetting;
+    expect(buildFullAssessmentJson(assessment).commercial_context?.commercial_permission_status).toBe("LEGACY_PERMISSION_CONFLICT");
+  });
+
+  it("keeps explicit rejection as a hard-stop signal in commercial context", () => {
+    const setting = initializeConsultationSetting("NONE");
+    setting.commercial_context.client_explicit_rejection = true;
+    setting.commercial_context.commercial_permission_source = "EXPLICIT_CLIENT_NO";
+    const normalized = normalizeConsultationSetting(setting);
+    expect(normalized.commercial_context.client_explicit_rejection).toBe(true);
+    expect(normalized.commercial_context.commercial_permission_status).toBe("CLIENT_EXPLICIT_REJECTION");
+  });
+
+  it("supports Xiaoyu direct Angel Plan context without deriving feasibility from birth place", () => {
+    const assessment = record();
+    assessment.report_id = "SH-20260821-E1C536";
+    assessment.birth_place = "台南市";
+    const setting = initializeConsultationSetting(assessment.business_status);
+    setting.consultation_context.primary_goal = "ANGEL_PLAN";
+    setting.selected_offer = offerForGoal("ANGEL_PLAN");
+    setting.commercial_context = {
+      schema_version: "1.0.0",
+      client_explicit_rejection: false,
+      health_business_explicit_rejection: false,
+      angel_plan_candidate: true,
+      preferred_conversion_path: "DIRECT_ANGEL_PLAN",
+      meeting_feasibility: "LOW",
+      meeting_feasibility_reason: "DISTANCE",
+      commercial_permission_source: "NOT_YET_ASKED",
+      commercial_permission_status: "PERMISSION_NOT_YET_ASKED",
+    };
+    assessment.consultation_setting = normalizeConsultationSetting(setting);
+    const before = JSON.stringify(assessment.scoring_snapshot);
+    const exported = buildFullAssessmentJson(assessment);
+    expect(exported.commercial_context).toEqual(setting.commercial_context);
+    expect(exported.selected_offer?.offer_type).toBe("ANGEL_PLAN");
+    expect(exported.consultation_context?.allow_health_business_discussion).toBe(false);
+    expect(JSON.stringify(assessment.scoring_snapshot)).toBe(before);
   });
 
   it.each([

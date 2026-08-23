@@ -5,7 +5,7 @@ import { getCoachAssessment } from "../../../../../lib/coach/data";
 import { serializeFullAssessmentJson } from "../../../../../report/build-coach-export";
 import { JsonExportActions } from "../../../_components/json-export-actions";
 import { ConsultationSettingForm } from "../../../_components/consultation-setting-form";
-import { initializeConsultationSetting } from "../../../../../consultation/settings";
+import { initializeConsultationSetting, normalizeConsultationSetting } from "../../../../../consultation/settings";
 import { bottleneckLabels, buildDiagnosticInterpretation, diagnosticStageLabels, healthBusinessLabels, nextStepLabels } from "../../../../../diagnostic/interpretation";
 
 const priorityLabels = { HIGH: "高", MEDIUM: "中", LOW: "低" } as const;
@@ -30,6 +30,7 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
   const clientReportForDisplay = clientReport ? { ...clientReport, diagnostic: clientReport.diagnostic ?? diagnostic } : null;
   const astrology = record.astrology_profile;
   const serializedJson = serializeFullAssessmentJson(record);
+  const consultationSetting = record.consultation_setting ? normalizeConsultationSetting(record.consultation_setting) : initializeConsultationSetting(record.business_status);
 
   return <main className="coach-main coach-report-main">
     <a className="coach-back" href="/coach">← 返回測驗名單</a>
@@ -72,7 +73,7 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
       <section className="coach-detail-card"><h2>系統資訊</h2><dl className="coach-data-list"><div><dt>副業現況</dt><dd>{config.business_status_options[record.business_status]}</dd></div><div><dt>類型狀態</dt><dd>{scoring.typeState}</dd></div><div><dt>評分版本</dt><dd>{record.scoring_version}</dd></div></dl></section>
     </div>
 
-    <ConsultationSettingForm reportId={record.report_id} initialSetting={record.consultation_setting ?? initializeConsultationSetting(record.business_status)} previouslySaved={Boolean(record.consultation_setting)} />
+    <ConsultationSettingForm reportId={record.report_id} initialSetting={consultationSetting} previouslySaved={Boolean(record.consultation_setting)} />
 
     <section className="coach-export-card"><div><p className="eyebrow">Export</p><h2>完整資料與客戶報告</h2><p>複製與下載使用同一份目前 assessment state。</p></div><JsonExportActions reportId={record.report_id} displayName={record.display_name} serializedJson={serializedJson} /></section>
 

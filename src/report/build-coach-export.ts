@@ -6,6 +6,7 @@ import { SIDE_HUSTLE_TYPES, type Dimension, type QuestionId, type SideHustleType
 import type { AstrologyLayerResult, AstrologyPlacement, AstrologyProfile } from "./types";
 import { resolveBirthPlace } from "../astrology/locations";
 import { buildDiagnosticInterpretation } from "../diagnostic/interpretation";
+import { normalizeConsultationSetting } from "../consultation/settings";
 
 const MASTER_NUMBERS = [11, 22, 33] as const;
 const PERCENTILE_REFERENCE_VERSION = "side-hustle-v2-rc1-theoretical-reference-1.0.0";
@@ -96,7 +97,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
   const formalPrimary = scoring.rankedTypes?.[0]?.type ?? null;
   const formalSecondary = scoring.rankedTypes?.[1]?.type ?? null;
   const scoringTrace = scoring.scoringTrace ? { ...scoring.scoringTrace, diagnostic_questions_excluded_from_formal_scoring: ["Q11", "Q12", "Q13"], astrology_scoring_trace: layer?.astrology_scoring_trace ?? null } : null;
-  const consultation = record.consultation_setting ?? null;
+  const consultation = record.consultation_setting ? normalizeConsultationSetting(record.consultation_setting) : null;
   const birthPlaceResolution = profile?.calculation.birth_place ?? resolveBirthPlace(record.birth_place);
   const clientFrictions = clientReport?.frictions?.map((item) => ({
     code: item.key,
@@ -139,6 +140,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
     data_quality: { scoring_trace_available: Boolean(scoring.scoringTrace), percentile_available: Boolean(scoring.typeDisplayScores), astrology_v2_1_available: Boolean(layer), client_report_available: Boolean(clientReport), compatibility_mode: record.scoring_version === "side-hustle-scoring-v2-rc1" ? "CURRENT" : "LEGACY_PRESERVED", missing_fields: [...(!scoring.scoringTrace ? ["scoring_trace"] : []), ...(!scoring.typeDisplayScores ? ["type_percentile", "display_fit_index"] : []), ...(!layer ? ["astrology_v2_1"] : []), ...(!clientFrictions ? ["client_frictions"] : []), ...(!executionSpectrums ? ["execution_spectrums"] : [])] },
     client_journey: consultation?.client_journey ?? null,
     consultation_context: consultation?.consultation_context ?? null,
+    commercial_context: consultation?.commercial_context ?? null,
     selected_offer: consultation?.selected_offer ?? null,
     backup_offer: consultation?.backup_offer ?? null,
     coach_notes: consultation?.coach_notes ?? null,
