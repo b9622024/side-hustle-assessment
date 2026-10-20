@@ -39,7 +39,7 @@ export async function listCoachAssessments(page: number, query: string) {
   const search = safeSearch(query);
   let request = getSupabaseAdmin()
     .from("assessments")
-    .select("id,report_id,display_name,birth_date,birth_time,birth_place,business_status,created_at,scoring_snapshot", { count: "exact" })
+    .select("id,report_id,display_name,birth_date,birth_time,birth_place,business_status,diagnostic_profile,created_at,scoring_snapshot", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, from + COACH_PAGE_SIZE - 1);
   if (search) request = request.or(`display_name.ilike.%${search}%,report_id.ilike.%${search}%`);
