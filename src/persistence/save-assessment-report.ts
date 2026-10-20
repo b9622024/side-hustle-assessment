@@ -3,6 +3,7 @@ import type { AssessmentInput, ScoringResult } from "../scoring/types";
 import type { AstrologyProfile, ClientReportData } from "../report/types";
 import { databaseIsConfigured, getSupabaseAdmin } from "../lib/supabase/admin";
 import { buildDiagnosticProfile } from "../diagnostic/profile";
+import { buildSavedConsultationLogistics } from "../consultation/logistics";
 
 export interface AssessmentArtifacts {
   assessment: AssessmentInput;
@@ -26,7 +27,10 @@ export async function saveAssessmentReport(artifacts: AssessmentArtifacts): Prom
       birth_place: artifacts.assessment.birthPlace,
       business_status: artifacts.assessment.businessStatus,
       answers: artifacts.assessment.answers,
-      diagnostic_profile: artifacts.assessment.diagnostic ? buildDiagnosticProfile(artifacts.assessment.diagnostic) : null,
+      diagnostic_profile: artifacts.assessment.diagnostic ? {
+        ...buildDiagnosticProfile(artifacts.assessment.diagnostic),
+        ...(artifacts.assessment.consultationLogistics ? { consultation_logistics: buildSavedConsultationLogistics(artifacts.assessment.consultationLogistics) } : {}),
+      } : null,
       astrology_profile: artifacts.astrology,
       scoring_snapshot: artifacts.scoring,
       scoring_version: config.meta.scoring_engine_version,
