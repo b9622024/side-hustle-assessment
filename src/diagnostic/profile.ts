@@ -1,3 +1,5 @@
+import type { SavedConsultationLogistics } from "../consultation/logistics";
+
 export const DIAGNOSTIC_SCHEMA_VERSION = "2.2.1-q12-hotfix" as const;
 export const LEGACY_DIAGNOSTIC_SCHEMA_VERSION = "2.2.0-rc1" as const;
 
@@ -69,6 +71,7 @@ export interface DiagnosticProfile {
   motivation: { question_id: "Q11"; code: MotivationCode; label: string };
   current_status: { question_id: "Q12"; code: CurrentStatusCode; label: string };
   bottlenecks: { question_id: "Q13"; applicable: boolean; selected: Array<{ code: BottleneckCode; label: string }>; other_text: string | null };
+  consultation_logistics?: SavedConsultationLogistics;
 }
 
 const APPLICABLE_STATUSES = new Set<ActionStageCode>(["IN_PROGRESS"]);
