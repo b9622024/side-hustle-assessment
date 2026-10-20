@@ -117,6 +117,7 @@ export function buildFullAssessmentJson(record: CoachAssessmentDetail) {
     report_meta: { report_id: record.report_id, report_type: "side_hustle_suitability_action", report_display_name: "副業適性測驗", model_version: "side-hustle-report-v2.1-rc", questionnaire_version: config.meta.questionnaire_version, scoring_version: record.scoring_version, routing_version: "side-hustle-routing-v2-rc1", astrology_version: ASTROLOGY_VERSION, percentile_reference_version: scoring.scoringTrace?.type_percentile_reference_version ?? PERCENTILE_REFERENCE_VERSION, created_at: record.created_at, updated_at: record.updated_at ?? record.created_at, language: "zh-TW", ...(record.scoring_version !== "side-hustle-scoring-v2-rc1" ? { legacy_result_preserved: true } : {}) },
     respondent: { display_name: record.display_name },
     birth_data: { date: record.birth_date, time: record.birth_time, place: record.birth_place, birth_time_known: Boolean(record.birth_time), birth_place: birthPlaceResolution },
+    consultation_logistics: diagnosticProfile?.consultation_logistics ?? null,
     business_status: { code: record.business_status, label: config.business_status_options[record.business_status] },
     astrology: {
       sun: normalizePlacement(profile?.sun, "sun"), moon: normalizePlacement(profile?.moon, "moon"), ascendant: normalizePlacement(profile?.ascendant, "ascendant"),

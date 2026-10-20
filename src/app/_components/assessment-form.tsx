@@ -3,15 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TAIWAN_LOCATIONS } from "../../astrology/locations";
+import { CONSULTATION_MODE_OPTIONS, type ConsultationMode } from "../../consultation/logistics";
 import { BOTTLENECK_OPTIONS, CURRENT_STATUS_OPTIONS, MOTIVATION_OPTIONS, bottleneckIsApplicable, type ActionStageCode, type BottleneckCode, type MotivationCode } from "../../diagnostic/profile";
 
 type Option = { value: string; text: string };
 type Question = { id: string; text: string; options: Option[] };
 type BusinessOption = { value: string; label: string };
-type Draft = { displayName: string; birthDate: string; birthTime: string; birthTimeUnknown: boolean; birthPlace: string; birthPlaceRegion: string; businessStatus: string; answers: Record<string, string>; motivationCode: MotivationCode | ""; currentStatusV2: ActionStageCode | ""; bottleneckAnswers: BottleneckCode[]; bottleneckOtherText: string };
+type Draft = { displayName: string; birthDate: string; birthTime: string; birthTimeUnknown: boolean; birthPlace: string; birthPlaceRegion: string; currentResidenceRegion: string; currentResidenceOther: string; consultationMode: ConsultationMode | ""; businessStatus: string; answers: Record<string, string>; motivationCode: MotivationCode | ""; currentStatusV2: ActionStageCode | ""; bottleneckAnswers: BottleneckCode[]; bottleneckOtherText: string };
 
 const STORAGE_KEY = "side-hustle-assessment-draft-v1";
-const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthTimeUnknown: false, birthPlace: "", birthPlaceRegion: "", businessStatus: "", answers: {}, motivationCode: "", currentStatusV2: "", bottleneckAnswers: [], bottleneckOtherText: "" };
+const EMPTY_DRAFT: Draft = { displayName: "", birthDate: "", birthTime: "", birthTimeUnknown: false, birthPlace: "", birthPlaceRegion: "", currentResidenceRegion: "", currentResidenceOther: "", consultationMode: "", businessStatus: "", answers: {}, motivationCode: "", currentStatusV2: "", bottleneckAnswers: [], bottleneckOtherText: "" };
 
 export function AssessmentForm({ questions, businessOptions }: { questions: Question[]; businessOptions: BusinessOption[] }) {
   const router = useRouter();
@@ -22,7 +23,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const diagnosticApplicable = bottleneckIsApplicable(draft.currentStatusV2);
-  const steps = useMemo(() => ["profile", "business", ...groups.map((_, index) => `behavior-${index}`), "motivation", "current-status", ...(diagnosticApplicable ? ["bottleneck"] : []), "review"], [diagnosticApplicable, groups]);
+  const steps = useMemo(() => ["profile", "business", ...groups.map((_, index) => `behavior-${index}`), "motivation", "current-status", ...(diagnosticApplicable ? ["bottleneck"] : []), "consultation", "review"], [diagnosticApplicable, groups]);
   const totalSteps = steps.length;
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
 
   const currentStep = steps[step] ?? "review";
   const progress = currentStep === "review" ? 100 : Math.min(95, Math.round(((step + 1) / 11) * 100));
-  const progressStage = currentStep === "profile" || currentStep === "business" ? "基本資料" : currentStep.startsWith("behavior-") ? "行動分析" : currentStep === "review" ? "完成確認" : "目前狀態";
+  const progressStage = currentStep === "profile" || currentStep === "business" ? "基本資料" : currentStep.startsWith("behavior-") ? "行動分析" : currentStep === "review" ? "完成確認" : currentStep === "consultation" ? "諮詢安排" : "目前狀態";
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => { setDraft((current) => ({ ...current, [key]: value })); setError(""); };
 
   function validateStep() {
@@ -65,6 +66,11 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
       if (draft.bottleneckAnswers.length < 1) return "請選擇至少一項目前最困擾你的問題。";
       if (draft.bottleneckAnswers.includes("OTHER") && !draft.bottleneckOtherText.trim()) return "請簡短補充其他困擾。";
     }
+    if (currentStep === "consultation") {
+      if (!draft.currentResidenceRegion) return "請選擇目前主要生活的地區。";
+      if (draft.currentResidenceRegion === "OTHER_OVERSEAS" && !draft.currentResidenceOther.trim()) return "請填寫目前居住的城市或地區。";
+      if (!draft.consultationMode) return "請選擇比較希望的報告解析方式。";
+    }
     return "";
   }
 
@@ -79,8 +85,9 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
     if (Object.keys(draft.answers).length !== questions.length) { setError("還有題目尚未完成，請返回檢查。"); return; }
     setSubmitting(true); setError("");
     try {
-      const { motivationCode, currentStatusV2, bottleneckAnswers, bottleneckOtherText, ...assessment } = draft;
-      const response = await fetch("/api/assessments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...assessment, diagnostic: { motivationCode, currentStatusV2, bottleneckAnswers, ...(bottleneckOtherText.trim() ? { bottleneckOtherText: bottleneckOtherText.trim() } : {}) } }) });
+      const { motivationCode, currentStatusV2, bottleneckAnswers, bottleneckOtherText, currentResidenceRegion, currentResidenceOther, consultationMode, ...assessment } = draft;
+      const currentResidence = currentResidenceRegion === "OTHER_OVERSEAS" ? currentResidenceOther.trim() : currentResidenceRegion === "UNDISCLOSED" ? "未提供" : currentResidenceRegion;
+      const response = await fetch("/api/assessments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...assessment, consultationLogistics: { currentResidence, consultationMode }, diagnostic: { motivationCode, currentStatusV2, bottleneckAnswers, ...(bottleneckOtherText.trim() ? { bottleneckOtherText: bottleneckOtherText.trim() } : {}) } }) });
       const result = await response.json() as { reportId?: string; error?: string };
       if (!response.ok || !result.reportId) throw new Error(result.error || "SUBMIT_FAILED");
       try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* Submission already succeeded. */ }
@@ -102,6 +109,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
     {currentStep === "motivation" && <DiagnosticSingleStep number="Q11" title="你現在為什麼想找工作以外的另一種可能？" value={draft.motivationCode} options={MOTIVATION_OPTIONS} onChange={(value) => update("motivationCode", value as MotivationCode)} />}
     {currentStep === "current-status" && <DiagnosticSingleStep number="Q12" title="針對你這次想建立的下一條收入／職涯路徑，你目前最接近哪一個狀態？" value={draft.currentStatusV2} options={CURRENT_STATUS_OPTIONS} onChange={(value) => { const next = value as ActionStageCode; setDraft((current) => ({ ...current, currentStatusV2: next, ...(!bottleneckIsApplicable(next) ? { bottleneckAnswers: [], bottleneckOtherText: "" } : {}) })); setError(""); }} />}
     {currentStep === "bottleneck" && <BottleneckStep selected={draft.bottleneckAnswers} otherText={draft.bottleneckOtherText} onToggle={(code) => update("bottleneckAnswers", draft.bottleneckAnswers.includes(code) ? draft.bottleneckAnswers.filter((item) => item !== code) : [...draft.bottleneckAnswers, code])} onOtherText={(value) => update("bottleneckOtherText", value)} />}
+    {currentStep === "consultation" && <ConsultationStep draft={draft} update={update} />}
     {currentStep === "review" && <ReviewStep draft={draft} businessOptions={businessOptions} answered={Object.keys(draft.answers).length} total={questions.length} onEdit={() => setStep(0)} />}
     {error && <p className="form-error" role="alert">{error}</p>}
     <div className="form-actions">{step > 0 ? <button className="button secondary" type="button" onClick={() => move(-1)} disabled={submitting}>上一頁</button> : <span />}{currentStep !== "review" ? <button className="button primary" type="button" onClick={() => move(1)}>繼續</button> : <button className="button primary" type="button" onClick={submitAssessment} disabled={submitting}>{submitting ? "正在建立分析…" : "完成測驗"}</button>}</div>
@@ -127,6 +135,30 @@ function ProfileStep({ draft, update }: { draft: Draft; update: <K extends keyof
   </div></div>;
 }
 
+
+function ConsultationStep({ draft, update }: { draft: Draft; update: <K extends keyof Draft>(key: K, value: Draft[K]) => void }) {
+  return <div className="step-content">
+    <StepHeading number="諮詢安排" title="最後，想了解怎麼聯繫你比較方便" description="這兩題只協助安排適合的報告解析方式，不會影響你的副業適性分數。也不代表現在需要預約。" />
+    <div className="field-grid">
+      <label className="field full"><span>你目前主要生活的地區是？</span>
+        <select value={draft.currentResidenceRegion} onChange={(event) => update("currentResidenceRegion", event.target.value)}>
+          <option value="">請選擇縣市或地區</option>
+          {TAIWAN_LOCATIONS.map((location) => <option key={location.canonical_name} value={location.canonical_name}>{location.canonical_name}</option>)}
+          <option value="OTHER_OVERSEAS">其他／海外</option>
+          <option value="UNDISCLOSED">暫不提供</option>
+        </select>
+        <small className="field-help">只需縣市，不需要填寫詳細地址。</small>
+      </label>
+      {draft.currentResidenceRegion === "OTHER_OVERSEAS" && <label className="field full"><span>目前居住的城市或地區</span><input value={draft.currentResidenceOther} maxLength={80} onChange={(event) => update("currentResidenceOther", event.target.value)} placeholder="例如：日本東京、台灣某鄉鎮" /></label>}
+    </div>
+    <fieldset className="question-block"><legend>你比較希望用哪種方式了解報告？</legend>
+      <div className="option-list compact">
+        {CONSULTATION_MODE_OPTIONS.map((option) => <ChoiceCard key={option.code} name="consultationMode" value={option.code} checked={draft.consultationMode === option.code} onChange={() => update("consultationMode", option.code)}><span>{option.label}</span></ChoiceCard>)}
+      </div>
+    </fieldset>
+  </div>;
+}
+
 function BusinessStep({ value, options, onChange }: { value: string; options: BusinessOption[]; onChange: (value: string) => void }) {
   return <div className="step-content"><StepHeading number="02" title="你目前的副業狀態" description="選擇最接近現在的情況，不需要選擇你希望自己成為的樣子。" /><div className="option-list">{options.map((option) => <ChoiceCard key={option.value} name="businessStatus" value={option.value} checked={value === option.value} onChange={() => onChange(option.value)}><strong>{option.label}</strong></ChoiceCard>)}</div></div>;
 }
@@ -146,7 +178,7 @@ function BottleneckStep({ selected, otherText, onToggle, onOtherText }: { select
 
 function ReviewStep({ draft, businessOptions, answered, total, onEdit }: { draft: Draft; businessOptions: BusinessOption[]; answered: number; total: number; onEdit: () => void }) {
   const status = businessOptions.find((item) => item.value === draft.businessStatus)?.label;
-  return <div className="step-content"><StepHeading number="完成前確認" title="你的資料已經準備好了" description="送出後只會顯示測驗編號，完整分析需要由教練端交叉解讀。" /><div className="review-grid"><div className="review-card"><span>姓名／暱稱</span><strong>{draft.displayName}</strong></div><div className="review-card"><span>出生資料</span><strong>{draft.birthDate} {draft.birthTime || "時間未提供"}</strong><small>{draft.birthPlace}</small></div><div className="review-card full"><span>副業現況</span><strong>{status}</strong></div></div><div className="review-status"><span className="check-mark">✓</span><div><strong>10 題行為題已完成</strong><p>{answered}／{total} 題</p></div></div><button className="text-button" type="button" onClick={onEdit}>返回修改基本資料</button><p className="privacy-note">送出即表示你同意系統使用本次資料產生個人化副業適性分析。第一階段測試版不會公開顯示你的完整報告。</p></div>;
+  return <div className="step-content"><StepHeading number="完成前確認" title="你的資料已經準備好了" description="送出後只會顯示測驗編號，完整分析需要由教練端交叉解讀。" /><div className="review-grid"><div className="review-card"><span>姓名／暱稱</span><strong>{draft.displayName}</strong></div><div className="review-card"><span>出生資料</span><strong>{draft.birthDate} {draft.birthTime || "時間未提供"}</strong><small>{draft.birthPlace}</small></div><div className="review-card"><span>現居地</span><strong>{draft.currentResidenceRegion === "OTHER_OVERSEAS" ? draft.currentResidenceOther : draft.currentResidenceRegion === "UNDISCLOSED" ? "未提供" : draft.currentResidenceRegion}</strong></div><div className="review-card"><span>解析方式</span><strong>{CONSULTATION_MODE_OPTIONS.find((option) => option.code === draft.consultationMode)?.label ?? "尚未選擇"}</strong></div><div className="review-card full"><span>副業現況</span><strong>{status}</strong></div></div><div className="review-status"><span className="check-mark">✓</span><div><strong>10 題行為題已完成</strong><p>{answered}／{total} 題</p></div></div><button className="text-button" type="button" onClick={onEdit}>返回修改基本資料</button><p className="privacy-note">送出即表示你同意系統使用本次資料產生個人化副業適性分析，並使用現居地與解析偏好協助後續聯繫安排。你的完整報告不會公開顯示。</p></div>;
 }
 
 function StepHeading({ number, title, description }: { number: string; title: string; description: string }) { return <header className="step-heading"><span>{number}</span><h1>{title}</h1><p>{description}</p></header>; }

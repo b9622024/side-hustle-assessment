@@ -78,6 +78,14 @@ describe("coach full JSON export",()=>{
     expect(built.diagnostic_profile?.legacy_current_status).toBeUndefined();
     expect(built.coach_summary).toEqual(expect.objectContaining({ business_status: "STABLE", action_stage: "READY_TO_TEST", diagnostic_stage: "CAREER_TRANSITION_TESTING_READY" }));
   });
+  it("keeps residence and consultation preferences separate from scoring, and preserves legacy records",()=>{
+    const diagnostic_profile = { ...buildDiagnosticProfile({ motivationCode: "SECOND_INCOME", currentStatusV2: "EXPLORING_ONLY", bottleneckAnswers: [] }), consultation_logistics: { current_residence: "新北市", consultation_mode: "IN_PERSON" as const, consultation_mode_label: "實體見面（台北／新北）" } };
+    const revised = buildCoachJsonExport({ ...record, diagnostic_profile } as CoachAssessmentDetail);
+    expect(revised.consultation_logistics).toEqual(diagnostic_profile.consultation_logistics);
+    expect(revised.birth_data.place).toBe("台南市");
+    expect(revised.scoring_trace?.formal_type_final).toEqual(scoring.scoringTrace.formal_type_final);
+    expect(buildCoachJsonExport(record).consultation_logistics).toBeNull();
+  });
   it("serializes one canonical snapshot with stable identity and versions",()=>{
     const built=buildCoachJsonExport(record);
     const parsed=JSON.parse(serializeFullAssessmentJson(record));

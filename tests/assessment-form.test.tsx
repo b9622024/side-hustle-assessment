@@ -52,6 +52,10 @@ describe("AssessmentForm", () => {
     await user.click(screen.getByRole("button", { name: "繼續" }));
     await user.click(screen.getByLabelText(/目前只是先了解/));
     await user.click(screen.getByRole("button", { name: "繼續" }));
+    expect(screen.getByRole("heading", { name: /最後，想了解怎麼聯繫你/ })).toBeTruthy();
+    await user.selectOptions(screen.getByLabelText(/你目前主要生活的地區是/), "台北市");
+    await user.click(screen.getByLabelText("兩種方式都可以"));
+    await user.click(screen.getByRole("button", { name: "繼續" }));
 
     expect(screen.getByRole("heading", { name: "你的資料已經準備好了" })).toBeTruthy();
     expect(screen.getByText("10／10 題")).toBeTruthy();
@@ -59,6 +63,7 @@ describe("AssessmentForm", () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith("/complete?id=SH-20260812-A1B2C3"));
     const request = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit;
     expect(JSON.parse(String(request.body)).diagnostic).toEqual({ motivationCode: "SECOND_INCOME", currentStatusV2: "EXPLORING_ONLY", bottleneckAnswers: [] });
+    expect(JSON.parse(String(request.body)).consultationLogistics).toEqual({ currentResidence: "台北市", consultationMode: "EITHER" });
     expect(window.localStorage.getItem("side-hustle-assessment-draft-v1")).toBeNull();
   });
 
@@ -89,7 +94,7 @@ describe("AssessmentForm", () => {
     await user.click(screen.getByRole("button", { name: "上一頁" }));
     await user.click(screen.getByLabelText(/目前只是先了解/));
     await user.click(screen.getByRole("button", { name: "繼續" }));
-    expect(screen.getByRole("heading", { name: "你的資料已經準備好了" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /最後，想了解怎麼聯繫你/ })).toBeTruthy();
     await waitFor(() => expect(JSON.parse(window.localStorage.getItem("side-hustle-assessment-draft-v1")!).bottleneckAnswers).toEqual([]));
   });
 });
