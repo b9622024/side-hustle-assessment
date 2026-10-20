@@ -1,3 +1,5 @@
+import type { ConsultationLogistics } from "../consultation/logistics";
+
 export const QUESTION_IDS = ["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q9","Q10"] as const;
 export const DIMENSIONS = ["A","C","S","I","R","P","K"] as const;
 export const SIDE_HUSTLE_TYPES = ["SYSTEM_OPERATOR","CONTENT_INFLUENCER","CONSULTING_SERVICE","RELATIONSHIP_BUILDER","PROFESSIONAL_SKILL","CAPITAL_ALLOCATOR"] as const;
@@ -25,6 +27,7 @@ export interface AssessmentInput {
   businessStatus: BusinessStatus;
   answers: Answers;
   diagnostic?: import("../diagnostic/profile").DiagnosticInput;
+  consultationLogistics?: ConsultationLogistics;
 }
 
 export interface RiskFlag { id: "F1"|"F2"|"F3"|"F4"; label: string; severity: "HIGH"|"MEDIUM"; routingRole?: string; }
