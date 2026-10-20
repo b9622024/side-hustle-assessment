@@ -6,6 +6,7 @@ import { calculateBasicAstrologyProfile } from "../../../astrology/basic-profile
 import { buildClientReport, calculateAssessmentScoring } from "../../../report/build-client-report";
 import { saveAssessmentReport } from "../../../persistence/save-assessment-report";
 import { validateDiagnosticInput } from "../../../diagnostic/profile";
+import { validateConsultationLogistics } from "../../../consultation/logistics";
 
 export async function POST(request: Request) {
   try {
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
     validateInput(body);
     if (!body.diagnostic) throw new Error("INVALID_DIAGNOSTIC_MISSING");
     validateDiagnosticInput(body.diagnostic);
+    if (body.consultationLogistics !== undefined) validateConsultationLogistics(body.consultationLogistics);
     const date = new Date();
     const datePart = `${date.getUTCFullYear()}${String(date.getUTCMonth() + 1).padStart(2, "0")}${String(date.getUTCDate()).padStart(2, "0")}`;
     const suffix = randomBytes(3).toString("hex").toUpperCase();
