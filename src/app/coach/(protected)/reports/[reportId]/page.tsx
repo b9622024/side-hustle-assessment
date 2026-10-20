@@ -6,6 +6,7 @@ import { serializeFullAssessmentJson } from "../../../../../report/build-coach-e
 import { JsonExportActions } from "../../../_components/json-export-actions";
 import { ConsultationSettingForm } from "../../../_components/consultation-setting-form";
 import { initializeConsultationSetting, normalizeConsultationSetting } from "../../../../../consultation/settings";
+import { formatCoachConsultationLogistics } from "../../../../../consultation/logistics";
 import { bottleneckLabels, buildDiagnosticInterpretation, diagnosticStageLabels, healthBusinessLabels, nextStepLabels } from "../../../../../diagnostic/interpretation";
 
 const priorityLabels = { HIGH: "高", MEDIUM: "中", LOW: "低" } as const;
@@ -31,10 +32,20 @@ export default async function CoachReportPage({ params }: { params: Promise<{ re
   const astrology = record.astrology_profile;
   const serializedJson = serializeFullAssessmentJson(record);
   const consultationSetting = record.consultation_setting ? normalizeConsultationSetting(record.consultation_setting) : initializeConsultationSetting(record.business_status);
+  const logistics = formatCoachConsultationLogistics(record.diagnostic_profile?.consultation_logistics);
 
   return <main className="coach-main coach-report-main">
     <a className="coach-back" href="/coach">← 返回測驗名單</a>
     <section className="coach-report-hero"><div><p className="eyebrow">Coach-only Analysis</p><h1>{record.display_name} 的完整分析</h1><p><code>{record.report_id}</code> · {new Intl.DateTimeFormat("zh-TW", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Taipei" }).format(new Date(record.created_at))}</p></div><div className="coach-report-person"><span>出生資料</span><strong>{record.birth_date}{record.birth_time ? ` ${record.birth_time.slice(0, 5)}` : ""}</strong><small>{record.birth_place}</small></div></section>
+
+    <section className="coach-detail-card coach-consultation-overview" aria-labelledby="coach-consultation-heading">
+      <h2 id="coach-consultation-heading">居住地與諮詢偏好</h2>
+      <dl className="coach-consultation-grid">
+        <div><dt>目前居住地</dt><dd>{logistics.currentResidence}</dd></div>
+        <div><dt>希望的解析方式</dt><dd>{logistics.consultationMode}</dd></div>
+      </dl>
+      {!record.diagnostic_profile?.consultation_logistics ? <p className="coach-muted">這份測驗尚未蒐集這兩項資料，無法從出生地推測現居地。</p> : null}
+    </section>
 
     <section className="coach-metric-grid">
       <article><span>ABCD 路由</span><strong>{scoring.route}</strong><small>教練後續對話路徑</small></article>

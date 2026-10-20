@@ -41,3 +41,17 @@ export function buildSavedConsultationLogistics(input: ConsultationLogistics): S
 export function isTaiwanResidence(value: string) {
   return TAIWAN_LOCATIONS.some((location) => location.canonical_name === value);
 }
+
+/**
+ * 教練後台顯示資料。舊版測驗沒有蒐集這兩項資訊，
+ * 不得拿出生地當作現居地，也不得推測諮詢意願。
+ */
+export function formatCoachConsultationLogistics(logistics: SavedConsultationLogistics | null | undefined) {
+  if (!logistics) return { currentResidence: "尚未蒐集", consultationMode: "尚未蒐集" };
+  const residence = logistics.current_residence?.trim();
+  const option = CONSULTATION_MODE_OPTIONS.find((item) => item.code === logistics.consultation_mode);
+  return {
+    currentResidence: !residence ? "尚未蒐集" : residence === "未提供" ? "暫不提供" : residence,
+    consultationMode: option?.label ?? logistics.consultation_mode_label ?? "尚未蒐集",
+  };
+}
