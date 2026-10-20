@@ -47,7 +47,7 @@ export function AssessmentForm({ questions, businessOptions }: { questions: Ques
 
   const currentStep = steps[step] ?? "review";
   const progress = currentStep === "review" ? 100 : Math.min(95, Math.round(((step + 1) / 11) * 100));
-  const progressStage = currentStep === "profile" || currentStep === "business" ? "基本資料" : currentStep.startsWith("behavior-") ? "行動分析" : currentStep === "review" ? "完成確認" : "目前狀態";
+  const progressStage = currentStep === "profile" || currentStep === "business" ? "基本資料" : currentStep.startsWith("behavior-") ? "行動分析" : currentStep === "review" ? "完成確認" : currentStep === "consultation" ? "諮詢安排" : "目前狀態";
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => { setDraft((current) => ({ ...current, [key]: value })); setError(""); };
 
   function validateStep() {
